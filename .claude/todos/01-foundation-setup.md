@@ -9,12 +9,12 @@ t-wada推奨のTDD + スキーマ駆動開発手法に従い、プロジェク�
 **目標**: WebSocket通信とAmazon Q CLI統合の基本機能を定義
 
 #### 1.1.1 WebSocket通信スキーマ設計
-- [ ] **スキーマ設計**: `schemas/websocket.schema.yaml` 作成
-  - [ ] WebSocketメッセージフォーマット定義
-  - [ ] 接続・切断イベント定義  
-  - [ ] エラーハンドリング定義
-- [ ] **型生成**: WebSocket関連TypeScript型の自動生成設定
-- [ ] **インターフェース定義**: WebSocketGateway, WebSocketService interfaces
+- [x] **スキーマ設計**: `schemas/websocket.schema.yaml` 作成
+  - [x] WebSocketメッセージフォーマット定義
+  - [x] 接続・切断イベント定義  
+  - [x] エラーハンドリング定義
+- [x] **型生成**: WebSocket関連TypeScript型の自動生成設定
+- [x] **インターフェース定義**: WebSocketGateway, WebSocketService interfaces
 
 #### 1.1.2 PTYプロセス管理スキーマ設計  
 - [ ] **スキーマ設計**: `schemas/pty-process.schema.yaml` 作成

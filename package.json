@@ -27,7 +27,9 @@
     "graph": "nx graph",
     "format": "nx format:write",
     "format:check": "nx format:check",
-    "reset": "nx reset"
+    "reset": "nx reset",
+    "generate:types": "npm run generate:websocket-types",
+    "generate:websocket-types": "openapi-typescript schemas/websocket.schema.yaml -o types/generated/websocket.types.ts"
   },
   "private": true,
   "dependencies": {
@@ -40,13 +42,13 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@primeuix/themes": "^1.2.3",
     "axios": "^1.6.0",
+    "primeng": "^20.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~7.8.0",
-    "zone.js": "~0.15.0",
-    "primeng": "^20.0.1",
-    "@primeuix/themes": "^1.2.3",
-    "tailwindcss-primeui": "^0.6.1"
+    "tailwindcss-primeui": "^0.6.1",
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
     "@analogjs/vite-plugin-angular": "~1.19.1",
@@ -73,6 +75,7 @@
     "@nx/web": "21.3.10",
     "@nx/webpack": "21.3.10",
     "@nx/workspace": "21.3.10",
+    "@openapitools/openapi-generator-cli": "^2.21.4",
     "@playwright/test": "^1.36.0",
     "@schematics/angular": "~20.1.0",
     "@swc-node/register": "~1.9.1",
@@ -94,6 +97,7 @@
     "jiti": "2.4.2",
     "jsdom": "~22.1.0",
     "nx": "21.3.10",
+    "openapi-typescript": "^7.8.0",
     "postcss": "^8.4.5",
     "prettier": "^2.6.2",
     "tailwindcss": "^3.0.2",
