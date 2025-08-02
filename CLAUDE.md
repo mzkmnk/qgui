@@ -9,6 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - 実装前にテストを先に書く
   - Red-Green-Refactorサイクルを厳守
   - 小さなステップで進める
+- **実装の基本方針**
+  - 1ファイル1関数、1関数1責務で取り組むこと
+  - バレルエクスポートは行わないこと
 
 ## プロジェクト概要
 
