@@ -5,10 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 開発言語とプロセス
 
 - **すべてのコミュニケーションとコードコメントは日本語で記述すること**
-- **開発手法: t-wadaが推奨するTDD（テスト駆動開発）を採用**
-  - 実装前にテストを先に書く
-  - Red-Green-Refactorサイクルを厳守
-  - 小さなステップで進める
+- **開発手法: t-wada推奨のTDD（テスト駆動開発）+ スキーマ駆動開発を採用**
+  - **スキーマファースト**: データ構造（型・インターフェース）を最初に定義
+  - **テストファースト**: 実装前にテストを先に書く
+  - **Red-Green-Refactorサイクル**: 失敗→成功→改善の反復
+  - **ベビーステップ**: 極小の変更単位で進める
+  - **仮実装**: まず動作する最小限のコードから開始
 - **実装の基本方針**
   - 1ファイル1関数、1関数1責務で取り組むこと
   - バレルエクスポートは行わないこと
@@ -105,16 +107,219 @@ apps/
 - Nx Cloud接続済み（分散キャッシング）
 - 自動ターゲット推論プラグイン設定済み
 
-### テスト戦略（TDD）
+### テスト戦略（TDD + スキーマ駆動開発）
 1. **フロントエンド単体テスト**: Vitest + Angular Testing Utilities
 2. **バックエンド単体テスト**: Jest + NestJS Testing Utilities
 3. **E2Eテスト**: Playwright（フロントエンド）、Jest（バックエンド）
 
-## 開発フロー（TDD）
-1. テストを書く（Red）
-2. テストをパスする最小限のコードを書く（Green）
-3. リファクタリング（Refactor）
-4. コミット前に必ず `npm run lint` と `npm run test` を実行
+## 開発フロー（t-wada推奨TDD + スキーマ駆動開発）
+
+### 基本サイクル
+このプロジェクトでは、以下の開発サイクルを厳密に守ります：
+
+#### 1. スキーマ定義フェーズ
+**目的**: データ構造と型を事前に設計し、実装の指針を明確にする
+
+**手順**:
+```typescript
+// 例: ユーザー管理機能の場合
+// 1. インターフェースを先に定義
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface UserRepository {
+  findById(id: string): Promise<User | null>;
+  create(userData: CreateUserData): Promise<User>;
+  update(id: string, userData: UpdateUserData): Promise<User>;
+  delete(id: string): Promise<void>;
+}
+
+interface CreateUserData {
+  name: string;
+  email: string;
+}
+
+interface UpdateUserData {
+  name?: string;
+  email?: string;
+}
+```
+
+#### 2. Red フェーズ（失敗するテストを書く）
+**目的**: 実装すべき機能の仕様をテストで表現する
+
+**手順**:
+```typescript
+// テストを先に書く（この時点では実装は存在しない）
+describe('UserService', () => {
+  it('指定されたIDのユーザーを取得できる', async () => {
+    // Arrange: テスト準備
+    const userId = '123';
+    const expectedUser: User = {
+      id: '123',
+      name: 'テストユーザー',
+      email: 'test@example.com',
+      createdAt: new Date('2025-01-01'),
+      updatedAt: new Date('2025-01-01')
+    };
+    
+    // Act: テスト実行（この時点では失敗する）
+    const result = await userService.findById(userId);
+    
+    // Assert: 結果検証
+    expect(result).toEqual(expectedUser);
+  });
+});
+```
+
+**実行結果**: テストは失敗する（Red）→ これが正常
+
+#### 3. Green フェーズ（テストを通す最小限の実装）
+**目的**: テストを通すための最小限のコードを書く
+
+**手順**:
+```typescript
+// 仮実装: まずはテストを通すだけの簡単な実装
+class UserService {
+  constructor(private userRepository: UserRepository) {}
+  
+  async findById(id: string): Promise<User | null> {
+    // 仮実装: ハードコードでテストを通す
+    if (id === '123') {
+      return {
+        id: '123',
+        name: 'テストユーザー',
+        email: 'test@example.com',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01')
+      };
+    }
+    return null;
+  }
+}
+```
+
+**実行結果**: テストが成功する（Green）
+
+#### 4. Refactor フェーズ（実装を改善）
+**目的**: コードの品質を向上させる（機能は変更しない）
+
+**手順**:
+```typescript
+// リファクタリング: 実際のリポジトリを使用する実装に変更
+class UserService {
+  constructor(private userRepository: UserRepository) {}
+  
+  async findById(id: string): Promise<User | null> {
+    // ハードコードを除去し、実際のリポジトリを使用
+    return await this.userRepository.findById(id);
+  }
+}
+```
+
+**実行結果**: テストは引き続き成功する
+
+#### 5. 次のテストケース追加
+新しい機能やエッジケースのテストを追加し、サイクルを繰り返す
+
+```typescript
+// 次のテストケース
+it('存在しないIDの場合はnullを返す', async () => {
+  const result = await userService.findById('nonexistent');
+  expect(result).toBeNull();
+});
+
+it('新しいユーザーを作成できる', async () => {
+  const createData: CreateUserData = {
+    name: '新規ユーザー',
+    email: 'new@example.com'
+  };
+  
+  const result = await userService.create(createData);
+  
+  expect(result.id).toBeDefined();
+  expect(result.name).toBe('新規ユーザー');
+  expect(result.email).toBe('new@example.com');
+});
+```
+
+### 重要な原則
+
+#### ベビーステップの実践
+- **1つのテストケースにつき1つの機能**のみを実装
+- **極小の変更**で進める（一度に大きな変更をしない）
+- **各ステップでテストが全て通る**ことを確認
+
+#### 仮実装の活用
+- 最初は**ハードコード**でテストを通す
+- **段階的に一般化**していく
+- **完璧を求めず**、動作することを優先
+
+#### テストの品質
+- **AAA（Arrange-Act-Assert）パターン**を使用
+- **テスト名は仕様を表現**する（何をテストするかが明確）
+- **1つのテストで1つのことだけ**を検証
+
+### 実践例：機能開発の流れ
+
+#### ステップ1: 要件分析とスキーマ設計
+```
+要件: ユーザー一覧を取得する機能を追加したい
+↓
+スキーマ設計: UserService.findAll() メソッドを追加
+戻り値: Promise<User[]>
+```
+
+#### ステップ2: インターフェース更新
+```typescript
+interface UserRepository {
+  findAll(): Promise<User[]>;
+  // ... 既存メソッド
+}
+```
+
+#### ステップ3: テスト作成（Red）
+```typescript
+it('全ユーザーを取得できる', async () => {
+  const result = await userService.findAll();
+  expect(Array.isArray(result)).toBe(true);
+});
+```
+
+#### ステップ4: 仮実装（Green）
+```typescript
+async findAll(): Promise<User[]> {
+  return []; // 空配列を返す仮実装
+}
+```
+
+#### ステップ5: より具体的なテスト（Red）
+```typescript
+it('複数のユーザーを正しく取得できる', async () => {
+  const result = await userService.findAll();
+  expect(result.length).toBeGreaterThan(0);
+  expect(result[0]).toHaveProperty('id');
+  expect(result[0]).toHaveProperty('name');
+});
+```
+
+#### ステップ6: 実装の改善（Green）
+```typescript
+async findAll(): Promise<User[]> {
+  return await this.userRepository.findAll();
+}
+```
+
+### コミット前チェックリスト
+1. **全てのテストが通る**ことを確認: `npm run test`
+2. **リントエラーがない**ことを確認: `npm run lint`
+3. **型エラーがない**ことを確認: TypeScriptコンパイル成功
+4. **コードレビュー**: 自分のコードを見直し、改善点がないか確認
 
 ## Angular開発のベストプラクティス
 
