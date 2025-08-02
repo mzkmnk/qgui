@@ -1,0 +1,228 @@
+# フェーズ1: 基盤構築 - TDD + スキーマ駆動開発 TODOリスト
+
+## 概要
+t-wada推奨のTDD + スキーマ駆動開発手法に従い、プロジェクト基盤を構築する
+
+## Phase 1: スキーマ定義フェーズ
+
+### 1.1 要件分析とドメインモデリング
+**目標**: WebSocket通信とAmazon Q CLI統合の基本機能を定義
+
+#### 1.1.1 WebSocket通信スキーマ設計
+- [ ] **スキーマ設計**: `schemas/websocket.schema.yaml` 作成
+  - [ ] WebSocketメッセージフォーマット定義
+  - [ ] 接続・切断イベント定義  
+  - [ ] エラーハンドリング定義
+- [ ] **型生成**: WebSocket関連TypeScript型の自動生成設定
+- [ ] **インターフェース定義**: WebSocketGateway, WebSocketService interfaces
+
+#### 1.1.2 PTYプロセス管理スキーマ設計  
+- [ ] **スキーマ設計**: `schemas/pty-process.schema.yaml` 作成
+  - [ ] PTYプロセス状態定義（idle, running, error, terminated）
+  - [ ] 入出力メッセージフォーマット定義
+  - [ ] プロセスライフサイクルイベント定義
+- [ ] **型生成**: PTY関連TypeScript型の自動生成設定
+- [ ] **インターフェース定義**: PTYManager, ProcessSession interfaces
+
+### 1.2 API エンドポイント設計
+- [ ] **基盤API設計**: `schemas/foundation-api.yaml` 作成
+  - [ ] ヘルスチェックエンドポイント（`/health`, `/health/websocket`, `/health/pty`）
+  - [ ] 接続状態エンドポイント（`/api/connection/status`）
+  - [ ] デバッグエンドポイント（`/api/debug/info`）
+
+## Phase 2: Red フェーズ（失敗するテストを書く）
+
+### 2.1 WebSocket接続基盤テスト作成
+
+#### 2.1.1 バックエンドWebSocketテスト（Jest）
+- [ ] **テストファイル作成**: `websocket.gateway.spec.ts`
+- [ ] **失敗テスト作成**: WebSocket接続確立テスト
+  ```typescript
+  describe('WebSocketGateway', () => {
+    it('クライアント接続時に接続イベントを発火すべき', async () => {
+      // このテストは最初失敗する（実装がないため）
+    });
+  });
+  ```
+- [ ] **失敗テスト作成**: メッセージ送受信テスト
+- [ ] **失敗テスト作成**: 切断処理テスト
+
+#### 2.1.2 フロントエンドWebSocketテスト（Vitest）
+- [ ] **テストファイル作成**: `websocket.service.spec.ts`  
+- [ ] **失敗テスト作成**: WebSocketサービス初期化テスト
+- [ ] **失敗テスト作成**: 再接続ロジックテスト
+- [ ] **失敗テスト作成**: 接続状態管理（signals）テスト
+
+### 2.2 PTYプロセス管理テスト作成
+
+#### 2.2.1 バックエンドPTYテスト（Jest）
+- [ ] **テストファイル作成**: `pty-manager.service.spec.ts`
+- [ ] **失敗テスト作成**: PTYプロセス起動テスト
+- [ ] **失敗テスト作成**: プロセス終了テスト  
+- [ ] **失敗テスト作成**: 入出力処理テスト
+
+## Phase 3: Green フェーズ（テストを通す最小限の実装）
+
+### 3.1 WebSocket基盤の仮実装
+
+#### 3.1.1 バックエンド仮実装
+- [ ] **WebSocketGateway作成**: 最小限の接続・切断処理
+  ```typescript
+  @WebSocketGateway()
+  export class WebSocketGateway {
+    handleConnection(client: Socket) {
+      // ハードコードでテストを通す仮実装
+      client.emit('connected', { status: 'connected' });
+    }
+  }
+  ```
+- [ ] **テスト確認**: 作成したテストが Green（成功）になることを確認
+
+#### 3.1.2 フロントエンド仮実装  
+- [ ] **WebSocketService作成**: 最小限の接続管理
+- [ ] **テスト確認**: 作成したテストが Green（成功）になることを確認
+
+### 3.2 PTYプロセス管理の仮実装
+
+#### 3.2.1 バックエンド仮実装
+- [ ] **PTYManagerService作成**: プロセス起動の仮実装
+  ```typescript
+  export class PTYManagerService {
+    startProcess(): Promise<string> {
+      // ハードコードでテストを通す仮実装  
+      return Promise.resolve('fake-process-id');
+    }
+  }
+  ```
+- [ ] **テスト確認**: 作成したテストが Green（成功）になることを確認
+
+## Phase 4: Refactor フェーズ（実装を改善）
+
+### 4.1 WebSocket実装の改善
+- [ ] **実際のSocket.io統合**: ハードコードを実際のSocket.io実装に置換
+- [ ] **エラーハンドリング強化**: 接続エラー、タイムアウト処理追加
+- [ ] **テスト確認**: リファクタリング後もテストが Green を維持
+
+### 4.2 PTY実装の改善  
+- [ ] **実際のnode-pty統合**: ハードコードを実際のnode-pty実装に置換
+- [ ] **プロセス監視機能**: プロセス状態監視とクリーンアップ処理追加
+- [ ] **テスト確認**: リファクタリング後もテストが Green を維持
+
+## Phase 5: 次のテストケース追加
+
+### 5.1 エッジケースのテスト追加
+- [ ] **異常系テスト**: ネットワーク切断時の再接続テスト  
+- [ ] **異常系テスト**: PTYプロセス異常終了時の復旧テスト
+- [ ] **パフォーマンステスト**: 同時接続数制限テスト
+
+### 5.2 統合テストの追加
+- [ ] **E2Eテスト**: WebSocket + PTY 統合動作テスト
+- [ ] **E2Eテスト**: フロントエンド・バックエンド統合テスト
+
+## 開発環境整備（TDD支援ツール）
+
+### 6.1 TDD環境設定
+- [ ] **Jest設定強化**: バックエンドTDD環境（watch mode, coverage）
+- [ ] **Vitest設定強化**: フロントエンドTDD環境（watch mode, coverage）
+- [ ] **テストヘルパー**: モック・スタブ作成ユーティリティ
+
+### 6.2 開発フローツール整備
+- [ ] **ホットリロード**: テスト変更時の自動実行設定
+- [ ] **デバッグ設定**: テストデバッグ用VSCode設定
+- [ ] **型チェック**: リアルタイム型チェック設定
+
+## ベビーステップ実践例
+
+### Example: WebSocket接続機能の実装
+
+#### Step 1: スキーマ定義
+```yaml
+# schemas/websocket.schema.yaml（最小限）
+WebSocketMessage:
+  type: object
+  required: [type, data]
+  properties:
+    type: 
+      enum: [connect, disconnect, message]
+    data: any
+```
+
+#### Step 2: Red
+```typescript
+// websocket.gateway.spec.ts（1つの失敗テスト）
+it('should emit connection event', () => {
+  const gateway = new WebSocketGateway();
+  const mockClient = { emit: jest.fn() };
+  
+  gateway.handleConnection(mockClient);
+  
+  expect(mockClient.emit).toHaveBeenCalledWith('connected');
+});
+```
+
+#### Step 3: Green
+```typescript
+// websocket.gateway.ts（最小実装）
+export class WebSocketGateway {
+  handleConnection(client: any) {
+    client.emit('connected'); // ハードコード
+  }
+}
+```
+
+#### Step 4: Refactor
+```typescript
+// websocket.gateway.ts（改善実装）
+export class WebSocketGateway {
+  handleConnection(client: Socket) {
+    const connectionData = { 
+      id: client.id, 
+      timestamp: new Date() 
+    };
+    client.emit('connected', connectionData);
+  }
+}
+```
+
+#### Step 5: 次のテスト
+```typescript
+// 次の失敗テスト
+it('should handle disconnect event', () => {
+  // 新たな失敗テストを追加
+});
+```
+
+## 重要な原則
+
+### 1. 一度に1つだけ
+- **1つのテストケースのみ**を作成・実装
+- **1つの小さな機能のみ**に集中
+- **短時間**で完了する作業単位
+
+### 2. 必ず順序を守る
+1. **スキーマファースト**: 必ず型・インターフェース定義から開始
+2. **テストファースト**: 実装前に必ずテストを作成
+3. **Red → Green → Refactor**: この順序を厳密に守る
+
+### 3. 仮実装を恐れない
+- **ハードコード大歓迎**: 最初は固定値で問題なし
+- **段階的改善**: 少しずつ一般化
+- **完璧主義排除**: まず動作することを優先
+
+## 完了条件
+
+### Phase 1完了の定義
+- [ ] **全スキーマ定義完了**: WebSocket, PTY, API仕様が yaml形式で定義済み
+- [ ] **型生成成功**: すべての型が正常に生成され、TypeScriptコンパイル成功
+- [ ] **基本テスト作成完了**: 少なくとも各機能1つずつのテストが作成済み
+
+### Phase 2-5完了の定義  
+- [ ] **全テストGreen**: 作成したすべてのテストが成功
+- [ ] **カバレッジ目標**: テストカバレッジ80%以上
+- [ ] **型安全性**: TypeScript strict mode でエラーなし
+
+## 次フェーズ（コア機能実装）への引き継ぎ
+- [ ] **スキーマ資産**: 完成したスキーマファイル群
+- [ ] **テスト資産**: 基盤機能のテストスイート  
+- [ ] **実装パターン**: TDDサイクルの実践例とノウハウ
+- [ ] **CI/CD設定**: 自動テスト実行環境
