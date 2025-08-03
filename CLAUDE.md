@@ -5,12 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 開発言語とプロセス
 
 - **すべてのコミュニケーションとコードコメントは日本語で記述すること**
-- **開発手法: t-wada 推奨の TDD（テスト駆動開発）+ スキーマ駆動開発を採用**
+- **開発手法: t-wada 推奨の TDD（テスト駆動開発）+ スキーマ駆動開発 + YAGNI原則を採用**
   - **スキーマファースト**: データ構造（型・インターフェース）を最初に定義
   - **テストファースト**: 実装前にテストを先に書く
   - **Red-Green-Refactor サイクル**: 失敗 → 成功 → 改善の反復
   - **ベビーステップ**: 極小の変更単位で進める
   - **仮実装**: まず動作する最小限のコードから開始
+  - **YAGNI原則（You Aren't Gonna Need It）**: 実際に必要になるまで機能を実装しない
 - **実装の基本方針**
   - 1 ファイル 1 関数、1 関数 1 責務で取り組むこと
   - バレルエクスポートは行わないこと
@@ -288,6 +289,46 @@ it('新しいユーザーを作成できる', async () => {
 - **テスト名は仕様を表現**する（何をテストするかが明確）
 - **1 つのテストで 1 つのことだけ**を検証
 
+#### YAGNI原則の実践
+
+- **現在のニーズのみ実装**: 将来必要「かもしれない」機能は実装しない
+- **推測による設計を避ける**: 要件が明確でない機能は後回し
+- **段階的拡張**: 必要性が明らかになった時点で機能を追加
+- **過度な抽象化を避ける**: 実際の使用例がない抽象化は行わない
+- **設計の検証**: 「この機能は本当に今必要か？」を常に自問する
+
+**YAGNI違反の例**:
+```typescript
+// ❌ 悪い例: 使うかわからない機能を先行実装
+interface UserManager {
+  // 基本機能
+  createUser(data: CreateUserData): Promise<User>;
+  
+  // 将来必要かもしれない機能（YAGNI違反）
+  exportUsers(format: 'csv' | 'json' | 'xml'): Promise<string>;
+  importUsers(file: File): Promise<void>;
+  bulkUpdateUsers(updates: BulkUpdate[]): Promise<void>;
+  generateUserReport(template: ReportTemplate): Promise<Report>;
+}
+```
+
+**YAGNI遵守の例**:
+```typescript
+// ✅ 良い例: 実際に必要な最小限の機能のみ
+interface UserManager {
+  // 現在確実に必要な機能のみ
+  createUser(data: CreateUserData): Promise<User>;
+  findUserById(id: string): Promise<User | null>;
+  updateUser(id: string, data: UpdateUserData): Promise<User>;
+  deleteUser(id: string): Promise<void>;
+}
+
+// 必要性が明らかになった時点で段階的に拡張
+// interface UserExporter {
+//   exportUsers(format: 'csv' | 'json'): Promise<string>;
+// }
+```
+
 ### 実践例：機能開発の流れ
 
 #### ステップ 1: 要件分析とスキーマ設計
@@ -349,7 +390,15 @@ async findAll(): Promise<User[]> {
 1. **全てのテストが通る**ことを確認: `npm run test`
 2. **リントエラーがない**ことを確認: `npm run lint`
 3. **型エラーがない**ことを確認: TypeScript コンパイル成功
-4. **コードレビュー**: 自分のコードを見直し、改善点がないか確認
+4. **YAGNI原則の確認**: 実装した機能が全て現在必要なものか確認
+5. **コードレビュー**: 自分のコードを見直し、改善点がないか確認
+
+#### YAGNI原則確認項目
+
+- [ ] **実装した全ての機能が現在の要件で明確に必要とされているか？**
+- [ ] **「将来使うかもしれない」という理由だけで追加した機能はないか？**
+- [ ] **複雑な抽象化や汎用化を、実際の使用例なしに行っていないか？**
+- [ ] **設定可能なオプションや拡張ポイントが、現在の要件に基づいているか？**
 
 ## タスク管理（.claude/todos）
 
