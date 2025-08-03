@@ -6,12 +6,12 @@
 import {
   PTYProcessState,
   PTYProcessInfo,
-  PTYDataMessage,
+  // PTYDataMessage,
   PTYLifecycleEvent,
   PTYProcessCreateRequest,
-  PTYProcessCreateResponse,
-  PTYResizeRequest,
-  PTYControlCommand,
+  // PTYProcessCreateResponse,
+  // PTYResizeRequest,
+  // PTYControlCommand,
 } from '@qgui/shared';
 
 /**

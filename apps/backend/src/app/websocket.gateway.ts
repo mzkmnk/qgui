@@ -20,8 +20,7 @@ import { components } from '@qgui/shared';
   },
 })
 export class WebSocketGateway
-  implements IWebSocketGateway, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements Partial<IWebSocketGateway>, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
   private connectedClients: Map<
@@ -35,8 +34,7 @@ export class WebSocketGateway
   private connectionHistory: Set<string> = new Set();
 
   async handleConnection(
-    client: Socket | WebSocketClient,
-    payload?: unknown
+    client: Socket | WebSocketClient
   ): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
     const webSocketClient: WebSocketClient = this.isSocket(client)
@@ -80,8 +78,7 @@ export class WebSocketGateway
   }
 
   async handleDisconnect(
-    client: Socket | WebSocketClient,
-    reason?: string
+    client: Socket | WebSocketClient
   ): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
     const webSocketClient: WebSocketClient = this.isSocket(client)
@@ -92,44 +89,12 @@ export class WebSocketGateway
     this.connectedClients.delete(webSocketClient.id);
   }
 
-  async handleMessage(
-    client: WebSocketClient,
-    message: components['schemas']['WebSocketMessage']
-  ): Promise<void> {
-    // 未実装（YAGNIに従い、必要になるまで実装しない）
-    throw new Error('Method not implemented.');
-  }
-
-  async handleHeartbeat(
-    client: WebSocketClient,
-    heartbeat: components['schemas']['HeartbeatEvent']
-  ): Promise<void> {
-    // 未実装（YAGNIに従い、必要になるまで実装しない）
-    throw new Error('Method not implemented.');
-  }
-
-  async sendToClient(
-    clientId: string,
-    message: components['schemas']['WebSocketMessage']
-  ): Promise<boolean> {
-    // 未実装（YAGNIに従い、必要になるまで実装しない）
-    throw new Error('Method not implemented.');
-  }
-
-  async broadcast(
-    message: components['schemas']['WebSocketMessage']
-  ): Promise<void> {
-    // 未実装（YAGNIに従い、必要になるまで実装しない）
-    throw new Error('Method not implemented.');
-  }
-
-  async sendError(
-    client: WebSocketClient,
-    error: components['schemas']['ErrorEvent']
-  ): Promise<void> {
-    // 未実装（YAGNIに従い、必要になるまで実装しない）
-    throw new Error('Method not implemented.');
-  }
+  // TODO: 以下のメソッドは必要になったときに実装する（YAGNI原則）
+  // - handleMessage
+  // - handleHeartbeat  
+  // - sendToClient
+  // - broadcast
+  // - sendError
 
   getConnectedClientsCount(): number {
     return this.connectedClients.size;

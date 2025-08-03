@@ -7,7 +7,7 @@ import {
 import { components } from '@qgui/shared';
 
 describe('WebSocketGateway', () => {
-  let gateway: IWebSocketGateway;
+  let gateway: WebSocketGateway;
   let mockClient: WebSocketClient;
 
   beforeEach(async () => {
