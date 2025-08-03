@@ -48,9 +48,9 @@ YAGNI 原則に従い、最小限必要な基盤機能のみを機能単位で R
 
 #### 5.1 WebSocket 接続管理
 
-- [ ] **Red**: `websocket.service.spec.ts` - WebSocket 接続テスト
-- [ ] **Green**: `websocket.service.ts` - 接続管理のみ実装
-- [ ] **動作確認**: WebSocket 接続が確立できることを確認
+- [x] **Red**: `websocket.service.spec.ts` - WebSocket 接続テスト
+- [x] **Green**: `websocket.service.ts` - 接続管理のみ実装
+- [x] **動作確認**: WebSocket 接続が確立できることを確認
 
 ## 実装優先順位
 
