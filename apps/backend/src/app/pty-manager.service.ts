@@ -12,8 +12,8 @@ export class PTYManagerService implements PTYManager {
   private processes: Map<string, ProcessSession> = new Map();
   private processIdCounter = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async createProcess(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     request: PTYProcessCreateRequest
   ): Promise<ProcessSession> {
     // 仮実装: プロセスIDを生成
