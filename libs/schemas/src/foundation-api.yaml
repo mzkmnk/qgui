@@ -1,0 +1,288 @@
+openapi: 3.0.3
+info:
+  title: Qgui Foundation API
+  description: Qguiアプリケーションの基盤APIエンドポイント仕様
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: ローカル開発サーバー
+paths:
+  /health:
+    get:
+      summary: 基本ヘルスチェック
+      description: アプリケーションの基本的な稼働状態を確認
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: アプリケーションは正常に稼働中
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: サービス利用不可
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /health/websocket:
+    get:
+      summary: WebSocketサービスヘルスチェック
+      description: WebSocketサービスの稼働状態を確認
+      operationId: getWebSocketHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: WebSocketサービスは正常に稼働中
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealthResponse'
+        '503':
+          description: WebSocketサービス利用不可
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /health/pty:
+    get:
+      summary: PTYサービスヘルスチェック
+      description: PTYプロセス管理サービスの稼働状態を確認
+      operationId: getPtyHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: PTYサービスは正常に稼働中
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealthResponse'
+        '503':
+          description: PTYサービス利用不可
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /api/connection/status:
+    get:
+      summary: 接続状態の取得
+      description: 現在のWebSocketおよびPTY接続の状態を取得
+      operationId: getConnectionStatus
+      tags:
+        - Connection
+      responses:
+        '200':
+          description: 接続状態の詳細情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectionStatusResponse'
+        '500':
+          description: 内部サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /api/debug/info:
+    get:
+      summary: デバッグ情報の取得
+      description: アプリケーションのデバッグ情報を取得（開発環境のみ）
+      operationId: getDebugInfo
+      tags:
+        - Debug
+      responses:
+        '200':
+          description: デバッグ情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebugInfoResponse'
+        '403':
+          description: 本番環境ではアクセス禁止
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: ['healthy', 'unhealthy']
+          description: サービスの健全性状態
+        timestamp:
+          type: string
+          format: date-time
+          description: チェック時刻
+        version:
+          type: string
+          description: アプリケーションバージョン
+          example: '1.0.0'
+    
+    ServiceHealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/HealthResponse'
+        - type: object
+          required:
+            - service
+          properties:
+            service:
+              type: string
+              enum: ['websocket', 'pty']
+              description: サービス名
+            details:
+              type: object
+              description: サービス固有の詳細情報
+              additionalProperties: true
+    
+    ConnectionStatusResponse:
+      type: object
+      required:
+        - websocket
+        - pty
+        - timestamp
+      properties:
+        websocket:
+          $ref: '#/components/schemas/WebSocketStatus'
+        pty:
+          $ref: '#/components/schemas/PTYStatus'
+        timestamp:
+          type: string
+          format: date-time
+          description: 状態取得時刻
+    
+    WebSocketStatus:
+      type: object
+      required:
+        - connected
+        - activeConnections
+      properties:
+        connected:
+          type: boolean
+          description: WebSocket接続状態
+        activeConnections:
+          type: integer
+          minimum: 0
+          description: アクティブな接続数
+        lastActivity:
+          type: string
+          format: date-time
+          description: 最後のアクティビティ時刻
+    
+    PTYStatus:
+      type: object
+      required:
+        - available
+        - activeSessions
+      properties:
+        available:
+          type: boolean
+          description: PTYサービス利用可能状態
+        activeSessions:
+          type: integer
+          minimum: 0
+          description: アクティブなPTYセッション数
+        maxSessions:
+          type: integer
+          minimum: 1
+          description: 最大セッション数
+    
+    DebugInfoResponse:
+      type: object
+      required:
+        - environment
+        - uptime
+        - memory
+        - timestamp
+      properties:
+        environment:
+          type: string
+          description: 実行環境
+          example: 'development'
+        uptime:
+          type: number
+          description: 稼働時間（秒）
+        memory:
+          $ref: '#/components/schemas/MemoryUsage'
+        websocketDebug:
+          type: object
+          description: WebSocketデバッグ情報
+          additionalProperties: true
+        ptyDebug:
+          type: object
+          description: PTYデバッグ情報
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+          description: 情報取得時刻
+    
+    MemoryUsage:
+      type: object
+      required:
+        - heapUsed
+        - heapTotal
+        - rss
+      properties:
+        heapUsed:
+          type: number
+          description: 使用中のヒープメモリ（バイト）
+        heapTotal:
+          type: number
+          description: 総ヒープメモリ（バイト）
+        rss:
+          type: number
+          description: Resident Set Size（バイト）
+        external:
+          type: number
+          description: 外部メモリ使用量（バイト）
+    
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - timestamp
+      properties:
+        error:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+        details:
+          type: object
+          description: 追加のエラー詳細情報
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+          description: エラー発生時刻
+
+tags:
+  - name: Health
+    description: ヘルスチェック関連のエンドポイント
+  - name: Connection
+    description: 接続状態管理関連のエンドポイント
+  - name: Debug
+    description: デバッグ情報関連のエンドポイント（開発環境のみ）
