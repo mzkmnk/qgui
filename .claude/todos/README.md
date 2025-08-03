@@ -1,172 +1,121 @@
-# Amazon Q CLI GUI 開発 TODO リスト
+# Amazon Q CLI GUI 開発 TODO リスト（YAGNI原則適用版）
 
 ## 概要
 
-このディレクトリには、Amazon Q CLI を Web ベースの GUI で操作するためのアプリケーション開発に関する詳細な TODO リストが含まれています。調査結果に基づいて、実装可能な粒度で段階的な開発計画を策定しました。
+このディレクトリには、Amazon Q CLI を Web ベースの GUI で操作するためのアプリケーション開発に関する TODO リストが含まれています。
+**YAGNI原則（You Aren't Gonna Need It）**に従い、実際に必要な機能のみを**機能単位でRed→Green実装**します。
+
+## 開発方針
+
+- **必要最小限の実装**: 今必要な機能のみ実装
+- **機能単位のTDD**: 1つのPRで1つの機能をRed→Greenサイクルで実装
+- **バックエンド/フロントエンド分離**: PRを独立して作成可能
+- **過早な最適化を避ける**: 問題が発生してから対処
 
 ## 開発フェーズ別 TODO リスト
 
 ### フェーズ 1: 基盤構築
 
 **ファイル**: [01-foundation-setup.md](./01-foundation-setup.md)
-ngular + NestJS 基盤構築
 
-- WebSocket 接続基盤
-- Amazon Q CLI 統合準備
-- 開発環境整備
+- **実装済み**: スキーマ定義（WebSocket、PTY、API）
+- **実装予定**:
+  - ヘルスチェックAPI（Backend PR #1）
+  - WebSocket基本接続（Backend PR #2）
+  - PTYプロセス起動（Backend PR #3）
+  - ヘルスチェック呼び出し（Frontend PR #1）
+  - WebSocket接続サービス（Frontend PR #2）
 
 ### フェーズ 2: コア機能実装
 
 **ファイル**: [02-core-features.md](./02-core-features.md)
-nhancement.md](./04-ui-ux-enhancement.md)
-nce-optimization.md](./05-performance-optimization.md)
-nce.md](./06-quality-assurance.md)
-nical-implementation-details.md](./07-technical-implementation-details.md)
 
-- **目標**: 技術的な実装詳細を網羅
-- **主要項目**:
-  - 共有型定義・インターフェース実装
-  - Amazon Q CLI 統合実装
-  - データベース実装
-  - 認証・認可実装
-  - 状態管理実装（NgRx Signals）
-  - WebSocket 通信実装
-  - ユーザーインターフェース実装
+- **実装予定**:
+  - WebSocketメッセージ送受信（Backend PR #4）
+  - PTYコマンド実行（Backend PR #5）
+  - WebSocket-PTY連携（Backend PR #6）
+  - コマンド入力UI（Frontend PR #3）
+  - メッセージ表示（Frontend PR #4）
+  - 基本的なANSI処理（Frontend PR #5）
 
-### WebSocket + PTY 統合
+### フェーズ 3: セキュリティ基本設定
 
-**ファイル**: [08-websocket-pty-integration.md](./08-websocket-pty-integration.md)
+**ファイル**: [03-auth-security.md](./03-auth-security.md)
 
-- **目標**: WebSocket 通信と PTY を統合した高度なターミナル体験の実装
-- **主要項目**:
-  - PTY 基盤実装（node-pty）
-  - WebSocket 通信実装（Socket.io）
-  - PTY-WebSocket 統合レイヤー
-  - ANSI エスケープシーケンス処理
-  - xterm.js 統合実装
-  - Amazon Q CLI 専用機能
-  - エラーハンドリング・復旧
+- **実装予定**（ローカル環境のみ）:
+  - ローカルアクセス制限（Backend PR #7）
+  - 開発用CORS設定（Backend PR #8）
+  - 基本的な入力検証（Backend PR #9）
+  - サニタイゼーション（Frontend PR #6）
 
-### データベーススキーマ実装
+### フェーズ 4: UI/UX 基本改善
 
-**ファイル**: [09-database-schema-implementation.md](./09-database-schema-implementation.md)
+**ファイル**: [04-ui-ux-enhancement.md](./04-ui-ux-enhancement.md)
 
-- **目標**: SQLite データベース設計・実装の詳細
-- **主要項目**:
-  - データベース基盤設計
-  - エンティティ設計・実装
-  - インデックス・パフォーマンス最適化
-  - 全文検索実装（SQLite FTS5）
-  - データマイグレーション
-  - リポジトリパターン実装
-  - バックアップ・復旧
+- **実装予定**（最小限のUI改善）:
+  - 基本レスポンシブ対応（Frontend PR #7）
+  - 基本テーマ機能（Frontend PR #8）
+  - 基本アクセシビリティ（Frontend PR #10）
 
-## 技術スタック
+### フェーズ 5: パフォーマンス最適化（必要時のみ）
+
+**ファイル**: [05-performance-optimization.md](./05-performance-optimization.md)
+
+- **方針**: パフォーマンス問題が発生した場合のみ対処
+- **削除**: 過早な最適化項目すべて
+
+### フェーズ 6: 品質保証
+
+**ファイル**: [06-quality-assurance.md](./06-quality-assurance.md)
+
+- **方針**: 基本的なテスト維持のみ
+- **削除**: 複雑なテスト戦略、メトリクス収集
+
+### その他のフェーズ
+
+- **フェーズ 7**: [技術実装詳細](./07-technical-implementation-details.md) - 必要に応じて実装
+- **フェーズ 8**: [WebSocket-PTY統合](./08-websocket-pty-integration.md) - コア機能で実装済み
+- **フェーズ 9**: [データベース実装](./09-database-schema-implementation.md) - 現時点では不要
+
+## 削除・延期した項目（YAGNI原則）
+
+### 必要になるまで実装しない機能
+
+- **認証システム**: JWT、マルチユーザー管理
+- **データベース**: 履歴保存、検索機能
+- **高度なUI/UX**: アニメーション、複雑なテーマ
+- **パフォーマンス最適化**: 仮想スクロール、Service Worker
+- **高度なテスト**: E2Eテスト、パフォーマンステスト
+- **監視・分析**: ダッシュボード、メトリクス収集
+
+## 技術スタック（必要最小限）
 
 ### フロントエンド
-
-- **フレームワーク**: Angular 20.1 (スタンドアロンコンポーネント)
-- **ビルドツール**: Vite
-- **UI ライブラリ**: PrimeNG 20.0 + Tailwind CSS 4.0
-- **状態管理**: NgRx Signals
-- **ターミナル**: xterm.js + アドオン
-- **テスト**: Vitest + Cypress
+- Angular 20.1（標準機能のみ使用）
+- 基本的なCSS/Tailwind
+- シンプルなコンポーネント構成
 
 ### バックエンド
+- NestJS 11（標準機能のみ使用）
+- WebSocket（Socket.io）
+- node-pty（基本機能のみ）
 
-- **フレームワーク**: NestJS 11
-- **データベース**: SQLite3 + TypeORM
-- **WebSocket**: Socket.io
-- **プロセス管理**: node-pty
-- **認証**: JWT + bcrypt
-- **テスト**: Jest
+## 各PRの完了条件
 
-### 開発環境
+1. **対象機能のテストがGreen**
+2. **リント・型チェックエラーなし**
+3. **最小限の実装（ハードコードOK）**
+4. **動作確認完了**
 
-- **モノレポ**: Nx 20.0
-- **言語**: TypeScript 5.8
-- **ランタイム**: Node.js 22 LTS
-- **パッケージマネージャー**: npm
+## 重要な原則
 
-## 重要な技術的考慮事項
-
-### セキュリティ
-
-- ローカル開発環境専用設計
-- 認証・認可システム（JWT + RBAC）
-- 入力検証・サニタイゼーション
-- 監査ログ・セキュリティ監視
-
-### パフォーマンス
-
-- リアルタイム WebSocket 通信
-- 大容量テキスト処理対応
-- 仮想スクロール実装
-- データベース最適化
-
-### ユーザビリティ
-
-- 直感的な UI/UX 設計
-- レスポンシブデザイン
-- アクセシビリティ対応
-- ダークモード対応
-
-### 保守性・拡張性
-
-- 型安全な TypeScript 実装
-- モジュラー設計
-- テスト駆動開発
-- 包括的なドキュメント
-
-## 成功指標（KPI）
-
-### 技術指標
-
-- **レスポンスタイム**: < 100ms（95 パーセンタイル）
-- **システム安定性**: クラッシュ率 < 0.1%
-- **テストカバレッジ**: > 80%
-- **コード品質スコア**: > B（SonarQube）
-
-### ユーザビリティ指標
-
-- **ユーザー満足度**: > 4.5/5.0
-- **平均セッション時間**: > 15 分
-- **タスク完了率**: > 95%
-- **学習容易性**: 新規ユーザー 10 分以内で基本操作習得
-
-## 開発の進め方
-
-1. **段階的実装**: フェーズ別に順次実装
-2. **アジャイル開発**: 短いイテレーションで継続的改善
-3. **テスト駆動開発**: 実装前にテストを作成
-4. **継続的統合**: 自動テスト・品質チェック
-5. **ドキュメント重視**: 実装と並行してドキュメント更新
-
-## リスク管理
-
-### 技術的リスク
-
-- Amazon Q CLI 仕様変更 → API レイヤーで抽象化
-- パフォーマンス問題 → 早期の負荷テスト実施
-- WebSocket 不安定性 → 再接続ロジック強化
-
-### プロジェクトリスク
-
-- スコープクリープ → 要件明確化と優先順位付け
-- 技術的負債 → 定期的なリファクタリング
-- リソース不足 → 段階的リリース戦略
-
-## 参考資料
-
-- [Amazon Q CLI 公式ドキュメント](https://docs.aws.amazon.com/amazonq/latest/cli/)
-- [Angular 公式ドキュメント](https://angular.dev/)
-- [NestJS 公式ドキュメント](https://nestjs.com/)
-- [xterm.js 公式ドキュメント](https://xtermjs.org/)
-- [Socket.io 公式ドキュメント](https://socket.io/)
-- [node-pty GitHub](https://github.com/microsoft/node-pty)
+- **KISS（Keep It Simple, Stupid）**: シンプルに保つ
+- **YAGNI（You Aren't Gonna Need It）**: 必要になるまで作らない
+- **DRY（Don't Repeat Yourself）**: 重複は最小限に
+- **実用性優先**: 完璧より動作を優先
 
 ---
 
 **作成日**: 2025-08-02  
-**最終更新**: 2025-08-02  
-**バージョン**: 1.0.0
+**最終更新**: 2025-08-03（YAGNI原則適用）  
+**バージョン**: 2.0.0
