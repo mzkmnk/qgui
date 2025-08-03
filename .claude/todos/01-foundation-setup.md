@@ -30,9 +30,9 @@ YAGNI 原則に従い、最小限必要な基盤機能のみを機能単位で R
 #### 3.1 プロセス起動機能のみ
 
 - [x] **スキーマ定義済**: `pty-process.schema.yaml` のプロセス起動定義
-- [ ] **Red**: `pty-manager.service.spec.ts` - プロセス起動テスト作成
-- [ ] **Green**: `pty-manager.service.ts` - プロセス起動のみ実装
-- [ ] **動作確認**: PTY プロセスが起動できることを確認
+- [x] **Red**: `pty-manager.service.spec.ts` - プロセス起動テスト作成
+- [x] **Green**: `pty-manager.service.ts` - プロセス起動のみ実装
+- [x] **動作確認**: PTY プロセスが起動できることを確認
 
 ## フロントエンド基盤実装
 
