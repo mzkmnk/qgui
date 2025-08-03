@@ -28,9 +28,10 @@
     "format": "nx format:write",
     "format:check": "nx format:check",
     "reset": "nx reset",
-    "generate:types": "npm run generate:websocket-types && npm run generate:pty-types",
+    "generate:types": "npm run generate:websocket-types && npm run generate:pty-types && npm run generate:foundation-api-types",
     "generate:websocket-types": "openapi-typescript schemas/websocket.schema.yaml -o types/generated/websocket.types.ts",
-    "generate:pty-types": "openapi-typescript libs/schemas/src/pty-process.schema.yaml -o libs/shared/src/lib/generated/pty-process.types.ts"
+    "generate:pty-types": "openapi-typescript libs/schemas/src/pty-process.schema.yaml -o libs/shared/src/lib/generated/pty-process.types.ts",
+    "generate:foundation-api-types": "openapi-typescript libs/schemas/src/foundation-api.yaml -o libs/shared/src/lib/generated/foundation-api.types.ts"
   },
   "private": true,
   "dependencies": {

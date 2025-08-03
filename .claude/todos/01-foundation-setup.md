@@ -30,10 +30,10 @@ t-wada 推奨の TDD + スキーマ駆動開発手法に従い、プロジェク
 
 ### 1.2 API エンドポイント設計
 
-- [ ] **基盤 API 設計**: `schemas/foundation-api.yaml` 作成
-  - [ ] ヘルスチェックエンドポイント（`/health`, `/health/websocket`, `/health/pty`）
-  - [ ] 接続状態エンドポイント（`/api/connection/status`）
-  - [ ] デバッグエンドポイント（`/api/debug/info`）
+- [x] **基盤 API 設計**: `schemas/foundation-api.yaml` 作成
+  - [x] ヘルスチェックエンドポイント（`/health`, `/health/websocket`, `/health/pty`）
+  - [x] 接続状態エンドポイント（`/api/connection/status`）
+  - [x] デバッグエンドポイント（`/api/debug/info`）
 
 ## Phase 2: Red フェーズ（失敗するテストを書く）
 
