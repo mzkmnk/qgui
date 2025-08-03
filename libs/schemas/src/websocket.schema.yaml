@@ -1,0 +1,259 @@
+openapi: 3.0.3
+info:
+  title: WebSocket通信スキーマ
+  description: Qgui WebSocket通信の型定義とメッセージフォーマット
+  version: 1.0.0
+
+# WebSocket通信専用のスキーマ定義のため、pathsは不要
+paths: {}
+
+components:
+  schemas:
+    # 基本メッセージフォーマット
+    WebSocketMessage:
+      type: object
+      required:
+        - type
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [connection, disconnection, message, error, heartbeat]
+          description: メッセージタイプ
+        timestamp:
+          type: string
+          format: date-time
+          description: メッセージ送信時刻（ISO 8601形式）
+        data:
+          type: object
+          description: メッセージペイロード（タイプ別）
+        requestId:
+          type: string
+          description: リクエスト追跡用ID（オプション）
+
+    # 接続イベント
+    ConnectionEvent:
+      allOf:
+        - $ref: '#/components/schemas/WebSocketMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [connection]
+            data:
+              $ref: '#/components/schemas/ConnectionData'
+
+    ConnectionData:
+      type: object
+      required:
+        - clientId
+        - status
+      properties:
+        clientId:
+          type: string
+          description: クライアント一意識別子
+        status:
+          type: string
+          enum: [connected, connecting, reconnected]
+          description: 接続状態
+        userAgent:
+          type: string
+          description: クライアントのUser-Agent（オプション）
+        sessionId:
+          type: string
+          description: セッション識別子（オプション）
+
+    # 切断イベント
+    DisconnectionEvent:
+      allOf:
+        - $ref: '#/components/schemas/WebSocketMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [disconnection]
+            data:
+              $ref: '#/components/schemas/DisconnectionData'
+
+    DisconnectionData:
+      type: object
+      required:
+        - clientId
+        - reason
+      properties:
+        clientId:
+          type: string
+          description: クライアント一意識別子
+        reason:
+          type: string
+          enum: [client_disconnect, server_shutdown, timeout, error]
+          description: 切断理由
+        code:
+          type: integer
+          description: 切断コード（WebSocket標準準拠）
+        message:
+          type: string
+          description: 切断理由の詳細メッセージ
+
+    # メッセージイベント
+    MessageEvent:
+      allOf:
+        - $ref: '#/components/schemas/WebSocketMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [message]
+            data:
+              $ref: '#/components/schemas/MessageData'
+
+    MessageData:
+      type: object
+      required:
+        - content
+        - sender
+      properties:
+        content:
+          type: string
+          description: メッセージ内容
+        sender:
+          type: string
+          enum: [client, server]
+          description: 送信者
+        contentType:
+          type: string
+          enum: [text, json, binary]
+          default: text
+          description: コンテンツタイプ
+        encoding:
+          type: string
+          enum: [utf8, base64]
+          default: utf8
+          description: エンコーディング方式
+
+    # エラーイベント
+    ErrorEvent:
+      allOf:
+        - $ref: '#/components/schemas/WebSocketMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [error]
+            data:
+              $ref: '#/components/schemas/ErrorData'
+
+    ErrorData:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - CONNECTION_FAILED
+            - AUTHENTICATION_FAILED
+            - MESSAGE_PARSE_ERROR
+            - RATE_LIMIT_EXCEEDED
+            - INTERNAL_SERVER_ERROR
+            - INVALID_MESSAGE_FORMAT
+            - UNSUPPORTED_OPERATION
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ（日本語）
+        details:
+          type: object
+          description: エラー詳細情報（オプション）
+        severity:
+          type: string
+          enum: [info, warning, error, critical]
+          default: error
+          description: エラー重要度
+        retryable:
+          type: boolean
+          default: false
+          description: リトライ可能かどうか
+
+    # ハートビートイベント
+    HeartbeatEvent:
+      allOf:
+        - $ref: '#/components/schemas/WebSocketMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [heartbeat]
+            data:
+              $ref: '#/components/schemas/HeartbeatData'
+
+    HeartbeatData:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [ping, pong]
+          description: ハートビートアクション
+        latency:
+          type: number
+          description: レイテンシ（ミリ秒、pongの場合）
+
+    # 接続状態管理
+    ConnectionState:
+      type: object
+      required:
+        - status
+        - connectedAt
+      properties:
+        status:
+          type: string
+          enum: [disconnected, connecting, connected, reconnecting, error]
+          description: 現在の接続状態
+        connectedAt:
+          type: string
+          format: date-time
+          description: 接続開始時刻
+        lastHeartbeat:
+          type: string
+          format: date-time
+          description: 最後のハートビート時刻
+        reconnectAttempts:
+          type: integer
+          minimum: 0
+          description: 再接続試行回数
+        lastError:
+          $ref: '#/components/schemas/ErrorData'
+          description: 最後に発生したエラー（オプション）
+
+    # 設定
+    WebSocketConfig:
+      type: object
+      properties:
+        heartbeatInterval:
+          type: integer
+          minimum: 1000
+          default: 30000
+          description: ハートビート間隔（ミリ秒）
+        reconnectInterval:
+          type: integer
+          minimum: 1000
+          default: 5000
+          description: 再接続間隔（ミリ秒）
+        maxReconnectAttempts:
+          type: integer
+          minimum: 0
+          default: 5
+          description: 最大再接続試行回数
+        connectionTimeout:
+          type: integer
+          minimum: 1000
+          default: 10000
+          description: 接続タイムアウト（ミリ秒）
+        messageQueueSize:
+          type: integer
+          minimum: 1
+          default: 100
+          description: メッセージキューの最大サイズ

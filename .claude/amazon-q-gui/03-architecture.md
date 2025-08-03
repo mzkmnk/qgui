@@ -3,6 +3,7 @@
 ## 1. アーキテクチャ概要
 
 ### 1.1 全体構成
+
 ```
 ┌────────────────────────────────────────────────────────────┐
 │                        ユーザー層                            │
@@ -43,17 +44,18 @@
 
 ### 1.2 レイヤー責務
 
-| レイヤー | 責務 | 主要技術 |
-|:---------|:------|:---------:|
-| プレゼンテーション | UI表示、ユーザー操作 | Angular 20, Angular Material |
-| ビジネスロジック | ビジネスルール、処理フロー | NestJS, TypeScript |
-| データアクセス | データ永続化、外部システム連携 | TypeORM, node-pty |
+| レイヤー           | 責務                           |           主要技術           |
+| :----------------- | :----------------------------- | :--------------------------: |
+| プレゼンテーション | UI 表示、ユーザー操作          | Angular 20, Angular Material |
+| ビジネスロジック   | ビジネスルール、処理フロー     |      NestJS, TypeScript      |
+| データアクセス     | データ永続化、外部システム連携 |      TypeORM, node-pty       |
 
 ## 2. フロントエンドアーキテクチャ
 
-### 2.1 Nxモノレポとスタンドアロンアーキテクチャ
+### 2.1 Nx モノレポとスタンドアロンアーキテクチャ
 
-#### Nxワークスペース構成
+#### Nx ワークスペース構成
+
 ```json
 // nx.json
 {
@@ -74,7 +76,8 @@
 }
 ```
 
-#### Angularアプリケーションのブートストラップ
+#### Angular アプリケーションのブートストラップ
+
 ```typescript
 // apps/frontend/src/main.ts - Standalone Bootstrap
 import { bootstrapApplication } from '@angular/platform-browser';
@@ -96,32 +99,30 @@ bootstrapApplication(AppComponent, {
   providers: [
     // Router
     provideRouter(routes, withComponentInputBinding()),
-    
+
     // NgRx Store with feature states
     provideStore({
       [chatFeature.name]: chatFeature.reducer,
       [sessionFeature.name]: sessionFeature.reducer,
     }),
-    
+
     // NgRx Effects
     provideEffects(chatEffects),
-    
+
     // NgRx DevTools
     !environment.production ? provideStoreDevtools() : [],
-    
+
     // Animations
     provideAnimations(),
-    
+
     // HTTP with interceptors
-    provideHttpClient(
-      withFetch(),
-      withInterceptors([authInterceptor])
-    ),
-  ]
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+  ],
 });
 ```
 
 ### 2.2 状態管理（NgRx Standalone）
+
 ```typescript
 // features/chat/store/index.ts - Feature State
 import { createFeature, createReducer, on } from '@ngrx/store';
@@ -163,16 +164,11 @@ export const chatFeature = createFeature({
 });
 
 // Selectors are automatically generated
-export const {
-  selectChatState,
-  selectMessages,
-  selectCurrentSessionId,
-  selectIsLoading,
-  selectError,
-} = chatFeature;
+export const { selectChatState, selectMessages, selectCurrentSessionId, selectIsLoading, selectError } = chatFeature;
 ```
 
 ### 2.3 スタンドアロンコンポーネント階層
+
 ```
 AppComponent (スタンドアロン)
 ├── HeaderComponent (スタンドアロン)
@@ -189,7 +185,8 @@ AppComponent (スタンドアロン)
 ```
 
 #### AppComponent 例
-```typescript
+
+````typescript
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './layout/header/header.component';
@@ -245,9 +242,10 @@ import { APP_FILTER } from '@nestjs/core';
   ],
 })
 export class AppModule {}
-```
+````
 
 ### 3.2 サービスレイヤー設計
+
 ```typescript
 @Injectable()
 export class AmazonQService {
@@ -258,20 +256,21 @@ export class AmazonQService {
       name: 'xterm-256color',
       env: process.env,
     });
-    
+
     this.sessions.set(sessionId, pty);
   }
 
   async sendMessage(sessionId: string, message: string): Promise<void> {
     const pty = this.sessions.get(sessionId);
     if (!pty) throw new NotFoundException('Session not found');
-    
+
     pty.write(message + '\n');
   }
 }
 ```
 
-### 3.3 WebSocketゲートウェイ
+### 3.3 WebSocket ゲートウェイ
+
 ```typescript
 @WebSocketGateway({
   cors: { origin: '*' },
@@ -282,10 +281,7 @@ export class ChatGateway {
   server: Server;
 
   @SubscribeMessage('message')
-  async handleMessage(
-    @MessageBody() data: MessageDto,
-    @ConnectedSocket() client: Socket,
-  ): Promise<void> {
+  async handleMessage(@MessageBody() data: MessageDto, @ConnectedSocket() client: Socket): Promise<void> {
     const response = await this.amazonQService.processMessage(data);
     client.emit('response', response);
   }
@@ -295,6 +291,7 @@ export class ChatGateway {
 ## 4. データフロー
 
 ### 4.1 チャットメッセージフロー
+
 ```
 1. ユーザー入力
    ↓
@@ -316,6 +313,7 @@ export class ChatGateway {
 ```
 
 ### 4.2 セッション管理フロー
+
 ```
 1. 新規セッション作成
    - UUID生成
@@ -337,16 +335,18 @@ export class ChatGateway {
 
 ### 5.1 認証フロー
 
-#### JWT認証の目的
-JWT認証は、Amazon Q GUIアプリケーション自体へのアクセス制御を行うためのものです。
+#### JWT 認証の目的
+
+JWT 認証は、Amazon Q GUI アプリケーション自体へのアクセス制御を行うためのものです。
 
 **主な役割**:
-- **マルチユーザー対応**: 複数のユーザーがGUIを使用する場合のアクセス制御
-- **セッション管理**: 各ユーザーのチャットセッションを分離
-- **API保護**: バックエンドAPIへの不正アクセス防止
-- **監査ログ**: 誰がいつAmazon Qを使用したかの追跡
 
-**注意**: Amazon Q CLI自体の認証（AWS認証）は別途必要です。JWTはGUIアプリケーションの認証のみを担当します。
+- **マルチユーザー対応**: 複数のユーザーが GUI を使用する場合のアクセス制御
+- **セッション管理**: 各ユーザーのチャットセッションを分離
+- **API 保護**: バックエンド API への不正アクセス防止
+- **監査ログ**: 誰がいつ Amazon Q を使用したかの追跡
+
+**注意**: Amazon Q CLI 自体の認証（AWS 認証）は別途必要です。JWT は GUI アプリケーションの認証のみを担当します。
 
 ```
 Client                    Server                    Amazon Q CLI
@@ -363,14 +363,16 @@ Client                    Server                    Amazon Q CLI
 ```
 
 ### 5.2 セキュリティレイヤー
-- **API層**: JWT認証、CORS設定
-- **WebSocket層**: 接続時トークン検証
+
+- **API 層**: JWT 認証、CORS 設定
+- **WebSocket 層**: 接続時トークン検証
 - **サービス層**: 権限チェック、入力検証
-- **データ層**: SQLインジェクション対策
+- **データ層**: SQL インジェクション対策
 
 ## 6. エラーハンドリング
 
 ### 6.1 フロントエンドエラー処理
+
 ```typescript
 // Global Error Handler
 export class GlobalErrorHandler implements ErrorHandler {
@@ -387,17 +389,16 @@ export class GlobalErrorHandler implements ErrorHandler {
 ```
 
 ### 6.2 バックエンドエラー処理
+
 ```typescript
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-      
+
+    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -410,22 +411,25 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 ## 7. パフォーマンス最適化
 
 ### 7.1 フロントエンド最適化
+
 - **`ChangeDetection.OnPush`**: 不要な再レンダリング防止
-- **TrackBy関数**: リスト表示の最適化
+- **TrackBy 関数**: リスト表示の最適化
 - **Lazy Loading**: ルートレベルでの遅延読み込み
 - **仮想スクロール**: 大量メッセージの効率的表示
 - **Tailwind CSS v4 JIT**: 使用されるクラスのみ生成
-- **CSS最小化**: PostCSSによる最適化
+- **CSS 最小化**: PostCSS による最適化
 
 ### 7.2 バックエンド最適化
+
 - **接続プーリング**: データベース接続の再利用
 - **メッセージバッファリング**: 小さなメッセージの集約
-- **圧縮**: WebSocketメッセージの圧縮
+- **圧縮**: WebSocket メッセージの圧縮
 - **キャッシング**: 頻繁にアクセスされるデータ
 
 ## 8. ローカル環境最適化
 
 ### 8.1 リソース管理
+
 ```
         ローカルマシン
              │
@@ -439,33 +443,37 @@ Frontend(4200)  Backend(3000)
 ```
 
 ### 8.2 パフォーマンス戦略
+
 - **メモリ効率**: ローカルリソースの効率的利用
-- **ファイルベースDB**: SQLiteによる軽量データ管理
+- **ファイルベース DB**: SQLite による軽量データ管理
 - **開発用キャッシュ**: ブラウザキャッシュの活用
 - **ホットリロード**: 開発効率の最大化
 
 ## 9. 監視とロギング
 
 ### 9.1 監視ポイント
-- WebSocket接続数
+
+- WebSocket 接続数
 - レスポンスタイム
 - エラー率
 - CPU/メモリ使用率
 
 ### 9.2 ログ設計
+
 ```typescript
 // ログレベルと出力先
 const logConfig = {
-  error: 'error.log',      // エラーログ
-  warn: 'warning.log',     // 警告ログ
+  error: 'error.log', // エラーログ
+  warn: 'warning.log', // 警告ログ
   info: 'application.log', // アプリケーションログ
-  debug: 'debug.log'       // デバッグログ（開発環境のみ）
+  debug: 'debug.log', // デバッグログ（開発環境のみ）
 };
 ```
 
 ## 10. ローカル開発環境
 
 ### 10.1 開発サーバー構成
+
 ```bash
 # 開発サーバー同時起動
 npx nx run-many --target=serve --projects=frontend,backend --parallel
@@ -479,6 +487,7 @@ npx nx serve frontend
 ```
 
 ### 10.2 ローカル実行設定
+
 ```typescript
 // apps/backend/src/main.ts
 async function bootstrap() {
@@ -495,15 +504,16 @@ async function bootstrap() {
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000',
-  wsUrl: 'ws://localhost:3000'
+  wsUrl: 'ws://localhost:3000',
 };
 ```
 
 ### 10.3 開発ツール
-- **Nx Console**: VS Code拡張機能で開発効率化
+
+- **Nx Console**: VS Code 拡張機能で開発効率化
 - **Chrome DevTools**: フロントエンドデバッグ
-- **WebSocket Debugger**: Socket.io通信の確認
-- **SQLite Browser**: ローカルDB確認
+- **WebSocket Debugger**: Socket.io 通信の確認
+- **SQLite Browser**: ローカル DB 確認
 
 ## まとめ
 

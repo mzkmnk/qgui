@@ -44,6 +44,7 @@ exec('q', (error, stdout, stderr) => {
 ```
 
 **問題点:**
+
 - 対話型プログラムが終了まで待機
 - ストリーミング出力が取得できない
 - パスワード入力等の対話処理が不可能
@@ -55,7 +56,7 @@ exec('q', (error, stdout, stderr) => {
 const { spawn } = require('child_process');
 
 const child = spawn('q', [], {
-  stdio: ['pipe', 'pipe', 'pipe'] // パイプ経由
+  stdio: ['pipe', 'pipe', 'pipe'], // パイプ経由
 });
 
 child.stdout.on('data', (data) => {
@@ -64,9 +65,10 @@ child.stdout.on('data', (data) => {
 ```
 
 **問題点:**
+
 - プログラムが「端末環境ではない」と判定
 - 色付き出力やカーソル制御が正常動作しない
-- vim、ssh等の高度な対話型プログラムが利用不可
+- vim、ssh 等の高度な対話型プログラムが利用不可
 
 ### 🔍 根本的な問題
 
@@ -123,13 +125,13 @@ if (isatty(STDIN_FILENO)) {
 
 ### ✨ PTY の利点
 
-| 機能 | パイプ | PTY |
-|------|--------|-----|
-| **対話型プログラム** | ❌ 動作しない | ✅ 完全動作 |
-| **色付き出力** | ❌ エスケープ文字化け | ✅ 正常表示 |
-| **パスワード入力** | ❌ プロンプト表示されず | ✅ 安全入力 |
-| **カーソル制御** | ❌ 制御コード文字化け | ✅ 正常動作 |
-| **vim/nano 等** | ❌ 画面崩れ | ✅ 正常編集 |
+| 機能                 | パイプ                  | PTY         |
+| -------------------- | ----------------------- | ----------- |
+| **対話型プログラム** | ❌ 動作しない           | ✅ 完全動作 |
+| **色付き出力**       | ❌ エスケープ文字化け   | ✅ 正常表示 |
+| **パスワード入力**   | ❌ プロンプト表示されず | ✅ 安全入力 |
+| **カーソル制御**     | ❌ 制御コード文字化け   | ✅ 正常動作 |
+| **vim/nano 等**      | ❌ 画面崩れ             | ✅ 正常編集 |
 
 ---
 
@@ -141,7 +143,7 @@ if (isatty(STDIN_FILENO)) {
 # バックエンド
 npm install node-pty ws express
 
-# フロントエンド  
+# フロントエンド
 npm install xterm xterm-addon-fit
 ```
 
@@ -161,32 +163,34 @@ const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
   console.log('クライアント接続');
-  
+
   // PTY プロセスを作成
   const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash';
   const ptyProcess = pty.spawn(shell, [], {
     name: 'xterm-color',
-    cols: 150,  // 広い幅で不自然な改行を防ぐ
-    rows: 50,   // 十分な高さ
+    cols: 150, // 広い幅で不自然な改行を防ぐ
+    rows: 50, // 十分な高さ
     cwd: process.cwd(),
     env: {
       ...process.env,
-      TERM: 'xterm-256color'
-    }
+      TERM: 'xterm-256color',
+    },
   });
-  
+
   // PTY → WebSocket
   ptyProcess.on('data', (data) => {
-    ws.send(JSON.stringify({
-      type: 'output',
-      data: data
-    }));
+    ws.send(
+      JSON.stringify({
+        type: 'output',
+        data: data,
+      })
+    );
   });
-  
+
   // WebSocket → PTY
   ws.on('message', (message) => {
     const msg = JSON.parse(message);
-    
+
     switch (msg.type) {
       case 'input':
         ptyProcess.write(msg.data);
@@ -196,7 +200,7 @@ wss.on('connection', (ws) => {
         break;
     }
   });
-  
+
   // 切断処理
   ws.on('close', () => {
     ptyProcess.kill();
@@ -211,7 +215,7 @@ server.listen(3000, () => {
 
 #### 2. Amazon Q CLI 専用ハンドラー
 
-```javascript
+````javascript
 // amazon-q-handler.js
 class AmazonQHandler {
   constructor() {
@@ -219,7 +223,7 @@ class AmazonQHandler {
     this.isReady = false;
     this.outputBuffer = '';
   }
-  
+
   async startSession() {
     this.ptyProcess = pty.spawn('q', [], {
       name: 'xterm-color',
@@ -228,34 +232,34 @@ class AmazonQHandler {
       cwd: process.cwd(),
       env: {
         ...process.env,
-        TERM: 'xterm-256color'
-      }
+        TERM: 'xterm-256color',
+      },
     });
-    
+
     this.ptyProcess.on('data', (data) => {
       this.handleOutput(data);
     });
-    
+
     // 初期化完了まで待機
     await this.waitForReady();
   }
-  
+
   handleOutput(rawData) {
     // ANSI エスケープシーケンス処理
     const processed = this.processOutput(rawData);
-    
+
     // 要素別に分類して送信
     this.emitProcessedOutput(processed);
   }
-  
+
   processOutput(data) {
     // 1. ANSI エスケープシーケンス除去
     const cleaned = this.cleanAnsiEscapes(data);
-    
+
     // 2. 出力要素の検出・分類
     return this.classifyOutput(cleaned);
   }
-  
+
   classifyOutput(text) {
     if (text.includes('<thinking>')) {
       return { type: 'thinking', content: text };
@@ -271,16 +275,16 @@ class AmazonQHandler {
     }
     return { type: 'text', content: text };
   }
-  
+
   cleanAnsiEscapes(data) {
     return data
-      .replace(/\x1b\[[0-9;]*[mGKHf]/g, '')  // 色/スタイル
-      .replace(/\x1b\].*?\x07/g, '')         // OSC シーケンス
-      .replace(/\x1b\[.*?[A-Za-z]/g, '')     // CSI シーケンス
-      .replace(/\r/g, '');                   // キャリッジリターン
+      .replace(/\x1b\[[0-9;]*[mGKHf]/g, '') // 色/スタイル
+      .replace(/\x1b\].*?\x07/g, '') // OSC シーケンス
+      .replace(/\x1b\[.*?[A-Za-z]/g, '') // CSI シーケンス
+      .replace(/\r/g, ''); // キャリッジリターン
   }
 }
-```
+````
 
 ### 🌐 フロントエンド実装
 
@@ -289,116 +293,123 @@ class AmazonQHandler {
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>PTY Terminal</title>
-  <script src="https://cdn.jsdelivr.net/npm/xterm@5.0.0/lib/xterm.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.7.0/lib/xterm-addon-fit.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.0.0/css/xterm.css">
-  <style>
-    #terminal { width: 100%; height: 100vh; }
-    .thinking-block { 
-      background: #f0f8ff; 
-      border-left: 4px solid #007acc; 
-      padding: 10px; 
-      margin: 5px 0; 
-    }
-    .tool-usage { 
-      background: #fff8dc; 
-      padding: 8px; 
-      border-radius: 4px; 
-      margin: 3px 0; 
-    }
-    .code-block { 
-      background: #f8f8f8; 
-      border: 1px solid #ddd; 
-      border-radius: 4px; 
-      padding: 10px; 
-    }
-  </style>
-</head>
-<body>
-  <div id="terminal"></div>
-  
-  <script>
-    // ターミナル初期化
-    const terminal = new Terminal({
-      cursorBlink: true,
-      fontSize: 14,
-      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-      theme: {
-        background: '#1e1e1e',
-        foreground: '#d4d4d4'
+  <head>
+    <title>PTY Terminal</title>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.0.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.7.0/lib/xterm-addon-fit.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.0.0/css/xterm.css" />
+    <style>
+      #terminal {
+        width: 100%;
+        height: 100vh;
       }
-    });
-    
-    const fitAddon = new FitAddon.FitAddon();
-    terminal.loadAddon(fitAddon);
-    terminal.open(document.getElementById('terminal'));
-    fitAddon.fit();
-    
-    // WebSocket 接続
-    const ws = new WebSocket('ws://localhost:3000');
-    
-    // サーバーからの出力
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      
-      switch (msg.type) {
-        case 'output':
-          terminal.write(msg.data);
-          break;
-        case 'processed_output':
-          renderProcessedOutput(msg);
-          break;
+      .thinking-block {
+        background: #f0f8ff;
+        border-left: 4px solid #007acc;
+        padding: 10px;
+        margin: 5px 0;
       }
-    };
-    
-    // ユーザー入力
-    terminal.onData((data) => {
-      ws.send(JSON.stringify({
-        type: 'input',
-        data: data
-      }));
-    });
-    
-    // リサイズ処理
-    terminal.onResize(({ cols, rows }) => {
-      ws.send(JSON.stringify({
-        type: 'resize',
-        cols: cols,
-        rows: rows
-      }));
-    });
-    
-    // ウィンドウリサイズ対応
-    window.addEventListener('resize', () => {
+      .tool-usage {
+        background: #fff8dc;
+        padding: 8px;
+        border-radius: 4px;
+        margin: 3px 0;
+      }
+      .code-block {
+        background: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="terminal"></div>
+
+    <script>
+      // ターミナル初期化
+      const terminal = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+        theme: {
+          background: '#1e1e1e',
+          foreground: '#d4d4d4',
+        },
+      });
+
+      const fitAddon = new FitAddon.FitAddon();
+      terminal.loadAddon(fitAddon);
+      terminal.open(document.getElementById('terminal'));
       fitAddon.fit();
-    });
-  </script>
-</body>
+
+      // WebSocket 接続
+      const ws = new WebSocket('ws://localhost:3000');
+
+      // サーバーからの出力
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+
+        switch (msg.type) {
+          case 'output':
+            terminal.write(msg.data);
+            break;
+          case 'processed_output':
+            renderProcessedOutput(msg);
+            break;
+        }
+      };
+
+      // ユーザー入力
+      terminal.onData((data) => {
+        ws.send(
+          JSON.stringify({
+            type: 'input',
+            data: data,
+          })
+        );
+      });
+
+      // リサイズ処理
+      terminal.onResize(({ cols, rows }) => {
+        ws.send(
+          JSON.stringify({
+            type: 'resize',
+            cols: cols,
+            rows: rows,
+          })
+        );
+      });
+
+      // ウィンドウリサイズ対応
+      window.addEventListener('resize', () => {
+        fitAddon.fit();
+      });
+    </script>
+  </body>
 </html>
 ```
 
 #### 2. Amazon Q CLI 専用レンダラー
 
-```javascript
+````javascript
 // amazon-q-renderer.js
 class AmazonQRenderer {
   constructor(container) {
     this.container = container;
     this.messageElements = new Map();
   }
-  
+
   renderOutput(output) {
     const element = this.createElement(output);
     this.container.appendChild(element);
     return element;
   }
-  
+
   createElement(output) {
     const wrapper = document.createElement('div');
     wrapper.className = `output-element ${output.type}`;
-    
+
     switch (output.type) {
       case 'thinking':
         wrapper.innerHTML = `
@@ -408,7 +419,7 @@ class AmazonQRenderer {
           </details>
         `;
         break;
-        
+
       case 'tool_usage':
         wrapper.innerHTML = `
           <div class="tool-usage">
@@ -417,7 +428,7 @@ class AmazonQRenderer {
           </div>
         `;
         break;
-        
+
       case 'code_block':
         const language = this.extractLanguage(output.content);
         const code = this.extractCode(output.content);
@@ -433,7 +444,7 @@ class AmazonQRenderer {
           </div>
         `;
         break;
-        
+
       case 'system_message':
         const messageType = this.extractMessageType(output.content);
         wrapper.innerHTML = `
@@ -443,7 +454,7 @@ class AmazonQRenderer {
           </div>
         `;
         break;
-        
+
       default:
         wrapper.innerHTML = `
           <div class="response-text">
@@ -451,36 +462,36 @@ class AmazonQRenderer {
           </div>
         `;
     }
-    
+
     return wrapper;
   }
-  
+
   extractLanguage(codeBlock) {
     const match = codeBlock.match(/```(\w+)/);
     return match ? match[1] : 'text';
   }
-  
+
   extractCode(codeBlock) {
     const match = codeBlock.match(/```(?:\w+)?\n([\s\S]*?)```/);
     return match ? match[1] : codeBlock;
   }
-  
+
   getSystemIcon(type) {
     const icons = {
-      'システム': 'ℹ️',
-      '警告': '⚠️',
-      'エラー': '❌',
-      '情報': '💡'
+      システム: 'ℹ️',
+      警告: '⚠️',
+      エラー: '❌',
+      情報: '💡',
     };
     return icons[type] || 'ℹ️';
   }
-  
+
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
-  
+
   renderMarkdown(text) {
     // 簡易マークダウンレンダリング
     return text
@@ -497,7 +508,7 @@ function copyToClipboard(text) {
     console.log('コードがクリップボードにコピーされました');
   });
 }
-```
+````
 
 ---
 
@@ -505,7 +516,7 @@ function copyToClipboard(text) {
 
 ### 🔗 完全統合の実装
 
-```javascript
+````javascript
 // amazon-q-integration.js
 class AmazonQIntegration {
   constructor(websocket) {
@@ -514,126 +525,130 @@ class AmazonQIntegration {
     this.outputBuffer = '';
     this.currentResponse = '';
   }
-  
+
   async startAmazonQSession() {
     // Amazon Q CLI セッション開始
-    this.ws.send(JSON.stringify({
-      type: 'start_amazon_q',
-      config: {
-        cols: 150,
-        rows: 50
-      }
-    }));
-    
+    this.ws.send(
+      JSON.stringify({
+        type: 'start_amazon_q',
+        config: {
+          cols: 150,
+          rows: 50,
+        },
+      })
+    );
+
     this.sessionState = 'starting';
     await this.waitForReady();
   }
-  
+
   async sendQuestion(question) {
     if (this.sessionState !== 'ready') {
       throw new Error('Amazon Q session is not ready');
     }
-    
+
     // 質問送信
-    this.ws.send(JSON.stringify({
-      type: 'amazon_q_input',
-      data: question + '\n'
-    }));
-    
+    this.ws.send(
+      JSON.stringify({
+        type: 'amazon_q_input',
+        data: question + '\n',
+      })
+    );
+
     // ストリーミング応答の開始
     this.currentResponse = '';
     return this.waitForCompleteResponse();
   }
-  
+
   handleAmazonQOutput(output) {
     // 出力タイプの判定
     const processedOutput = this.processOutput(output);
-    
+
     // リアルタイム表示
     this.emitStreamingOutput(processedOutput);
-    
+
     // 応答の蓄積
     this.currentResponse += processedOutput.content;
-    
+
     // 応答完了の検出
     if (this.isResponseComplete(processedOutput)) {
       this.emitCompleteResponse(this.currentResponse);
       this.currentResponse = '';
     }
   }
-  
+
   processOutput(rawOutput) {
     // 1. ANSI エスケープ除去
     const cleaned = this.cleanAnsiEscapes(rawOutput);
-    
+
     // 2. 出力要素の分類
     return this.classifyAmazonQOutput(cleaned);
   }
-  
+
   classifyAmazonQOutput(text) {
     // thinking 要素
     if (text.includes('<thinking>') || text.includes('</thinking>')) {
       return {
         type: 'thinking',
         content: text,
-        metadata: { streamable: true, hidden: false }
+        metadata: { streamable: true, hidden: false },
       };
     }
-    
+
     // ツール使用
     if (text.includes('Using tool:')) {
       const toolName = text.match(/Using tool: (\w+)/)?.[1];
       return {
         type: 'tool_usage',
         content: text,
-        metadata: { toolName, streamable: true }
+        metadata: { toolName, streamable: true },
       };
     }
-    
+
     // コードブロック
     if (text.includes('```')) {
       const language = text.match(/```(\w+)/)?.[1] || 'text';
       return {
         type: 'code_block',
         content: text,
-        metadata: { language, copyable: true }
+        metadata: { language, copyable: true },
       };
     }
-    
+
     // システムメッセージ
     if (text.match(/\[(システム|エラー|警告|情報)\]/)) {
       const messageType = text.match(/\[(\w+)\]/)?.[1];
       return {
         type: 'system_message',
         content: text,
-        metadata: { messageType, priority: 'high' }
+        metadata: { messageType, priority: 'high' },
       };
     }
-    
+
     // 対話的要素
     if (text.match(/.*\([yY]\/[nN]\)|選択.*:|.*\(\d+-\d+\):/)) {
       return {
         type: 'interactive',
         content: text,
-        metadata: { requiresInput: true }
+        metadata: { requiresInput: true },
       };
     }
-    
+
     // 通常テキスト
     return {
       type: 'text',
       content: text,
-      metadata: { streamable: true }
+      metadata: { streamable: true },
     };
   }
 }
-```
+````
 
 ### 📊 ストリーミング出力の分析
 
 Amazon Q CLI の出力パターンを理解することで、適切な処理が可能になります：
 
-```javascript
+````javascript
 // streaming-analyzer.js
 class StreamingAnalyzer {
   constructor() {
@@ -645,10 +660,10 @@ class StreamingAnalyzer {
       codeBlockStart: /```(\w+)?/,
       codeBlockEnd: /```/,
       systemMessage: /\[(システム|エラー|警告|情報)\]/,
-      responseEnd: /\n\s*$/
+      responseEnd: /\n\s*$/,
     };
   }
-  
+
   analyzeChunk(chunk) {
     const analysis = {
       containsThinking: this.patterns.thinkingStart.test(chunk),
@@ -656,13 +671,13 @@ class StreamingAnalyzer {
       containsCode: this.patterns.codeBlockStart.test(chunk),
       containsSystem: this.patterns.systemMessage.test(chunk),
       isResponseStart: this.patterns.responseStart.test(chunk),
-      isResponseEnd: this.patterns.responseEnd.test(chunk)
+      isResponseEnd: this.patterns.responseEnd.test(chunk),
     };
-    
+
     return analysis;
   }
 }
-```
+````
 
 ---
 
@@ -700,7 +715,7 @@ class StreamingAnalyzer {
   padding: 1rem;
   border-radius: 8px;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .message.user {
@@ -877,14 +892,20 @@ class StreamingAnalyzer {
 }
 
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 ```
 
 ### 🔄 リアルタイムストリーミング実装
 
-```javascript
+````javascript
 // streaming-chat.js
 class StreamingChatInterface {
   constructor(container) {
@@ -893,20 +914,20 @@ class StreamingChatInterface {
     this.streamingElement = null;
     this.ws = null;
   }
-  
+
   async initialize() {
     // WebSocket 接続
     this.ws = new WebSocket('ws://localhost:3000');
-    
+
     this.ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       this.handleMessage(data);
     };
-    
+
     // Amazon Q セッション開始
     await this.startAmazonQSession();
   }
-  
+
   handleMessage(data) {
     switch (data.type) {
       case 'streaming_chunk':
@@ -920,26 +941,26 @@ class StreamingChatInterface {
         break;
     }
   }
-  
+
   handleStreamingChunk(chunk) {
     // 新しいメッセージの開始
     if (!this.currentMessage) {
       this.currentMessage = this.createMessageElement('assistant');
       this.container.appendChild(this.currentMessage);
     }
-    
+
     // チャンクタイプに応じた処理
     const element = this.renderStreamingChunk(chunk);
     this.currentMessage.appendChild(element);
-    
+
     // スクロール調整
     this.scrollToBottom();
   }
-  
+
   renderStreamingChunk(chunk) {
     const wrapper = document.createElement('div');
     wrapper.className = `streaming-chunk ${chunk.type}`;
-    
+
     switch (chunk.type) {
       case 'thinking':
         wrapper.innerHTML = `
@@ -949,7 +970,7 @@ class StreamingChatInterface {
           </details>
         `;
         break;
-        
+
       case 'tool_usage':
         wrapper.innerHTML = `
           <div class="tool-usage">
@@ -959,7 +980,7 @@ class StreamingChatInterface {
           </div>
         `;
         break;
-        
+
       case 'text':
         wrapper.innerHTML = `
           <div class="response-text">
@@ -968,7 +989,7 @@ class StreamingChatInterface {
           </div>
         `;
         break;
-        
+
       case 'code_block':
         if (chunk.content.includes('```')) {
           // 完全なコードブロック
@@ -989,14 +1010,14 @@ class StreamingChatInterface {
         }
         break;
     }
-    
+
     return wrapper;
   }
-  
+
   renderCompleteCodeBlock(chunk) {
     const language = chunk.metadata.language || 'text';
     const code = chunk.content.replace(/```\w*\n?/g, '').replace(/```$/, '');
-    
+
     return `
       <div class="code-block">
         <div class="code-header">
@@ -1011,41 +1032,43 @@ class StreamingChatInterface {
       </div>
     `;
   }
-  
+
   async sendMessage(message) {
     // ユーザーメッセージを表示
     const userMessage = this.createMessageElement('user');
     userMessage.innerHTML = `<div class="user-text">${this.escapeHtml(message)}</div>`;
     this.container.appendChild(userMessage);
-    
+
     // 応答準備
     this.currentMessage = null;
-    
+
     // メッセージ送信
-    this.ws.send(JSON.stringify({
-      type: 'amazon_q_input',
-      data: message
-    }));
-    
+    this.ws.send(
+      JSON.stringify({
+        type: 'amazon_q_input',
+        data: message,
+      })
+    );
+
     this.scrollToBottom();
   }
-  
+
   createMessageElement(sender) {
     const element = document.createElement('div');
     element.className = `message ${sender}`;
     return element;
   }
-  
+
   scrollToBottom() {
     this.container.scrollTop = this.container.scrollHeight;
   }
-  
+
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
-  
+
   escapeForJs(text) {
     return text.replace(/`/g, '\\`').replace(/\$/g, '\\$');
   }
@@ -1055,13 +1078,13 @@ class StreamingChatInterface {
 document.addEventListener('DOMContentLoaded', async () => {
   const chatContainer = document.getElementById('chat-messages');
   const chatInterface = new StreamingChatInterface(chatContainer);
-  
+
   await chatInterface.initialize();
-  
+
   // 入力フィールドの処理
   const inputField = document.getElementById('chat-input');
   const sendButton = document.getElementById('send-button');
-  
+
   const sendMessage = () => {
     const message = inputField.value.trim();
     if (message) {
@@ -1070,7 +1093,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       inputField.focus();
     }
   };
-  
+
   sendButton.addEventListener('click', sendMessage);
   inputField.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1079,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
-```
+````
 
 ---
 
@@ -1162,11 +1185,11 @@ class PerformanceOptimizer {
     this.updateThrottle = 16; // 60fps
     this.pendingUpdates = [];
   }
-  
+
   // バッファリングによる効率的な更新
   bufferUpdate(update) {
     this.pendingUpdates.push(update);
-    
+
     if (!this.updateScheduled) {
       this.updateScheduled = true;
       requestAnimationFrame(() => {
@@ -1175,24 +1198,24 @@ class PerformanceOptimizer {
       });
     }
   }
-  
+
   flushUpdates() {
     const batchedUpdates = this.pendingUpdates.splice(0);
-    
+
     // 同じタイプの更新をまとめて処理
     const groupedUpdates = this.groupUpdatesByType(batchedUpdates);
-    
-    groupedUpdates.forEach(group => {
+
+    groupedUpdates.forEach((group) => {
       this.processBatchedUpdate(group);
     });
   }
-  
+
   // メモリ効率的な ANSI エスケープシーケンス除去
   optimizedAnsiClean(text) {
     // プリコンパイルされた正規表現を使用
     return text.replace(this.ansiRegex, '');
   }
-  
+
   // Virtual DOM による効率的な DOM 更新
   updateVirtualDOM(changes) {
     // 実際の DOM 操作を最小限に抑制
@@ -1209,35 +1232,42 @@ class PerformanceOptimizer {
 ### 📚 技術ドキュメント
 
 #### PTY 関連
+
 - [node-pty GitHub](https://github.com/microsoft/node-pty)
 - [PTY システムコール (Linux Manual)](https://man7.org/linux/man-pages/man7/pty.7.html)
 - [Terminal Emulator 実装ガイド](https://invisible-island.net/xterm/xterm.faq.html)
 
-#### WebSocket 関連  
+#### WebSocket 関連
+
 - [WebSocket API (MDN)](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 - [ws ライブラリドキュメント](https://github.com/websockets/ws)
 
 #### xterm.js 関連
+
 - [xterm.js 公式ドキュメント](https://xtermjs.org/)
 - [xterm.js API リファレンス](https://xtermjs.org/docs/api/)
 
 #### Amazon Q CLI
+
 - [Amazon Q Developer CLI ドキュメント](https://aws.amazon.com/q/developer/)
 
 ### 🔧 実装例とサンプル
 
 #### オープンソースプロジェクト
+
 - [VS Code Integrated Terminal](https://github.com/microsoft/vscode) - PTY + WebSocket の実用例
 - [Hyper Terminal](https://github.com/vercel/hyper) - Electron ベースのターミナル
 - [ttyd](https://github.com/tsl0922/ttyd) - Web ベースターミナルの C 実装
 
 #### 学習リソース
+
 - [Building a Terminal Emulator](https://www.uninformativ.de/blog/postings/2018-02-24/0/POSTING-en.html)
 - [How Terminal Works](https://www.linusakesson.net/programming/tty/)
 
 ### ⚠️ 注意事項とセキュリティ
 
 #### セキュリティ考慮事項
+
 1. **認証・認可**: WebSocket 接続時の適切な認証
 2. **コマンド制限**: 危険なコマンドの実行防止
 3. **サンドボックス**: プロセス実行環境の分離
@@ -1250,17 +1280,17 @@ class SecurityManager {
     this.allowedCommands = ['q', 'ls', 'cat', 'echo'];
     this.blockedCommands = ['rm', 'sudo', 'ssh', 'curl'];
   }
-  
+
   validateCommand(command) {
     const cmd = command.trim().split(' ')[0];
-    
+
     if (this.blockedCommands.includes(cmd)) {
       throw new Error(`Command '${cmd}' is not allowed`);
     }
-    
+
     return true;
   }
-  
+
   sanitizeInput(input) {
     // 危険な文字列の除去
     return input.replace(/[;&|`$()]/g, '');
@@ -1269,8 +1299,9 @@ class SecurityManager {
 ```
 
 #### パフォーマンス考慮事項
+
 1. **メモリ管理**: 長時間のセッションでのメモリリーク防止
-2. **CPU 使用率**: ANSI エスケープシーケンス処理の最適化  
+2. **CPU 使用率**: ANSI エスケープシーケンス処理の最適化
 3. **ネットワーク**: WebSocket データ送信の効率化
 4. **ブラウザリソース**: DOM 操作の最適化
 
@@ -1283,18 +1314,20 @@ class SecurityManager {
 ### ✅ 実現される機能
 
 1. **完全な Amazon Q CLI 統合**
+
    - thinking プロセスの可視化
    - ツール使用状況の表示
    - ストリーミング応答のリアルタイム表示
    - 対話的要素の完全サポート
 
 2. **本格的なターミナル体験**
+
    - 色付き出力の正確な表示
    - カーソル制御とエスケープシーケンス対応
    - vim、nano 等の高度なエディタ対応
    - パスワード入力等のセキュアな対話
 
-3. **優れたユーザー体験**  
+3. **優れたユーザー体験**
    - 60fps でのスムーズなストリーミング表示
    - 要素別の適切なスタイリング
    - コピー&ペースト等の便利機能
@@ -1303,7 +1336,7 @@ class SecurityManager {
 ### 🚀 将来の拡張可能性
 
 - **マルチセッション対応**: 複数の Amazon Q セッション同時実行
-- **ファイル操作**: ドラッグ&ドロップによるファイルアップロード  
+- **ファイル操作**: ドラッグ&ドロップによるファイルアップロード
 - **音声入力**: 音声認識による質問入力
 - **AI 支援**: 質問候補の自動提案
 - **共同作業**: 複数ユーザーでのセッション共有
@@ -1312,4 +1345,4 @@ class SecurityManager {
 
 ---
 
-*このガイドが WebSocket + PTY による高度なターミナル体験の実装に役立つことを願います。技術的な質問や改善提案がありましたら、お気軽にお声かけください。*
+_このガイドが WebSocket + PTY による高度なターミナル体験の実装に役立つことを願います。技術的な質問や改善提案がありましたら、お気軽にお声かけください。_
