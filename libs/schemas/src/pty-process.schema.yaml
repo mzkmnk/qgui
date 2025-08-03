@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: PTYプロセス管理スキーマ
+  description: PTY (Pseudo-Terminal) プロセスの状態管理とメッセージング仕様
+  version: 1.0.0
+
+# PTYプロセス管理専用のスキーマ定義のため、pathsは不要
+paths: {}
+
+components:
+  schemas:
+    # PTYプロセス状態定義
+    PTYProcessState:
+      type: string
+      enum:
+        - idle       # 初期状態（プロセス未起動）
+        - running    # プロセス実行中
+        - error      # エラー発生状態
+        - terminated # プロセス終了状態
+      description: PTYプロセスの状態を表す列挙型
+
+    # PTYプロセス基本情報
+    PTYProcessInfo:
+      type: object
+      required:
+        - processId
+        - state
+        - createdAt
+      properties:
+        processId:
+          type: string
+          description: プロセスの一意識別子
+        state:
+          $ref: '#/components/schemas/PTYProcessState'
+        createdAt:
+          type: string
+          format: date-time
+          description: プロセス作成日時
+        terminatedAt:
+          type: string
+          format: date-time
+          description: プロセス終了日時（オプション）
+        error:
+          type: string
+          description: エラーメッセージ（エラー状態の場合）
+
+    # PTY入出力メッセージフォーマット
+    PTYDataMessage:
+      type: object
+      required:
+        - type
+        - processId
+        - data
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum:
+            - stdin   # 標準入力（クライアント→PTY）
+            - stdout  # 標準出力（PTY→クライアント）
+            - stderr  # 標準エラー出力（PTY→クライアント）
+          description: データの種類
+        processId:
+          type: string
+          description: 対象プロセスID
+        data:
+          type: string
+          description: 実際のデータ内容（バイナリデータはBase64エンコード）
+        timestamp:
+          type: string
+          format: date-time
+          description: メッセージ送信日時
+
+    # プロセスライフサイクルイベント定義
+    PTYLifecycleEvent:
+      type: object
+      required:
+        - eventType
+        - processId
+        - timestamp
+      properties:
+        eventType:
+          type: string
+          enum:
+            - process_started    # プロセス開始
+            - process_ready     # プロセス準備完了
+            - process_error     # プロセスエラー
+            - process_terminated # プロセス終了
+          description: イベントの種類
+        processId:
+          type: string
+          description: 対象プロセスID
+        timestamp:
+          type: string
+          format: date-time
+          description: イベント発生日時
+        details:
+          type: object
+          description: イベント詳細情報（オプション）
+          properties:
+            exitCode:
+              type: integer
+              description: プロセス終了コード（process_terminatedの場合）
+            signal:
+              type: string
+              description: 終了シグナル（process_terminatedの場合）
+            error:
+              type: string
+              description: エラーメッセージ（process_errorの場合）
+
+    # PTYプロセス作成リクエスト
+    PTYProcessCreateRequest:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: 実行するコマンド
+        args:
+          type: array
+          items:
+            type: string
+          description: コマンド引数
+        cwd:
+          type: string
+          description: 作業ディレクトリ（オプション）
+        env:
+          type: object
+          additionalProperties:
+            type: string
+          description: 環境変数（オプション）
+        cols:
+          type: integer
+          description: ターミナルの列数（デフォルト 80）
+          default: 80
+        rows:
+          type: integer
+          description: ターミナルの行数（デフォルト 24）
+          default: 24
+
+    # PTYプロセス作成レスポンス
+    PTYProcessCreateResponse:
+      type: object
+      required:
+        - processId
+        - state
+      properties:
+        processId:
+          type: string
+          description: 作成されたプロセスID
+        state:
+          $ref: '#/components/schemas/PTYProcessState'
+        createdAt:
+          type: string
+          format: date-time
+
+    # PTYリサイズリクエスト
+    PTYResizeRequest:
+      type: object
+      required:
+        - processId
+        - cols
+        - rows
+      properties:
+        processId:
+          type: string
+          description: 対象プロセスID
+        cols:
+          type: integer
+          description: 新しい列数
+        rows:
+          type: integer
+          description: 新しい行数
+
+    # PTYプロセス制御コマンド
+    PTYControlCommand:
+      type: object
+      required:
+        - processId
+        - command
+      properties:
+        processId:
+          type: string
+          description: 対象プロセスID
+        command:
+          type: string
+          enum:
+            - terminate  # プロセス終了
+            - kill      # プロセス強制終了
+            - pause     # プロセス一時停止（サポートされる場合）
+            - resume    # プロセス再開（サポートされる場合）
+          description: 制御コマンド

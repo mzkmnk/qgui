@@ -21,12 +21,12 @@ t-wada 推奨の TDD + スキーマ駆動開発手法に従い、プロジェク
 
 #### 1.1.2 PTY プロセス管理スキーマ設計
 
-- [ ] **スキーマ設計**: `schemas/pty-process.schema.yaml` 作成
-  - [ ] PTY プロセス状態定義（idle, running, error, terminated）
-  - [ ] 入出力メッセージフォーマット定義
-  - [ ] プロセスライフサイクルイベント定義
-- [ ] **型生成**: PTY 関連 TypeScript 型の自動生成設定
-- [ ] **インターフェース定義**: PTYManager, ProcessSession interfaces
+- [x] **スキーマ設計**: `schemas/pty-process.schema.yaml` 作成
+  - [x] PTY プロセス状態定義（idle, running, error, terminated）
+  - [x] 入出力メッセージフォーマット定義
+  - [x] プロセスライフサイクルイベント定義
+- [x] **型生成**: PTY 関連 TypeScript 型の自動生成設定
+- [x] **インターフェース定義**: PTYManager, ProcessSession interfaces
 
 ### 1.2 API エンドポイント設計
 
