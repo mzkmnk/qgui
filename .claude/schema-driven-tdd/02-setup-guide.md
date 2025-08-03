@@ -54,12 +54,12 @@ mkdir -p libs/shared/types
 mkdir -p apps/backend/src/dto
 mkdir -p apps/backend/src/validators
 
-# フロントエンド構造  
+# フロントエンド構造
 mkdir -p apps/frontend/src/app/types
 mkdir -p apps/frontend/src/app/services/api
 ```
 
-### Nx設定の拡張
+### Nx 設定の拡張
 
 #### nx.json への追加設定
 
@@ -69,10 +69,7 @@ mkdir -p apps/frontend/src/app/services/api
     "generate-types": {
       "executor": "@nx/workspace:run-commands",
       "options": {
-        "commands": [
-          "openapi-generator-cli generate -i libs/shared/schemas/api.yaml -g typescript-axios -o apps/frontend/src/app/types",
-          "openapi-generator-cli generate -i libs/shared/schemas/api.yaml -g typescript-nestjs -o apps/backend/src/dto"
-        ],
+        "commands": ["openapi-generator-cli generate -i libs/shared/schemas/api.yaml -g typescript-axios -o apps/frontend/src/app/types", "openapi-generator-cli generate -i libs/shared/schemas/api.yaml -g typescript-nestjs -o apps/backend/src/dto"],
         "parallel": true
       }
     }
@@ -80,7 +77,7 @@ mkdir -p apps/frontend/src/app/services/api
 }
 ```
 
-## OpenAPI Generator設定
+## OpenAPI Generator 設定
 
 ### openapitools.json 作成
 
@@ -104,7 +101,7 @@ README.md
 git_push.sh
 ```
 
-## NestJS Swagger設定
+## NestJS Swagger 設定
 
 ### main.ts の設定
 
@@ -118,18 +115,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // グローバルバリデーションパイプ
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    })
+  );
 
   // Swagger設定
-  const config = new DocumentBuilder()
-    .setTitle('Qgui API')
-    .setDescription('Qguiアプリケーションのapi仕様')
-    .setVersion('1.0')
-    .build();
+  const config = new DocumentBuilder().setTitle('Qgui API').setDescription('Qguiアプリケーションのapi仕様').setVersion('1.0').build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
@@ -144,7 +139,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-## Angular HTTP設定
+## Angular HTTP 設定
 
 ### app.config.ts の更新
 
@@ -155,11 +150,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(appRoutes),
-    provideHttpClient(withInterceptorsFromDi()),
-  ],
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(appRoutes), provideHttpClient(withInterceptorsFromDi())],
 };
 ```
 
@@ -178,7 +169,7 @@ export const appConfig: ApplicationConfig = {
 }
 ```
 
-## Git Hooks設定
+## Git Hooks 設定
 
 ### .husky/pre-commit 作成
 
@@ -203,34 +194,25 @@ npm run lint
 npm run test
 ```
 
-### lint-staged設定
+### lint-staged 設定
 
 ```json
 {
   "lint-staged": {
-    "libs/shared/schemas/*.yaml": [
-      "swagger-parser validate",
-      "npm run schema:generate",
-      "git add apps/frontend/src/app/types/ apps/backend/src/dto/"
-    ],
-    "apps/**/*.ts": [
-      "eslint --fix",
-      "git add"
-    ]
+    "libs/shared/schemas/*.yaml": ["swagger-parser validate", "npm run schema:generate", "git add apps/frontend/src/app/types/ apps/backend/src/dto/"],
+    "apps/**/*.ts": ["eslint --fix", "git add"]
   }
 }
 ```
 
-## VS Code設定
+## VS Code 設定
 
 ### .vscode/settings.json
 
 ```json
 {
   "yaml.schemas": {
-    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.0/schema.yaml": [
-      "libs/shared/schemas/*.yaml"
-    ]
+    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.0/schema.yaml": ["libs/shared/schemas/*.yaml"]
   },
   "yaml.format.enable": true,
   "editor.formatOnSave": true,
@@ -242,12 +224,7 @@ npm run test
 
 ```json
 {
-  "recommendations": [
-    "redhat.vscode-yaml",
-    "ms-vscode.vscode-typescript-next",
-    "angular.ng-template",
-    "bradlc.vscode-tailwindcss"
-  ]
+  "recommendations": ["redhat.vscode-yaml", "ms-vscode.vscode-typescript-next", "angular.ng-template", "bradlc.vscode-tailwindcss"]
 }
 ```
 
@@ -305,7 +282,7 @@ ls -la apps/frontend/src/app/types/
 
 ### よくある問題と解決方法
 
-#### 1. OpenAPI Generator実行エラー
+#### 1. OpenAPI Generator 実行エラー
 
 ```bash
 # Javaバージョン確認

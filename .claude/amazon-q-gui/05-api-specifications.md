@@ -1,16 +1,18 @@
-# Amazon Q GUI - API仕様書
+# Amazon Q GUI - API 仕様書
 
-## 1. API概要
+## 1. API 概要
 
 ### 1.1 基本情報
-| 項目 | 値 |
-|:-----|:---|
-| **ベースURL** | `http://localhost:3000/api` |
-| **WebSocket URL** | `ws://localhost:3000` |
-| **認証方式** | JWT Bearer Token |
-| **コンテンツタイプ** | `application/json` |
+
+| 項目                 | 値                          |
+| :------------------- | :-------------------------- |
+| **ベース URL**       | `http://localhost:3000/api` |
+| **WebSocket URL**    | `ws://localhost:3000`       |
+| **認証方式**         | JWT Bearer Token            |
+| **コンテンツタイプ** | `application/json`          |
 
 ### 1.2 共通レスポンス形式
+
 ```typescript
 interface ApiResponse<T> {
   success: boolean;
@@ -29,9 +31,11 @@ interface ApiResponse<T> {
 ### 2.1 認証関連
 
 #### POST /api/auth/login
+
 ユーザーログイン
 
 **リクエスト**:
+
 ```typescript
 interface LoginDto {
   username: string;
@@ -40,6 +44,7 @@ interface LoginDto {
 ```
 
 **レスポンス**:
+
 ```typescript
 interface LoginResponse {
   accessToken: string;
@@ -54,6 +59,7 @@ interface LoginResponse {
 ```
 
 **例**:
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
@@ -61,9 +67,11 @@ curl -X POST http://localhost:3000/api/auth/login \
 ```
 
 #### POST /api/auth/refresh
+
 トークンリフレッシュ
 
 **リクエスト**:
+
 ```typescript
 interface RefreshDto {
   refreshToken: string;
@@ -71,6 +79,7 @@ interface RefreshDto {
 ```
 
 **レスポンス**:
+
 ```typescript
 interface RefreshResponse {
   accessToken: string;
@@ -81,14 +90,17 @@ interface RefreshResponse {
 ### 2.2 セッション管理
 
 #### GET /api/sessions
+
 セッション一覧取得
 
 **クエリパラメータ**:
+
 - `page`: number (デフォルト: 1)
 - `limit`: number (デフォルト: 20)
 - `status`: 'active' | 'closed' (オプション)
 
 **レスポンス**:
+
 ```typescript
 interface SessionListResponse {
   sessions: Session[];
@@ -111,9 +123,11 @@ interface Session {
 ```
 
 #### GET /api/sessions/:id
+
 セッション詳細取得
 
 **レスポンス**:
+
 ```typescript
 interface SessionDetailResponse {
   id: string;
@@ -129,9 +143,11 @@ interface SessionDetailResponse {
 ```
 
 #### POST /api/sessions
+
 新規セッション作成
 
 **リクエスト**:
+
 ```typescript
 interface CreateSessionDto {
   title?: string;
@@ -141,14 +157,17 @@ interface CreateSessionDto {
 ```
 
 #### DELETE /api/sessions/:id
+
 セッション削除
 
 ### 2.3 履歴検索
 
 #### GET /api/history/search
+
 履歴検索
 
 **クエリパラメータ**:
+
 - `q`: string (検索クエリ)
 - `sessionId`: string (オプション)
 - `startDate`: string (ISO 8601)
@@ -157,6 +176,7 @@ interface CreateSessionDto {
 - `limit`: number
 
 **レスポンス**:
+
 ```typescript
 interface SearchResponse {
   results: SearchResult[];
@@ -180,9 +200,11 @@ interface SearchResult {
 ### 2.4 設定管理
 
 #### GET /api/settings
+
 設定取得
 
 **レスポンス**:
+
 ```typescript
 interface SettingsResponse {
   theme: 'light' | 'dark';
@@ -198,6 +220,7 @@ interface SettingsResponse {
 ```
 
 #### PUT /api/settings
+
 設定更新
 
 **リクエスト**: `Partial<SettingsResponse>`
@@ -210,8 +233,8 @@ interface SettingsResponse {
 // クライアント側
 const socket = io('ws://localhost:3000', {
   auth: {
-    token: 'Bearer YOUR_JWT_TOKEN'
-  }
+    token: 'Bearer YOUR_JWT_TOKEN',
+  },
 });
 
 socket.on('connect', () => {
@@ -224,6 +247,7 @@ socket.on('connect', () => {
 #### クライアント → サーバー
 
 ##### message
+
 チャットメッセージ送信
 
 ```typescript
@@ -238,6 +262,7 @@ socket.emit('message', {
 ```
 
 ##### resize
+
 ターミナルサイズ変更
 
 ```typescript
@@ -248,6 +273,7 @@ socket.emit('resize', {
 ```
 
 ##### cancel
+
 現在の処理をキャンセル
 
 ```typescript
@@ -257,6 +283,7 @@ socket.emit('cancel', {
 ```
 
 ##### tool_approval
+
 ツール実行の承認/拒否
 
 ```typescript
@@ -270,7 +297,8 @@ socket.emit('tool_approval', {
 #### サーバー → クライアント
 
 ##### message
-Amazon Qからの出力
+
+Amazon Q からの出力
 
 ```typescript
 interface OutputMessage {
@@ -289,6 +317,7 @@ socket.on('message', (data: OutputMessage) => {
 ```
 
 ##### tool_approval_request
+
 ツール承認リクエスト
 
 ```typescript
@@ -308,6 +337,7 @@ interface ToolApprovalRequest {
 ```
 
 ##### status
+
 ステータス更新
 
 ```typescript
@@ -322,6 +352,7 @@ interface StatusMessage {
 ```
 
 ##### error
+
 エラー通知
 
 ```typescript
@@ -339,6 +370,7 @@ interface ErrorMessage {
 ### 3.3 接続管理
 
 #### 再接続処理
+
 ```typescript
 socket.on('disconnect', (reason) => {
   if (reason === 'io server disconnect') {
@@ -354,6 +386,7 @@ socket.on('reconnect', (attemptNumber) => {
 ```
 
 #### ハートビート
+
 ```typescript
 // 30秒ごとにping/pongで接続確認
 socket.on('ping', () => {
@@ -363,58 +396,62 @@ socket.on('ping', () => {
 
 ## 4. エラーコード
 
-### 4.1 HTTPステータスコード
-| コード | 説明 | 例 |
-|:-------|:------|:-----|
-| 200 | 成功 | 正常なレスポンス |
-| 201 | 作成成功 | リソース作成 |
-| 400 | リクエスト不正 | バリデーションエラー |
-| 401 | 認証エラー | トークン無効 |
-| 403 | 権限エラー | アクセス拒否 |
-| 404 | リソースなし | セッション不存在 |
-| 409 | 競合 | 重複作成 |
-| 429 | レート制限 | リクエスト過多 |
-| 500 | サーバーエラー | 内部エラー |
+### 4.1 HTTP ステータスコード
+
+| コード | 説明           | 例                   |
+| :----- | :------------- | :------------------- |
+| 200    | 成功           | 正常なレスポンス     |
+| 201    | 作成成功       | リソース作成         |
+| 400    | リクエスト不正 | バリデーションエラー |
+| 401    | 認証エラー     | トークン無効         |
+| 403    | 権限エラー     | アクセス拒否         |
+| 404    | リソースなし   | セッション不存在     |
+| 409    | 競合           | 重複作成             |
+| 429    | レート制限     | リクエスト過多       |
+| 500    | サーバーエラー | 内部エラー           |
 
 ### 4.2 アプリケーションエラーコード
+
 ```typescript
 enum ErrorCode {
   // 認証関連
   AUTH_INVALID_CREDENTIALS = 'AUTH001',
   AUTH_TOKEN_EXPIRED = 'AUTH002',
   AUTH_TOKEN_INVALID = 'AUTH003',
-  
+
   // セッション関連
   SESSION_NOT_FOUND = 'SESSION001',
   SESSION_ALREADY_CLOSED = 'SESSION002',
   SESSION_LIMIT_EXCEEDED = 'SESSION003',
-  
+
   // Amazon Q関連
   AMAZON_Q_NOT_INSTALLED = 'AQ001',
   AMAZON_Q_PROCESS_FAILED = 'AQ002',
   AMAZON_Q_TIMEOUT = 'AQ003',
-  
+
   // WebSocket関連
   WS_CONNECTION_FAILED = 'WS001',
   WS_MESSAGE_INVALID = 'WS002',
-  
+
   // システム関連
   RATE_LIMIT_EXCEEDED = 'SYS001',
   DATABASE_ERROR = 'SYS002',
-  INTERNAL_ERROR = 'SYS999'
+  INTERNAL_ERROR = 'SYS999',
 }
 ```
 
 ## 5. レート制限
 
 ### 5.1 API レート制限
-| ユーザータイプ | 制限 |
-|:-----------|:-----|
-| **認証済みユーザー** | 1000リクエスト/時 |
-| **未認証ユーザー** | 100リクエスト/時 |
-| **WebSocket メッセージ** | 100メッセージ/分 |
+
+| ユーザータイプ           | 制限               |
+| :----------------------- | :----------------- |
+| **認証済みユーザー**     | 1000 リクエスト/時 |
+| **未認証ユーザー**       | 100 リクエスト/時  |
+| **WebSocket メッセージ** | 100 メッセージ/分  |
 
 ### 5.2 レート制限ヘッダー
+
 ```
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -424,6 +461,7 @@ X-RateLimit-Reset: 1640995200
 ## 6. データ型定義（TypeScript）
 
 ### 6.1 共通型
+
 ```typescript
 // 日時はISO 8601形式
 export type DateTime = string;
@@ -443,6 +481,7 @@ interface PaginationInfo {
 ```
 
 ### 6.2 ドメイン型
+
 ```typescript
 interface ChatMessage {
   id: UUID;
@@ -469,7 +508,8 @@ interface Tool {
 
 ## 7. サンプルコード
 
-### 7.1 Angular HTTPクライアント（Standalone）
+### 7.1 Angular HTTP クライアント（Standalone）
+
 ```typescript
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -477,17 +517,15 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/api';
 
   getSession(id: string): Observable<SessionDetailResponse> {
-    return this.http.get<ApiResponse<SessionDetailResponse>>(
-      `${this.baseUrl}/sessions/${id}`
-    ).pipe(
-      map(response => response.data!),
+    return this.http.get<ApiResponse<SessionDetailResponse>>(`${this.baseUrl}/sessions/${id}`).pipe(
+      map((response) => response.data!),
       catchError(this.handleError)
     );
   }
@@ -501,23 +539,24 @@ export class ApiService {
 }
 ```
 
-### 7.2 WebSocketクライアント（Signal対応）
+### 7.2 WebSocket クライアント（Signal 対応）
+
 ```typescript
 import { Injectable, inject, signal, computed, OnDestroy } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatWebSocketService implements OnDestroy {
   private socket: Socket | null = null;
   private messageSubject = new Subject<OutputMessage>();
-  
+
   // Signals for reactive state
   private readonly _isConnected = signal(false);
   private readonly _connectionError = signal<string | null>(null);
-  
+
   readonly isConnected = this._isConnected.asReadonly();
   readonly connectionError = this._connectionError.asReadonly();
   readonly hasError = computed(() => this.connectionError() !== null);
@@ -527,7 +566,7 @@ export class ChatWebSocketService implements OnDestroy {
       auth: { token: `Bearer ${token}` },
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
     });
 
     this.socket.on('connect', () => {
@@ -565,32 +604,37 @@ export class ChatWebSocketService implements OnDestroy {
 ## 8. セキュリティ考慮事項
 
 ### 8.1 認証・認可
-- **JWT認証**: すべてのAPIエンドポイントで必要
-- **WebSocket検証**: 接続時にトークン検証を実施
-- **トークン有効期限**: 
-  - アクセストークン: 1時間
-  - リフレッシュトークン: 7日間
+
+- **JWT 認証**: すべての API エンドポイントで必要
+- **WebSocket 検証**: 接続時にトークン検証を実施
+- **トークン有効期限**:
+  - アクセストークン: 1 時間
+  - リフレッシュトークン: 7 日間
 
 ### 8.2 入力検証
+
 - **バリデーション**: すべての入力に対して実施
-- **SQLインジェクション対策**: パラメータ化クエリ使用
-- **XSS対策**: HTMLエスケープ処理
+- **SQL インジェクション対策**: パラメータ化クエリ使用
+- **XSS 対策**: HTML エスケープ処理
 
 ### 8.3 通信の暗号化
+
 - **プロトコル**: HTTPS/WSS（本番環境）
-- **TLSバージョン**: 1.3推奨
+- **TLS バージョン**: 1.3 推奨
 
 ## 9. バージョニング
 
-### 9.1 APIバージョン管理
-- **URLパスベース**: `/api/v1/`, `/api/v2/`
-- **後方互換性**: 常に保持
-- **非推奨API**: 最低6ヶ月間維持
+### 9.1 API バージョン管理
 
-### 9.2 WebSocketプロトコルバージョン
+- **URL パスベース**: `/api/v1/`, `/api/v2/`
+- **後方互換性**: 常に保持
+- **非推奨 API**: 最低 6 ヶ月間維持
+
+### 9.2 WebSocket プロトコルバージョン
+
 - **バージョンネゴシエーション**: 接続時に実施
 - **非対応バージョン**: 接続拒否
 
 ## まとめ
 
-このAPI仕様書は、Amazon Q GUIのフロントエンドとバックエンド間の通信インターフェースを定義しています。RESTful APIとWebSocketを組み合わせることで、効率的なリアルタイム通信を実現しています。型定義を明確にすることで、TypeScriptの恩恵を最大限に活用できます。
+この API 仕様書は、Amazon Q GUI のフロントエンドとバックエンド間の通信インターフェースを定義しています。RESTful API と WebSocket を組み合わせることで、効率的なリアルタイム通信を実現しています。型定義を明確にすることで、TypeScript の恩恵を最大限に活用できます。

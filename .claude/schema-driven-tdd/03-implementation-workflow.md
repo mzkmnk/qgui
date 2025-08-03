@@ -1,8 +1,8 @@
 # 03. 実装ワークフローとベストプラクティス
 
-## スキーマ駆動TDD実装フロー
+## スキーマ駆動 TDD 実装フロー
 
-### フェーズ1: スキーマ設計
+### フェーズ 1: スキーマ設計
 
 #### 1.1 要件分析とドメインモデリング
 
@@ -16,7 +16,7 @@ components:
       required:
         - id
         - email
-        - name  
+        - name
       properties:
         id:
           type: integer
@@ -97,7 +97,7 @@ components:
           maxLength: 100
 ```
 
-### フェーズ2: バックエンド実装（TDD）
+### フェーズ 2: バックエンド実装（TDD）
 
 #### 2.1 型生成とテスト準備
 
@@ -280,7 +280,7 @@ export class UsersService {
 
   async update(id: number, updateData: Partial<CreateUserDto>): Promise<User> {
     const user = await this.findById(id);
-    
+
     const updatedUser: User = {
       ...user,
       ...updateData,
@@ -297,7 +297,7 @@ export class UsersService {
 }
 ```
 
-### フェーズ3: フロントエンド実装（TDD）
+### フェーズ 3: フロントエンド実装（TDD）
 
 #### 3.1 型生成確認とサービス作成
 
@@ -315,11 +315,7 @@ describe('UserService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        UserService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [UserService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(UserService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -340,7 +336,7 @@ describe('UserService', () => {
         },
       ];
 
-      service.getUsers().subscribe(users => {
+      service.getUsers().subscribe((users) => {
         expect(users).toEqual(mockUsers);
       });
 
@@ -364,7 +360,7 @@ describe('UserService', () => {
         createdAt: '2024-01-01T00:00:00Z',
       };
 
-      service.createUser(createUserDto).subscribe(user => {
+      service.createUser(createUserDto).subscribe((user) => {
         expect(user).toEqual(mockUser);
       });
 
@@ -387,7 +383,7 @@ import { Observable } from 'rxjs';
 import { User, CreateUserDto } from '../types/api.types';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private readonly http = inject(HttpClient);
@@ -415,7 +411,7 @@ export class UserService {
 }
 ```
 
-### フェーズ4: コンポーネント実装（TDD）
+### フェーズ 4: コンポーネント実装（TDD）
 
 #### 4.1 コンポーネントテスト
 
@@ -439,11 +435,7 @@ describe('UserListComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [UserListComponent],
-      providers: [
-        { provide: UserService, useValue: spy },
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [{ provide: UserService, useValue: spy }, provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UserListComponent);
@@ -490,47 +482,49 @@ import { User } from '../types/api.types';
   template: `
     <div class="user-list">
       <h2>ユーザー一覧</h2>
-      
+
       @if (loading()) {
-        <p>読み込み中...</p>
+      <p>読み込み中...</p>
       } @else if (error()) {
-        <p class="error">エラー: {{ error() }}</p>
+      <p class="error">エラー: {{ error() }}</p>
       } @else {
-        <ul>
-          @for (user of users(); track user.id) {
-            <li class="user-item">
-              <div>
-                <strong>{{ user.name }}</strong>
-                <span>{{ user.email }}</span>
-              </div>
-              <small>作成日: {{ user.createdAt | date }}</small>
-            </li>
-          }
-        </ul>
+      <ul>
+        @for (user of users(); track user.id) {
+        <li class="user-item">
+          <div>
+            <strong>{{ user.name }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+          <small>作成日: {{ user.createdAt | date }}</small>
+        </li>
+        }
+      </ul>
       }
     </div>
   `,
-  styles: [`
-    .user-list {
-      padding: 1rem;
-    }
-    
-    .user-item {
-      padding: 0.5rem;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .error {
-      color: red;
-    }
-  `]
+  styles: [
+    `
+      .user-list {
+        padding: 1rem;
+      }
+
+      .user-item {
+        padding: 0.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .error {
+        color: red;
+      }
+    `,
+  ],
 })
 export class UserListComponent implements OnInit {
   private readonly userService = inject(UserService);
-  
+
   readonly users = signal<User[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -552,7 +546,7 @@ export class UserListComponent implements OnInit {
         this.error.set('ユーザーの読み込みに失敗しました');
         this.loading.set(false);
         console.error('Error loading users:', err);
-      }
+      },
     });
   }
 }
@@ -564,20 +558,20 @@ export class UserListComponent implements OnInit {
 
 - **一意性の確保**: 各エンドポイントに`operationId`を設定
 - **詳細な説明**: 各フィールドに日本語の説明を記載
-- **バリデーション**: 適切な制約を設定（minLength, maxLength, format等）
+- **バリデーション**: 適切な制約を設定（minLength, maxLength, format 等）
 - **再利用性**: 共通スキーマは別ファイルに分離
 
 ### 2. テスト戦略
 
-- **スキーマ準拠テスト**: 生成されたDTOとの整合性を検証
-- **契約テスト**: フロントエンドとバックエンドのAPI契約を検証
+- **スキーマ準拠テスト**: 生成された DTO との整合性を検証
+- **契約テスト**: フロントエンドとバックエンドの API 契約を検証
 - **エラーケーステスト**: 異常系のテストも忘れずに
 
 ### 3. 型安全性
 
-- **厳密な型チェック**: TypeScriptの`strict`モードを有効化
+- **厳密な型チェック**: TypeScript の`strict`モードを有効化
 - **型ガード**: 実行時の型チェックを実装
-- **Null安全**: Optional型を活用
+- **Null 安全**: Optional 型を活用
 
 ### 4. パフォーマンス
 
@@ -588,5 +582,5 @@ export class UserListComponent implements OnInit {
 ### 5. メンテナンス性
 
 - **バージョン管理**: スキーマのバージョニング戦略
-- **後方互換性**: API変更時の互換性確保
+- **後方互換性**: API 変更時の互換性確保
 - **ドキュメント**: スキーマ変更の理由を記録

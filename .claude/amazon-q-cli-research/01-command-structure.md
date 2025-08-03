@@ -3,11 +3,13 @@
 ## 1. 基本情報
 
 ### バージョン
+
 ```
 q 1.12.7
 ```
 
 ### インストールパス
+
 ```
 /Users/${username}/.local/bin/q
 ```
@@ -15,7 +17,8 @@ q 1.12.7
 ## 2. 利用可能なコマンド一覧
 
 ### 人気のサブコマンド
-- `chat` - Amazon Qとチャット
+
+- `chat` - Amazon Q とチャット
 - `translate` - 自然言語からシェルコマンドへの変換
 - `doctor` - インストール問題のデバッグ
 - `settings` - 外観と動作のカスタマイズ
@@ -24,64 +27,74 @@ q 1.12.7
 ### すべてのコマンド
 
 #### セットアップ・認証関連
+
 - `login` - ログイン
 - `logout` - ログアウト
 - `whoami` - 現在のユーザーの詳細を表示
-- `profile` - IDCユーザーに関連付けられたプロファイルを表示
+- `profile` - IDC ユーザーに関連付けられたプロファイルを表示
 - `user` - アカウント管理
-- `setup` - CLIコンポーネントのセットアップ
-- `init` - 指定されたシェル用のdotfilesを生成
+- `setup` - CLI コンポーネントのセットアップ
+- `init` - 指定されたシェル用の dotfiles を生成
 
 #### 開発支援
-- `chat` - ターミナル内のAIアシスタント
+
+- `chat` - ターミナル内の AI アシスタント
 - `translate` - 自然言語からシェルコマンドへの変換
 - `inline` - インラインシェル補完
 - `mcp` - Model Context Protocol (MCP)
 
 #### デバッグ・診断
+
 - `debug` - アプリのデバッグ
 - `diagnostic` - 診断テストの実行
 - `doctor` - 一般的な問題の修正と診断
 
 #### アプリケーション管理
+
 - `launch` - デスクトップアプリの起動
 - `quit` - デスクトップアプリの終了
 - `restart` - デスクトップアプリの再起動
-- `update` - Amazon Qアプリケーションの更新
+- `update` - Amazon Q アプリケーションの更新
 
 #### 設定・カスタマイズ
+
 - `settings` - 外観と動作のカスタマイズ
 - `theme` - テーマの取得または設定
 - `integrations` - システム統合の管理
 
 #### その他
+
 - `dashboard` - ダッシュボードを開く
-- `issue` - 新しいGitHub issueを作成
+- `issue` - 新しい GitHub issue を作成
 - `help` - ヘルプメッセージの表示
 
-## 3. chatコマンドの詳細
+## 3. chat コマンドの詳細
 
 ### 使用方法
+
 ```bash
 q chat [OPTIONS] [INPUT]
 ```
 
 ### 引数
+
 - `[INPUT]` - 最初の質問（オプション）
 
 ### オプション
-| オプション | 短縮形 | 説明 |
-|:-----------|:-------|:-----|
-| `--resume` | `-r` | このディレクトリから前の会話を再開 |
-| `--profile <PROFILE>` | | 使用するコンテキストプロファイル |
-| `--model <MODEL>` | | 使用するモデル |
-| `--trust-all-tools` | `-a` | 確認なしですべてのツールの使用を許可 |
-| `--trust-tools <TOOL_NAMES>` | | 特定のツールのみを信頼（カンマ区切り） |
-| `--no-interactive` | | ユーザー入力を期待せずに実行 |
-| `--verbose` | `-v` | ログの詳細度を上げる |
-| `--help` | `-h` | ヘルプを表示 |
+
+| オプション                   | 短縮形 | 説明                                   |
+| :--------------------------- | :----- | :------------------------------------- |
+| `--resume`                   | `-r`   | このディレクトリから前の会話を再開     |
+| `--profile <PROFILE>`        |        | 使用するコンテキストプロファイル       |
+| `--model <MODEL>`            |        | 使用するモデル                         |
+| `--trust-all-tools`          | `-a`   | 確認なしですべてのツールの使用を許可   |
+| `--trust-tools <TOOL_NAMES>` |        | 特定のツールのみを信頼（カンマ区切り） |
+| `--no-interactive`           |        | ユーザー入力を期待せずに実行           |
+| `--verbose`                  | `-v`   | ログの詳細度を上げる                   |
+| `--help`                     | `-h`   | ヘルプを表示                           |
 
 ### 使用例
+
 ```bash
 # 基本的な使用
 q chat
@@ -99,21 +112,24 @@ q chat --trust-tools=fs_read,fs_write
 q chat --resume
 ```
 
-## 4. MCPコマンドの詳細
+## 4. MCP コマンドの詳細
 
 ### 使用方法
+
 ```bash
 q mcp <COMMAND>
 ```
 
 ### サブコマンド
+
 - `add` - 設定済みサーバーの追加または置換
-- `remove` - MCP設定からサーバーを削除
+- `remove` - MCP 設定からサーバーを削除
 - `list` - 設定済みサーバーの一覧表示
 - `import` - 別のファイルからサーバー設定をインポート
 - `status` - 設定済みサーバーのステータスを取得
 
 ### 現在の設定
+
 ```
 📄 workspace:
   /Users/${username}/dev/qgui/.amazonq/mcp.json
@@ -127,6 +143,7 @@ q mcp <COMMAND>
 ## 5. グローバルオプション
 
 すべてのコマンドで使用可能：
+
 - `-v, --verbose` - ログの詳細度を増加（複数指定可能）
 - `-h, --help` - ヘルプを表示
 - `-V, --version` - バージョンを表示
@@ -140,4 +157,4 @@ q mcp <COMMAND>
 
 - グローバル設定: `~/.aws/amazonq/`
 - ワークスペース設定: `.amazonq/`
-- MCP設定: `mcp.json`
+- MCP 設定: `mcp.json`

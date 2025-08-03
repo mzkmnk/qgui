@@ -1,29 +1,32 @@
-# データベーススキーマ実装 TODOリスト
+# データベーススキーマ実装 TODO リスト
 
 ## 概要
-Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装の詳細項目
+
+Amazon Q GUI アプリケーションの SQLite データベース設計・実装の詳細項目
 
 ## データベース基盤設計
 
-### SQLite設定・最適化
-- [ ] SQLite基本設定
+### SQLite 設定・最適化
+
+- [ ] SQLite 基本設定
   - [ ] データベースファイル配置設計
   - [ ] 接続設定最適化
-  - [ ] PRAGMA設定（WAL, synchronous等）
+  - [ ] PRAGMA 設定（WAL, synchronous 等）
   - [ ] メモリ設定調整
 - [ ] パフォーマンス設定
-  - [ ] cache_size設定
-  - [ ] temp_store設定
-  - [ ] journal_mode設定（WAL推奨）
-  - [ ] synchronous設定
+  - [ ] cache_size 設定
+  - [ ] temp_store 設定
+  - [ ] journal_mode 設定（WAL 推奨）
+  - [ ] synchronous 設定
 - [ ] セキュリティ設定
   - [ ] データベース暗号化検討
   - [ ] アクセス権限設定
   - [ ] バックアップ暗号化
   - [ ] 機密情報保護
 
-### TypeORM統合設定
-- [ ] TypeORM設定
+### TypeORM 統合設定
+
+- [ ] TypeORM 設定
   - [ ] データソース設定
   - [ ] エンティティ自動検出
   - [ ] マイグレーション設定
@@ -41,216 +44,221 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 
 ## エンティティ設計・実装
 
-### Userエンティティ実装
-- [ ] User基本エンティティ
+### User エンティティ実装
+
+- [ ] User 基本エンティティ
   ```typescript
   @Entity('users')
   export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @Column({ unique: true })
     username: string;
-    
+
     @Column({ unique: true })
     email: string;
-    
+
     @Column()
     passwordHash: string;
-    
+
     @CreateDateColumn()
     createdAt: Date;
-    
+
     @UpdateDateColumn()
     updatedAt: Date;
-    
+
     @Column({ type: 'json', nullable: true })
     preferences: UserPreferences;
   }
   ```
-- [ ] User関連設定
+- [ ] User 関連設定
   - [ ] インデックス設計（username, email）
   - [ ] バリデーション設定
   - [ ] デフォルト値設定
-  - [ ] JSON列の型安全性確保
+  - [ ] JSON 列の型安全性確保
 - [ ] リレーション設定
-  - [ ] User ↔ Session関連
-  - [ ] User ↔ ToolApproval関連
+  - [ ] User ↔ Session 関連
+  - [ ] User ↔ ToolApproval 関連
   - [ ] カスケード設定
   - [ ] 削除制約設定
 
-### Sessionエンティティ実装
-- [ ] Session基本エンティティ
+### Session エンティティ実装
+
+- [ ] Session 基本エンティティ
   ```typescript
   @Entity('sessions')
   export class SessionEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @ManyToOne(() => UserEntity)
     @JoinColumn({ name: 'user_id' })
     user: UserEntity;
-    
+
     @Column()
     title: string;
-    
+
     @Column({ nullable: true })
     workspace: string;
-    
-    @Column({ 
+
+    @Column({
       type: 'varchar',
       enum: SessionStatus,
-      default: SessionStatus.ACTIVE 
+      default: SessionStatus.ACTIVE,
     })
     status: SessionStatus;
-    
+
     @CreateDateColumn()
     createdAt: Date;
-    
+
     @UpdateDateColumn()
     updatedAt: Date;
-    
+
     @Column({ nullable: true })
     lastMessageAt: Date;
-    
+
     @Column({ default: 0 })
     messageCount: number;
-    
+
     @Column({ type: 'json', nullable: true })
     metadata: SessionMetadata;
   }
   ```
-- [ ] Session詳細設定
+- [ ] Session 詳細設定
   - [ ] セッション状態管理
   - [ ] メタデータ構造設計
   - [ ] インデックス設計
   - [ ] パフォーマンス最適化
-- [ ] Session機能拡張
+- [ ] Session 機能拡張
   - [ ] セッション自動タイトル生成
   - [ ] セッション統計情報
   - [ ] セッション検索機能
   - [ ] セッション分類・タグ機能
 
-### Messageエンティティ実装
-- [ ] Message基本エンティティ
+### Message エンティティ実装
+
+- [ ] Message 基本エンティティ
   ```typescript
   @Entity('messages')
   export class MessageEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @ManyToOne(() => SessionEntity)
     @JoinColumn({ name: 'session_id' })
     session: SessionEntity;
-    
-    @Column({ 
+
+    @Column({
       type: 'varchar',
-      enum: MessageRole 
+      enum: MessageRole,
     })
     role: MessageRole;
-    
+
     @Column({ type: 'text' })
     content: string;
-    
-    @Column({ 
+
+    @Column({
       type: 'varchar',
       enum: MessageFormat,
-      default: MessageFormat.TEXT 
+      default: MessageFormat.TEXT,
     })
     format: MessageFormat;
-    
+
     @CreateDateColumn()
     timestamp: Date;
-    
+
     @Column({ type: 'json', nullable: true })
     metadata: MessageMetadata;
-    
+
     @Column({ type: 'json', nullable: true })
     toolRequest: ToolRequest;
-    
+
     @Column({ type: 'json', nullable: true })
     toolResponse: ToolResponse;
   }
   ```
-- [ ] Message詳細設定
+- [ ] Message 詳細設定
   - [ ] 大容量コンテンツ対応
   - [ ] メッセージ形式バリデーション
   - [ ] メタデータスキーマ設計
   - [ ] インデックス戦略
-- [ ] Message機能拡張
+- [ ] Message 機能拡張
   - [ ] メッセージ検索最適化
   - [ ] メッセージ分類・フィルタリング
   - [ ] メッセージ統計機能
   - [ ] メッセージエクスポート対応
 
-### ToolApprovalエンティティ実装
-- [ ] ToolApproval基本エンティティ
+### ToolApproval エンティティ実装
+
+- [ ] ToolApproval 基本エンティティ
   ```typescript
   @Entity('tool_approvals')
   export class ToolApprovalEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    
+
     @ManyToOne(() => SessionEntity)
     @JoinColumn({ name: 'session_id' })
     session: SessionEntity;
-    
+
     @ManyToOne(() => UserEntity)
     @JoinColumn({ name: 'user_id' })
     user: UserEntity;
-    
+
     @Column()
     toolName: string;
-    
+
     @Column({ type: 'text' })
     command: string;
-    
+
     @Column({ type: 'text', nullable: true })
     purpose: string;
-    
-    @Column({ 
+
+    @Column({
       type: 'varchar',
-      enum: ToolApprovalStatus 
+      enum: ToolApprovalStatus,
     })
     approvalStatus: ToolApprovalStatus;
-    
-    @Column({ 
+
+    @Column({
       type: 'varchar',
-      enum: ToolRiskLevel 
+      enum: ToolRiskLevel,
     })
     riskLevel: ToolRiskLevel;
-    
+
     @CreateDateColumn()
     requestedAt: Date;
-    
+
     @Column({ nullable: true })
     approvedAt: Date;
-    
+
     @Column({ type: 'json', nullable: true })
     parameters: Record<string, any>;
-    
+
     @Column({ type: 'json', nullable: true })
     executionResult: ToolExecutionResult;
   }
   ```
-- [ ] ToolApproval詳細設定
+- [ ] ToolApproval 詳細設定
   - [ ] 承認履歴管理
   - [ ] ツール分類・カテゴリー
   - [ ] リスクレベル自動判定
   - [ ] 実行結果保存
 
 ### 補助エンティティ実装
-- [ ] UserPreferencesエンティティ
+
+- [ ] UserPreferences エンティティ
   - [ ] テーマ設定
   - [ ] 言語設定
   - [ ] 通知設定
   - [ ] デフォルト値管理
-- [ ] SessionTagエンティティ
+- [ ] SessionTag エンティティ
   - [ ] セッション分類
   - [ ] カスタムタグ
   - [ ] タグ統計
   - [ ] タグ検索
-- [ ] AuditLogエンティティ
+- [ ] AuditLog エンティティ
   - [ ] 操作ログ記録
   - [ ] セキュリティイベント
   - [ ] アクセス履歴
@@ -259,6 +267,7 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 ## インデックス・パフォーマンス最適化
 
 ### プライマリインデックス設計
+
 - [ ] 基本インデックス
   - [ ] users: username, email（UNIQUE）
   - [ ] sessions: user_id, status, created_at
@@ -276,14 +285,15 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] エラーメッセージのみ
 
 ### クエリ最適化
+
 - [ ] 頻繁なクエリ最適化
   - [ ] セッション一覧取得
   - [ ] メッセージ履歴取得
   - [ ] ユーザー認証クエリ
   - [ ] 検索クエリ最適化
 - [ ] 重いクエリ特定・改善
-  - [ ] EXPLAIN QUERY PLAN分析
-  - [ ] N+1問題解決
+  - [ ] EXPLAIN QUERY PLAN 分析
+  - [ ] N+1 問題解決
   - [ ] バッチクエリ実装
   - [ ] キャッシュ戦略
 - [ ] ページネーション最適化
@@ -294,11 +304,12 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 
 ## 全文検索実装
 
-### SQLite FTS5設定
-- [ ] FTS5仮想テーブル作成
+### SQLite FTS5 設定
+
+- [ ] FTS5 仮想テーブル作成
   ```sql
   CREATE VIRTUAL TABLE messages_fts USING fts5(
-    content, 
+    content,
     session_id UNINDEXED,
     role UNINDEXED,
     timestamp UNINDEXED,
@@ -306,27 +317,28 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
     content_rowid='id'
   );
   ```
-- [ ] FTS5トリガー設定
-  - [ ] INSERT時の自動インデックス更新
-  - [ ] UPDATE時のインデックス更新
-  - [ ] DELETE時のインデックス削除
+- [ ] FTS5 トリガー設定
+  - [ ] INSERT 時の自動インデックス更新
+  - [ ] UPDATE 時のインデックス更新
+  - [ ] DELETE 時のインデックス削除
   - [ ] バッチ更新最適化
 - [ ] 検索機能実装
   - [ ] キーワード検索
   - [ ] フレーズ検索
   - [ ] 前方一致・部分一致
-  - [ ] AND/OR/NOT演算子対応
+  - [ ] AND/OR/NOT 演算子対応
 
 ### 高度な検索機能
+
 - [ ] 検索結果ランキング
-  - [ ] BM25ランキング
+  - [ ] BM25 ランキング
   - [ ] カスタムランキング関数
   - [ ] 日付重み付け
   - [ ] ユーザー行動ベース重み付け
 - [ ] 検索結果ハイライト
   - [ ] snippet()関数活用
   - [ ] カスタムハイライト実装
-  - [ ] HTML出力対応
+  - [ ] HTML 出力対応
   - [ ] コンテキスト表示
 - [ ] 検索フィルタリング
   - [ ] セッション絞り込み
@@ -337,6 +349,7 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 ## データマイグレーション
 
 ### 初期マイグレーション
+
 - [ ] スキーマ作成マイグレーション
   - [ ] テーブル定義
   - [ ] インデックス作成
@@ -349,6 +362,7 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] 開発用設定データ
 
 ### 段階的マイグレーション計画
+
 - [ ] バージョン管理戦略
   - [ ] スキーマバージョン管理
   - [ ] 前方互換性確保
@@ -361,8 +375,9 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] 段階的移行
 
 ### マイグレーション実行環境
+
 - [ ] マイグレーション実行ツール
-  - [ ] TypeORMマイグレーション活用
+  - [ ] TypeORM マイグレーション活用
   - [ ] カスタムマイグレーションスクリプト
   - [ ] 実行前チェック機能
   - [ ] 実行後検証機能
@@ -370,34 +385,32 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] 開発環境自動実行
   - [ ] ローカル環境手動確認
   - [ ] テスト環境検証
-  - [ ] CI/CD統合
+  - [ ] CI/CD 統合
 
 ## リポジトリパターン実装
 
-### BaseRepository実装
+### BaseRepository 実装
+
 - [ ] 共通リポジトリクラス
   ```typescript
   export abstract class BaseRepository<T extends BaseEntity> {
-    constructor(
-      protected repository: Repository<T>,
-      protected logger: Logger
-    ) {}
-    
+    constructor(protected repository: Repository<T>, protected logger: Logger) {}
+
     async findById(id: string): Promise<T | null> {
       // 基本実装
     }
-    
+
     async save(entity: T): Promise<T> {
       // 基本実装
     }
-    
+
     async softDelete(id: string): Promise<void> {
       // 基本実装
     }
   }
   ```
 - [ ] 共通機能実装
-  - [ ] CRUD基本操作
+  - [ ] CRUD 基本操作
   - [ ] エラーハンドリング
   - [ ] ログ出力
   - [ ] トランザクション管理
@@ -408,17 +421,18 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] エラーメッセージ生成
 
 ### 専用リポジトリ実装
-- [ ] UserRepository実装
+
+- [ ] UserRepository 実装
   - [ ] ユーザー認証関連クエリ
   - [ ] ユーザー検索機能
   - [ ] プロファイル管理
   - [ ] 権限チェック機能
-- [ ] SessionRepository実装
+- [ ] SessionRepository 実装
   - [ ] セッション一覧取得
   - [ ] セッション統計情報
   - [ ] セッション検索機能
   - [ ] アクティブセッション管理
-- [ ] MessageRepository実装
+- [ ] MessageRepository 実装
   - [ ] メッセージ履歴取得
   - [ ] 全文検索統合
   - [ ] メッセージ統計
@@ -430,6 +444,7 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] 自動承認ルール適用
 
 ### 高度なクエリ実装
+
 - [ ] 統計・分析クエリ
   - [ ] ユーザー活動統計
   - [ ] セッション統計
@@ -449,10 +464,11 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 ## データ整合性・制約
 
 ### 参照整合性制約
+
 - [ ] 外部キー制約設計
-  - [ ] CASCADE設定
-  - [ ] RESTRICT設定
-  - [ ] SET NULL設定
+  - [ ] CASCADE 設定
+  - [ ] RESTRICT 設定
+  - [ ] SET NULL 設定
   - [ ] 制約エラーハンドリング
 - [ ] データ整合性チェック
   - [ ] 定期的整合性チェック
@@ -461,6 +477,7 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] 手動修復ツール
 
 ### ビジネスルール制約
+
 - [ ] アプリケーションレベル制約
   - [ ] ユーザー権限制約
   - [ ] セッション状態制約
@@ -473,6 +490,7 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] 一意性検証
 
 ### トランザクション管理
+
 - [ ] トランザクション戦略
   - [ ] 読み取り専用トランザクション
   - [ ] 書き込みトランザクション
@@ -482,23 +500,25 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] マルチテーブル更新
   - [ ] 外部システム連携
   - [ ] 補償トランザクション
-  - [ ] Sagaパターン実装
+  - [ ] Saga パターン実装
 
 ## バックアップ・復旧
 
 ### バックアップ戦略
+
 - [ ] 定期バックアップ
   - [ ] 日次バックアップ
   - [ ] 増分バックアップ
   - [ ] バックアップローテーション
   - [ ] バックアップ検証
 - [ ] リアルタイムバックアップ
-  - [ ] WALファイルバックアップ
+  - [ ] WAL ファイルバックアップ
   - [ ] 継続的バックアップ
-  - [ ] ポイントinタイムリカバリ
+  - [ ] ポイント in タイムリカバリ
   - [ ] 自動バックアップ
 
 ### 復旧機能
+
 - [ ] データ復旧ツール
   - [ ] 完全復旧機能
   - [ ] 部分復旧機能
@@ -513,11 +533,12 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 ## 監視・メンテナンス
 
 ### データベース監視
+
 - [ ] パフォーマンス監視
   - [ ] クエリ実行時間監視
   - [ ] ロック監視
   - [ ] デッドロック検出
-  - [ ] I/O監視
+  - [ ] I/O 監視
 - [ ] リソース監視
   - [ ] ディスク使用量監視
   - [ ] メモリ使用量監視
@@ -525,18 +546,20 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
   - [ ] キャッシュヒット率監視
 
 ### 定期メンテナンス
+
 - [ ] データクリーンアップ
   - [ ] 古いデータ削除
   - [ ] 一時データ削除
   - [ ] ログローテーション
   - [ ] インデックス再構築
 - [ ] 最適化作業
-  - [ ] VACUUM実行
-  - [ ] ANALYZE実行
+  - [ ] VACUUM 実行
+  - [ ] ANALYZE 実行
   - [ ] インデックス統計更新
   - [ ] クエリプラン最適化
 
 ## 成果物・確認項目
+
 - [ ] 完全なデータベーススキーマ
 - [ ] 全エンティティの実装完了
 - [ ] インデックス最適化完了
@@ -547,13 +570,15 @@ Amazon Q GUI アプリケーションのSQLiteデータベース設計・実装�
 - [ ] パフォーマンス要件達成
 
 ## 技術的考慮事項
-- [ ] SQLiteの制限事項理解
-- [ ] 大容量データ対応計画  
+
+- [ ] SQLite の制限事項理解
+- [ ] 大容量データ対応計画
 - [ ] 同時アクセス制御
 - [ ] データ圧縮・アーカイブ戦略
 
 ## 将来拡張への準備
-- [ ] 他RDBMS移行準備
+
+- [ ] 他 RDBMS 移行準備
 - [ ] 分散データベース対応検討
-- [ ] NoSQLとのハイブリッド構成検討
-- [ ] 他ローカルデータベース（PostgreSQL等）移行準備
+- [ ] NoSQL とのハイブリッド構成検討
+- [ ] 他ローカルデータベース（PostgreSQL 等）移行準備

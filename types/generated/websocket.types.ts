@@ -6,180 +6,192 @@
 export type paths = Record<string, never>;
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        WebSocketMessage: {
-            /**
-             * @description メッセージタイプ
-             * @enum {string}
-             */
-            type: "connection" | "disconnection" | "message" | "error" | "heartbeat";
-            /**
-             * Format: date-time
-             * @description メッセージ送信時刻（ISO 8601形式）
-             */
-            timestamp: string;
-            /** @description メッセージペイロード（タイプ別） */
-            data?: Record<string, never>;
-            /** @description リクエスト追跡用ID（オプション） */
-            requestId?: string;
-        };
-        ConnectionEvent: components["schemas"]["WebSocketMessage"] & {
-            /** @enum {string} */
-            type?: "connection";
-            data?: components["schemas"]["ConnectionData"];
-        };
-        ConnectionData: {
-            /** @description クライアント一意識別子 */
-            clientId: string;
-            /**
-             * @description 接続状態
-             * @enum {string}
-             */
-            status: "connected" | "connecting" | "reconnected";
-            /** @description クライアントのUser-Agent（オプション） */
-            userAgent?: string;
-            /** @description セッション識別子（オプション） */
-            sessionId?: string;
-        };
-        DisconnectionEvent: components["schemas"]["WebSocketMessage"] & {
-            /** @enum {string} */
-            type?: "disconnection";
-            data?: components["schemas"]["DisconnectionData"];
-        };
-        DisconnectionData: {
-            /** @description クライアント一意識別子 */
-            clientId: string;
-            /**
-             * @description 切断理由
-             * @enum {string}
-             */
-            reason: "client_disconnect" | "server_shutdown" | "timeout" | "error";
-            /** @description 切断コード（WebSocket標準準拠） */
-            code?: number;
-            /** @description 切断理由の詳細メッセージ */
-            message?: string;
-        };
-        MessageEvent: components["schemas"]["WebSocketMessage"] & {
-            /** @enum {string} */
-            type?: "message";
-            data?: components["schemas"]["MessageData"];
-        };
-        MessageData: {
-            /** @description メッセージ内容 */
-            content: string;
-            /**
-             * @description 送信者
-             * @enum {string}
-             */
-            sender: "client" | "server";
-            /**
-             * @description コンテンツタイプ
-             * @default text
-             * @enum {string}
-             */
-            contentType: "text" | "json" | "binary";
-            /**
-             * @description エンコーディング方式
-             * @default utf8
-             * @enum {string}
-             */
-            encoding: "utf8" | "base64";
-        };
-        ErrorEvent: components["schemas"]["WebSocketMessage"] & {
-            /** @enum {string} */
-            type?: "error";
-            data?: components["schemas"]["ErrorData"];
-        };
-        ErrorData: {
-            /**
-             * @description エラーコード
-             * @enum {string}
-             */
-            code: "CONNECTION_FAILED" | "AUTHENTICATION_FAILED" | "MESSAGE_PARSE_ERROR" | "RATE_LIMIT_EXCEEDED" | "INTERNAL_SERVER_ERROR" | "INVALID_MESSAGE_FORMAT" | "UNSUPPORTED_OPERATION";
-            /** @description エラーメッセージ（日本語） */
-            message: string;
-            /** @description エラー詳細情報（オプション） */
-            details?: Record<string, never>;
-            /**
-             * @description エラー重要度
-             * @default error
-             * @enum {string}
-             */
-            severity: "info" | "warning" | "error" | "critical";
-            /**
-             * @description リトライ可能かどうか
-             * @default false
-             */
-            retryable: boolean;
-        };
-        HeartbeatEvent: components["schemas"]["WebSocketMessage"] & {
-            /** @enum {string} */
-            type?: "heartbeat";
-            data?: components["schemas"]["HeartbeatData"];
-        };
-        HeartbeatData: {
-            /**
-             * @description ハートビートアクション
-             * @enum {string}
-             */
-            action: "ping" | "pong";
-            /** @description レイテンシ（ミリ秒、pongの場合） */
-            latency?: number;
-        };
-        ConnectionState: {
-            /**
-             * @description 現在の接続状態
-             * @enum {string}
-             */
-            status: "disconnected" | "connecting" | "connected" | "reconnecting" | "error";
-            /**
-             * Format: date-time
-             * @description 接続開始時刻
-             */
-            connectedAt: string;
-            /**
-             * Format: date-time
-             * @description 最後のハートビート時刻
-             */
-            lastHeartbeat?: string;
-            /** @description 再接続試行回数 */
-            reconnectAttempts?: number;
-            /** @description 最後に発生したエラー（オプション） */
-            lastError?: components["schemas"]["ErrorData"];
-        };
-        WebSocketConfig: {
-            /**
-             * @description ハートビート間隔（ミリ秒）
-             * @default 30000
-             */
-            heartbeatInterval: number;
-            /**
-             * @description 再接続間隔（ミリ秒）
-             * @default 5000
-             */
-            reconnectInterval: number;
-            /**
-             * @description 最大再接続試行回数
-             * @default 5
-             */
-            maxReconnectAttempts: number;
-            /**
-             * @description 接続タイムアウト（ミリ秒）
-             * @default 10000
-             */
-            connectionTimeout: number;
-            /**
-             * @description メッセージキューの最大サイズ
-             * @default 100
-             */
-            messageQueueSize: number;
-        };
+  schemas: {
+    WebSocketMessage: {
+      /**
+       * @description メッセージタイプ
+       * @enum {string}
+       */
+      type: 'connection' | 'disconnection' | 'message' | 'error' | 'heartbeat';
+      /**
+       * Format: date-time
+       * @description メッセージ送信時刻（ISO 8601形式）
+       */
+      timestamp: string;
+      /** @description メッセージペイロード（タイプ別） */
+      data?: Record<string, never>;
+      /** @description リクエスト追跡用ID（オプション） */
+      requestId?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    ConnectionEvent: components['schemas']['WebSocketMessage'] & {
+      /** @enum {string} */
+      type?: 'connection';
+      data?: components['schemas']['ConnectionData'];
+    };
+    ConnectionData: {
+      /** @description クライアント一意識別子 */
+      clientId: string;
+      /**
+       * @description 接続状態
+       * @enum {string}
+       */
+      status: 'connected' | 'connecting' | 'reconnected';
+      /** @description クライアントのUser-Agent（オプション） */
+      userAgent?: string;
+      /** @description セッション識別子（オプション） */
+      sessionId?: string;
+    };
+    DisconnectionEvent: components['schemas']['WebSocketMessage'] & {
+      /** @enum {string} */
+      type?: 'disconnection';
+      data?: components['schemas']['DisconnectionData'];
+    };
+    DisconnectionData: {
+      /** @description クライアント一意識別子 */
+      clientId: string;
+      /**
+       * @description 切断理由
+       * @enum {string}
+       */
+      reason: 'client_disconnect' | 'server_shutdown' | 'timeout' | 'error';
+      /** @description 切断コード（WebSocket標準準拠） */
+      code?: number;
+      /** @description 切断理由の詳細メッセージ */
+      message?: string;
+    };
+    MessageEvent: components['schemas']['WebSocketMessage'] & {
+      /** @enum {string} */
+      type?: 'message';
+      data?: components['schemas']['MessageData'];
+    };
+    MessageData: {
+      /** @description メッセージ内容 */
+      content: string;
+      /**
+       * @description 送信者
+       * @enum {string}
+       */
+      sender: 'client' | 'server';
+      /**
+       * @description コンテンツタイプ
+       * @default text
+       * @enum {string}
+       */
+      contentType: 'text' | 'json' | 'binary';
+      /**
+       * @description エンコーディング方式
+       * @default utf8
+       * @enum {string}
+       */
+      encoding: 'utf8' | 'base64';
+    };
+    ErrorEvent: components['schemas']['WebSocketMessage'] & {
+      /** @enum {string} */
+      type?: 'error';
+      data?: components['schemas']['ErrorData'];
+    };
+    ErrorData: {
+      /**
+       * @description エラーコード
+       * @enum {string}
+       */
+      code:
+        | 'CONNECTION_FAILED'
+        | 'AUTHENTICATION_FAILED'
+        | 'MESSAGE_PARSE_ERROR'
+        | 'RATE_LIMIT_EXCEEDED'
+        | 'INTERNAL_SERVER_ERROR'
+        | 'INVALID_MESSAGE_FORMAT'
+        | 'UNSUPPORTED_OPERATION';
+      /** @description エラーメッセージ（日本語） */
+      message: string;
+      /** @description エラー詳細情報（オプション） */
+      details?: Record<string, never>;
+      /**
+       * @description エラー重要度
+       * @default error
+       * @enum {string}
+       */
+      severity: 'info' | 'warning' | 'error' | 'critical';
+      /**
+       * @description リトライ可能かどうか
+       * @default false
+       */
+      retryable: boolean;
+    };
+    HeartbeatEvent: components['schemas']['WebSocketMessage'] & {
+      /** @enum {string} */
+      type?: 'heartbeat';
+      data?: components['schemas']['HeartbeatData'];
+    };
+    HeartbeatData: {
+      /**
+       * @description ハートビートアクション
+       * @enum {string}
+       */
+      action: 'ping' | 'pong';
+      /** @description レイテンシ（ミリ秒、pongの場合） */
+      latency?: number;
+    };
+    ConnectionState: {
+      /**
+       * @description 現在の接続状態
+       * @enum {string}
+       */
+      status:
+        | 'disconnected'
+        | 'connecting'
+        | 'connected'
+        | 'reconnecting'
+        | 'error';
+      /**
+       * Format: date-time
+       * @description 接続開始時刻
+       */
+      connectedAt: string;
+      /**
+       * Format: date-time
+       * @description 最後のハートビート時刻
+       */
+      lastHeartbeat?: string;
+      /** @description 再接続試行回数 */
+      reconnectAttempts?: number;
+      /** @description 最後に発生したエラー（オプション） */
+      lastError?: components['schemas']['ErrorData'];
+    };
+    WebSocketConfig: {
+      /**
+       * @description ハートビート間隔（ミリ秒）
+       * @default 30000
+       */
+      heartbeatInterval: number;
+      /**
+       * @description 再接続間隔（ミリ秒）
+       * @default 5000
+       */
+      reconnectInterval: number;
+      /**
+       * @description 最大再接続試行回数
+       * @default 5
+       */
+      maxReconnectAttempts: number;
+      /**
+       * @description 接続タイムアウト（ミリ秒）
+       * @default 10000
+       */
+      connectionTimeout: number;
+      /**
+       * @description メッセージキューの最大サイズ
+       * @default 100
+       */
+      messageQueueSize: number;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;

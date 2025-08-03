@@ -3,14 +3,16 @@
 ## 1. 開発環境セットアップ
 
 ### 1.1 前提条件
+
 - **Node.js 22 LTS**
 - **Amazon Q CLI** インストール済み
 - **Git**
 - **VSCode**（推奨）または**WebStorm**
 
-### 1.2 Nxワークスペース初期化
+### 1.2 Nx ワークスペース初期化
 
-#### Nxワークスペース作成
+#### Nx ワークスペース作成
+
 ```bash
 # Nxワークスペースの作成
 npx create-nx-workspace@latest amazon-q-gui \
@@ -22,6 +24,7 @@ cd amazon-q-gui
 ```
 
 #### プロジェクト構造
+
 ```
 amazon-q-gui/
 ├── apps/                    # アプリケーション
@@ -42,6 +45,7 @@ amazon-q-gui/
 ## 2. フロントエンド実装
 
 ### 2.1 Angular アプリケーション作成
+
 ```bash
 # NxでAngularアプリケーションを生成
 npx nx g @nx/angular:application frontend \
@@ -63,6 +67,7 @@ npx nx g setup-tailwind frontend
 ```
 
 ### 2.2 プロジェクト構造
+
 ```
 frontend/
 ├── src/
@@ -89,7 +94,8 @@ frontend/
 │   └── environments/
 ```
 
-### 2.3 WebSocketサービス実装
+### 2.3 WebSocket サービス実装
+
 ```typescript
 // core/services/websocket.service.ts
 import { Injectable, OnDestroy, inject } from '@angular/core';
@@ -97,7 +103,7 @@ import { io, Socket } from 'socket.io-client';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WebSocketService implements OnDestroy {
   private socket: Socket | null = null;
@@ -107,8 +113,8 @@ export class WebSocketService implements OnDestroy {
     this.socket = io(url, {
       transports: ['websocket'],
       auth: {
-        token: this.getAuthToken()
-      }
+        token: this.getAuthToken(),
+      },
     });
 
     this.socket.on('message', (data) => {
@@ -137,6 +143,7 @@ export class WebSocketService implements OnDestroy {
 ```
 
 ### 2.4 チャットコンポーネント実装
+
 ```typescript
 // features/chat/components/chat-interface/chat-interface.component.ts
 import { Component, OnInit, ViewChild, ElementRef, inject, signal } from '@angular/core';
@@ -156,71 +163,52 @@ import { chatFeature } from '../../store';
 @Component({
   selector: 'app-chat-interface',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardModule,
-    ButtonModule,
-    InputTextModule,
-    InputTextareaModule,
-    TerminalModule
-  ],
+  imports: [CommonModule, FormsModule, CardModule, ButtonModule, InputTextModule, InputTextareaModule, TerminalModule],
   template: `
     <div class="flex flex-col h-full bg-surface-50 dark:bg-surface-900">
-      <p-card class="flex-1 m-4" [style]="{ 'height': 'calc(100vh - 2rem)' }">
+      <p-card class="flex-1 m-4" [style]="{ height: 'calc(100vh - 2rem)' }">
         <ng-template pTemplate="header">
           <div class="flex items-center justify-between px-4 py-3">
-            <h2 class="text-2xl font-semibold text-surface-800 dark:text-surface-100">
-              Amazon Q Chat
-            </h2>
+            <h2 class="text-2xl font-semibold text-surface-800 dark:text-surface-100">Amazon Q Chat</h2>
             <span class="flex items-center gap-2">
               @if (isConnected()) {
-                <i class="pi pi-circle-fill text-green-500 text-xs"></i>
-                <span class="text-sm text-surface-600 dark:text-surface-400">Connected</span>
+              <i class="pi pi-circle-fill text-green-500 text-xs"></i>
+              <span class="text-sm text-surface-600 dark:text-surface-400">Connected</span>
               } @else {
-                <i class="pi pi-circle-fill text-red-500 text-xs"></i>
-                <span class="text-sm text-surface-600 dark:text-surface-400">Disconnected</span>
+              <i class="pi pi-circle-fill text-red-500 text-xs"></i>
+              <span class="text-sm text-surface-600 dark:text-surface-400">Disconnected</span>
               }
             </span>
           </div>
         </ng-template>
-        
+
         <div #terminalContainer class="h-[calc(100%-8rem)] bg-black rounded-lg p-2"></div>
-        
+
         <ng-template pTemplate="footer">
           <div class="flex gap-2">
             <span class="p-input-icon-left flex-1">
               <i class="pi pi-comment"></i>
-              <input pInputText 
-                     class="w-full" 
-                     placeholder="Type your message..."
-                     [ngModel]="currentMessage()"
-                     (ngModelChange)="currentMessage.set($event)"
-                     (keyup.enter)="sendMessage()" />
+              <input pInputText class="w-full" placeholder="Type your message..." [ngModel]="currentMessage()" (ngModelChange)="currentMessage.set($event)" (keyup.enter)="sendMessage()" />
             </span>
-            <p-button label="Send" 
-                      icon="pi pi-send" 
-                      [disabled]="!currentMessage().trim()"
-                      (onClick)="sendMessage()"
-                      styleClass="px-6" />
+            <p-button label="Send" icon="pi pi-send" [disabled]="!currentMessage().trim()" (onClick)="sendMessage()" styleClass="px-6" />
           </div>
         </ng-template>
       </p-card>
     </div>
   `,
-  styleUrl: './chat-interface.component.scss'
+  styleUrl: './chat-interface.component.scss',
 })
 export class ChatInterfaceComponent implements OnInit {
   @ViewChild('terminal', { static: true }) terminalEl!: ElementRef;
-  
+
   // Signals for reactive state
   currentMessage = signal('');
   isConnected = signal(false);
-  
+
   // Inject dependencies
   private readonly store = inject(Store);
   private readonly chatService = inject(ChatService);
-  
+
   terminal!: Terminal;
   fitAddon = new FitAddon();
 
@@ -233,10 +221,10 @@ export class ChatInterfaceComponent implements OnInit {
     this.terminal = new Terminal({
       theme: {
         background: '#1e1e1e',
-        foreground: '#d4d4d4'
-      }
+        foreground: '#d4d4d4',
+      },
     });
-    
+
     this.terminal.loadAddon(this.fitAddon);
     this.terminal.open(this.terminalEl.nativeElement);
     this.fitAddon.fit();
@@ -245,13 +233,15 @@ export class ChatInterfaceComponent implements OnInit {
   sendMessage(): void {
     const message = this.currentMessage();
     if (message.trim()) {
-      this.store.dispatch(ChatActions.sendMessage({ 
-        content: message 
-      }));
+      this.store.dispatch(
+        ChatActions.sendMessage({
+          content: message,
+        })
+      );
       this.currentMessage.set('');
     }
   }
-  
+
   ngOnDestroy(): void {
     this.terminal?.dispose();
   }
@@ -261,6 +251,7 @@ export class ChatInterfaceComponent implements OnInit {
 ## 3. バックエンド実装
 
 ### 3.1 NestJS アプリケーション作成
+
 ```bash
 # NxでNestJSアプリケーションを生成
 npx nx g @nx/nest:application backend \
@@ -274,6 +265,7 @@ npm install node-pty @types/node-pty
 ```
 
 ### 3.2 プロジェクト構造
+
 ```
 backend/
 ├── src/
@@ -295,6 +287,7 @@ backend/
 ```
 
 ### 3.3 Amazon Q サービス実装
+
 ```typescript
 // modules/chat/amazon-q.service.ts
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
@@ -315,8 +308,8 @@ export class AmazonQService implements OnModuleDestroy {
       env: {
         ...process.env,
         LANG: 'en_US.UTF-8',
-        LC_ALL: 'en_US.UTF-8'
-      }
+        LC_ALL: 'en_US.UTF-8',
+      },
     });
 
     const session = new AmazonQSession(sessionId, ptyProcess);
@@ -342,12 +335,12 @@ export class AmazonQService implements OnModuleDestroy {
     // ANSIコードの処理とツール承認の検出
     const cleanData = this.stripAnsi(data);
     const isToolApproval = this.detectToolApproval(cleanData);
-    
+
     return {
       raw: data,
       clean: cleanData,
       isToolApproval,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -356,21 +349,17 @@ export class AmazonQService implements OnModuleDestroy {
   }
 
   private detectToolApproval(data: string): boolean {
-    return data.includes('Tool approval required') || 
-           data.includes('Using tool:');
+    return data.includes('Tool approval required') || data.includes('Using tool:');
   }
 
   onModuleDestroy(): void {
-    this.sessions.forEach(session => session.destroy());
+    this.sessions.forEach((session) => session.destroy());
     this.sessions.clear();
   }
 }
 
 export class AmazonQSession extends EventEmitter {
-  constructor(
-    public readonly id: string,
-    private readonly ptyProcess: IPty
-  ) {
+  constructor(public readonly id: string, private readonly ptyProcess: IPty) {
     super();
   }
 
@@ -389,18 +378,11 @@ export class AmazonQSession extends EventEmitter {
 }
 ```
 
-### 3.4 WebSocket Gateway実装
+### 3.4 WebSocket Gateway 実装
+
 ```typescript
 // modules/chat/chat.gateway.ts
-import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
-  OnGatewayConnection,
-  OnGatewayDisconnect
-} from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
@@ -408,31 +390,28 @@ import { WsAuthGuard } from '../../common/guards/ws-auth.guard';
 @WebSocketGateway({
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:4200',
-    credentials: true
-  }
+    credentials: true,
+  },
 })
 @UseGuards(WsAuthGuard)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(
-    private readonly amazonQService: AmazonQService,
-    private readonly sessionService: SessionService
-  ) {}
+  constructor(private readonly amazonQService: AmazonQService, private readonly sessionService: SessionService) {}
 
   async handleConnection(client: Socket): Promise<void> {
     const sessionId = await this.sessionService.createSession(client.id);
     const session = this.amazonQService.createSession(sessionId);
-    
+
     session.on('data', (data) => {
       client.emit('message', {
         type: 'output',
         payload: data,
-        sessionId
+        sessionId,
       });
     });
-    
+
     client.join(sessionId);
   }
 
@@ -445,10 +424,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('message')
-  async handleMessage(
-    @MessageBody() data: { content: string },
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
+  async handleMessage(@MessageBody() data: { content: string }, @ConnectedSocket() client: Socket): Promise<void> {
     const session = await this.sessionService.getSessionByClientId(client.id);
     if (!session) return;
 
@@ -457,10 +433,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('resize')
-  async handleResize(
-    @MessageBody() data: { cols: number; rows: number },
-    @ConnectedSocket() client: Socket
-  ): Promise<void> {
+  async handleResize(@MessageBody() data: { cols: number; rows: number }, @ConnectedSocket() client: Socket): Promise<void> {
     const session = await this.sessionService.getSessionByClientId(client.id);
     if (!session) return;
 
@@ -473,6 +446,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 ## 4. 共有型定義
 
 ### 4.1 共有ライブラリ作成
+
 ```bash
 # 共有インターフェースライブラリを作成
 npx nx g @nx/js:library shared-interfaces \
@@ -483,6 +457,7 @@ npx nx g @nx/js:library shared-interfaces \
 ```
 
 ### 4.2 型定義
+
 ```typescript
 // shared/src/interfaces/websocket.interface.ts
 export interface WebSocketMessage<T = unknown> {
@@ -497,7 +472,7 @@ export enum MessageType {
   OUTPUT = 'output',
   TOOL_APPROVAL = 'tool_approval',
   ERROR = 'error',
-  STATUS = 'status'
+  STATUS = 'status',
 }
 
 // shared/src/interfaces/chat.interface.ts
@@ -520,7 +495,8 @@ export interface MessageMetadata {
 
 ## 5. データベース設定
 
-### 5.1 TypeORM設定
+### 5.1 TypeORM 設定
+
 ```typescript
 // backend/src/config/database.config.ts
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -537,6 +513,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
 ```
 
 ### 5.2 エンティティ定義
+
 ```typescript
 // backend/src/entities/session.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
@@ -563,6 +540,7 @@ export class SessionEntity {
 ## 6. 環境設定
 
 ### 6.1 環境変数（.env）
+
 ```bash
 # backend/.env
 NODE_ENV=development
@@ -572,7 +550,8 @@ JWT_SECRET=your-secret-key
 DATABASE_PATH=./data/amazon-q-gui.sqlite
 ```
 
-### 6.2 Angular環境設定
+### 6.2 Angular 環境設定
+
 ```typescript
 // frontend/src/environments/environment.ts
 export const environment = {
@@ -616,11 +595,14 @@ export default {
 ## 7. 開発ワークフロー
 
 ### 7.0 重要: ローカル開発専用
+
 このアプリケーションはローカル開発専用です。
+
 - プロダクション設定やデプロイスクリプトを作成しないでください
-- すべてのサービスはlocalhostで実行されます
+- すべてのサービスは localhost で実行されます
 
 ### 7.1 開発サーバー起動
+
 ```bash
 # フロントエンドとバックエンドを同時起動
 npx nx run-many --target=serve --projects=frontend,backend --parallel
@@ -634,6 +616,7 @@ npx nx serve frontend
 ```
 
 ### 7.2 ビルド（開発用）
+
 ```bash
 # 開発用ビルド（ローカル実行用）
 npx nx run-many --target=build --all --configuration=development
@@ -647,6 +630,7 @@ npx nx build backend --configuration=development
 ```
 
 ### 7.3 テスト実行
+
 ```bash
 # 全テスト実行
 npx nx run-many --target=test --all
@@ -659,6 +643,7 @@ npx nx e2e frontend-e2e
 ```
 
 ### 7.4 依存関係の可視化
+
 ```bash
 # 依存関係グラフの表示
 npx nx graph
@@ -667,6 +652,7 @@ npx nx graph
 ## 8. テスト実装
 
 ### 8.1 単体テスト（バックエンド）
+
 ```typescript
 // backend/src/modules/chat/chat.service.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
@@ -691,7 +677,8 @@ describe('ChatService', () => {
 });
 ```
 
-### 8.2 E2Eテスト（フロントエンド）
+### 8.2 E2E テスト（フロントエンド）
+
 ```typescript
 // frontend/cypress/e2e/chat.cy.ts
 describe('Chat Feature', () => {
@@ -707,6 +694,7 @@ describe('Chat Feature', () => {
 ## 9. デバッグ設定
 
 ### 9.1 VSCode launch.json
+
 ```json
 {
   "version": "0.2.0",
@@ -732,12 +720,12 @@ describe('Chat Feature', () => {
 
 ## 10. 次のステップ
 
-1. **認証実装**: JWT認証の追加
+1. **認証実装**: JWT 認証の追加
 2. **エラーハンドリング**: グローバルエラーハンドラー
-3. **ログ実装**: Winston統合
-4. **開発効率化**: Nx Console活用、デバッグ設定最適化
-5. **テスト拡充**: 単体テスト・E2Eテストのカバレッジ向上
+3. **ログ実装**: Winston 統合
+4. **開発効率化**: Nx Console 活用、デバッグ設定最適化
+5. **テスト拡充**: 単体テスト・E2E テストのカバレッジ向上
 
 ## まとめ
 
-この実装ガイドに従って開発を進めることで、型安全で保守性の高いAmazon Q GUIアプリケーションを構築できます。各セクションのコード例を参考に、実際の要件に合わせてカスタマイズしてください。
+この実装ガイドに従って開発を進めることで、型安全で保守性の高い Amazon Q GUI アプリケーションを構築できます。各セクションのコード例を参考に、実際の要件に合わせてカスタマイズしてください。

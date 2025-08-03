@@ -15,33 +15,33 @@ export enum MessageRole {
   USER = 'user',
   ASSISTANT = 'assistant',
   SYSTEM = 'system',
-  TOOL = 'tool'
+  TOOL = 'tool',
 }
 
 export enum MessageFormat {
   TEXT = 'text',
   MARKDOWN = 'markdown',
   CODE = 'code',
-  ANSI = 'ansi'
+  ANSI = 'ansi',
 }
 
 export enum SessionStatus {
   ACTIVE = 'active',
   CLOSED = 'closed',
-  ERROR = 'error'
+  ERROR = 'error',
 }
 
 export enum ToolApprovalStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   DENIED = 'denied',
-  TRUSTED = 'trusted'
+  TRUSTED = 'trusted',
 }
 
 export enum ToolRiskLevel {
   LOW = 'low',
   MEDIUM = 'medium',
-  HIGH = 'high'
+  HIGH = 'high',
 }
 
 export enum ProcessingStatus {
@@ -49,13 +49,14 @@ export enum ProcessingStatus {
   THINKING = 'thinking',
   PROCESSING = 'processing',
   WAITING_APPROVAL = 'waiting_approval',
-  EXECUTING_TOOL = 'executing_tool'
+  EXECUTING_TOOL = 'executing_tool',
 }
 ```
 
 ## 2. ドメインモデル
 
 ### User（ユーザー）
+
 ```typescript
 export interface User {
   id: UserId;
@@ -78,6 +79,7 @@ export interface UserPreferences {
 ```
 
 ### Session（セッション）
+
 ```typescript
 export interface Session {
   id: SessionId;
@@ -102,6 +104,7 @@ export interface SessionMetadata {
 ```
 
 ### Message（メッセージ）
+
 ```typescript
 export interface Message {
   id: MessageId;
@@ -125,6 +128,7 @@ export interface MessageMetadata {
 ```
 
 ### Tool（ツール）
+
 ```typescript
 export interface Tool {
   name: string;
@@ -167,7 +171,8 @@ export interface ToolResponse {
 }
 ```
 
-### MCPServer（MCPサーバー）
+### MCPServer（MCP サーバー）
+
 ```typescript
 export interface MCPServer {
   name: string;
@@ -191,7 +196,8 @@ export interface MCPServerStatus {
 
 ## 3. リアルタイム通信モデル
 
-### WebSocketメッセージ
+### WebSocket メッセージ
+
 ```typescript
 // クライアント → サーバー
 export interface ClientMessage {
@@ -268,7 +274,7 @@ export interface SessionUpdatePayload {
 }
 ```
 
-## 4. PTY出力パース用モデル
+## 4. PTY 出力パース用モデル
 
 ```typescript
 export interface ParsedOutput {
@@ -504,4 +510,4 @@ export interface AppConfig {
 
 ## まとめ
 
-このデータスキーマは、Amazon Q CLIをWebベースのGUIで操作するために必要なすべてのデータ構造を定義しています。TypeScriptの型安全性を活用し、フロントエンドとバックエンド間の一貫性を保証します。SQLiteによる軽量なデータ永続化と、WebSocketによるリアルタイム通信をサポートしています。
+このデータスキーマは、Amazon Q CLI を Web ベースの GUI で操作するために必要なすべてのデータ構造を定義しています。TypeScript の型安全性を活用し、フロントエンドとバックエンド間の一貫性を保証します。SQLite による軽量なデータ永続化と、WebSocket によるリアルタイム通信をサポートしています。

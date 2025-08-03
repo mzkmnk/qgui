@@ -5,23 +5,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 開発言語とプロセス
 
 - **すべてのコミュニケーションとコードコメントは日本語で記述すること**
-- **開発手法: t-wada推奨のTDD（テスト駆動開発）+ スキーマ駆動開発を採用**
+- **開発手法: t-wada 推奨の TDD（テスト駆動開発）+ スキーマ駆動開発を採用**
   - **スキーマファースト**: データ構造（型・インターフェース）を最初に定義
   - **テストファースト**: 実装前にテストを先に書く
-  - **Red-Green-Refactorサイクル**: 失敗→成功→改善の反復
+  - **Red-Green-Refactor サイクル**: 失敗 → 成功 → 改善の反復
   - **ベビーステップ**: 極小の変更単位で進める
   - **仮実装**: まず動作する最小限のコードから開始
 - **実装の基本方針**
-  - 1ファイル1関数、1関数1責務で取り組むこと
+  - 1 ファイル 1 関数、1 関数 1 責務で取り組むこと
   - バレルエクスポートは行わないこと
 
 ## プロジェクト概要
 
-このプロジェクトは、NxモノレポでAngularフロントエンドとNestJSバックエンドを含むQguiアプリケーションです。
+このプロジェクトは、Nx モノレポで Angular フロントエンドと NestJS バックエンドを含む Qgui アプリケーションです。
 
 ## よく使うコマンド
 
 ### 開発サーバー起動
+
 ```bash
 # フロントエンドとバックエンドを同時起動
 npm run dev
@@ -32,6 +33,7 @@ npm run backend:dev   # バックエンド開発サーバー
 ```
 
 ### ビルド
+
 ```bash
 # 両方のアプリケーションをビルド
 npm run build
@@ -42,6 +44,7 @@ npm run backend:build
 ```
 
 ### テスト実行
+
 ```bash
 # すべてのテストを実行
 npm run test
@@ -61,6 +64,7 @@ npx nx test backend --testFile=app.service.spec.ts  # バックエンド
 ```
 
 ### リント
+
 ```bash
 # すべてのプロジェクトをリント
 npm run lint
@@ -71,6 +75,7 @@ npm run backend:lint
 ```
 
 ### 影響を受けるプロジェクトのみ実行
+
 ```bash
 npm run affected:build
 npm run affected:test
@@ -78,6 +83,7 @@ npm run affected:lint
 ```
 
 ### プロジェクト依存関係グラフ
+
 ```bash
 npm run graph
 ```
@@ -85,6 +91,7 @@ npm run graph
 ## アーキテクチャ概要
 
 ### モノレポ構造
+
 ```
 apps/
 ├── frontend/         # Angular 20.1アプリケーション
@@ -98,29 +105,35 @@ apps/
 ```
 
 ### 技術スタック
+
 - **フロントエンド**: Angular 20.1 + Vite + Vitest
 - **バックエンド**: NestJS 11 + Express + Jest
 - **共通**: TypeScript 5.8、RxJS 7.8、Axios 1.6
 
-### Nx設定の特徴
+### Nx 設定の特徴
+
 - キャッシング有効（ビルド、テスト、リント）
-- Nx Cloud接続済み（分散キャッシング）
+- Nx Cloud 接続済み（分散キャッシング）
 - 自動ターゲット推論プラグイン設定済み
 
 ### テスト戦略（TDD + スキーマ駆動開発）
+
 1. **フロントエンド単体テスト**: Vitest + Angular Testing Utilities
 2. **バックエンド単体テスト**: Jest + NestJS Testing Utilities
-3. **E2Eテスト**: Playwright（フロントエンド）、Jest（バックエンド）
+3. **E2E テスト**: Playwright（フロントエンド）、Jest（バックエンド）
 
-## 開発フロー（t-wada推奨TDD + スキーマ駆動開発）
+## 開発フロー（t-wada 推奨 TDD + スキーマ駆動開発）
 
 ### 基本サイクル
+
 このプロジェクトでは、以下の開発サイクルを厳密に守ります：
 
 #### 1. スキーマ定義フェーズ
+
 **目的**: データ構造と型を事前に設計し、実装の指針を明確にする
 
 **手順**:
+
 ```typescript
 // 例: ユーザー管理機能の場合
 // 1. インターフェースを先に定義
@@ -151,9 +164,11 @@ interface UpdateUserData {
 ```
 
 #### 2. Red フェーズ（失敗するテストを書く）
+
 **目的**: 実装すべき機能の仕様をテストで表現する
 
 **手順**:
+
 ```typescript
 // テストを先に書く（この時点では実装は存在しない）
 describe('UserService', () => {
@@ -165,12 +180,12 @@ describe('UserService', () => {
       name: 'テストユーザー',
       email: 'test@example.com',
       createdAt: new Date('2025-01-01'),
-      updatedAt: new Date('2025-01-01')
+      updatedAt: new Date('2025-01-01'),
     };
-    
+
     // Act: テスト実行（この時点では失敗する）
     const result = await userService.findById(userId);
-    
+
     // Assert: 結果検証
     expect(result).toEqual(expectedUser);
   });
@@ -180,14 +195,16 @@ describe('UserService', () => {
 **実行結果**: テストは失敗する（Red）→ これが正常
 
 #### 3. Green フェーズ（テストを通す最小限の実装）
+
 **目的**: テストを通すための最小限のコードを書く
 
 **手順**:
+
 ```typescript
 // 仮実装: まずはテストを通すだけの簡単な実装
 class UserService {
   constructor(private userRepository: UserRepository) {}
-  
+
   async findById(id: string): Promise<User | null> {
     // 仮実装: ハードコードでテストを通す
     if (id === '123') {
@@ -196,7 +213,7 @@ class UserService {
         name: 'テストユーザー',
         email: 'test@example.com',
         createdAt: new Date('2025-01-01'),
-        updatedAt: new Date('2025-01-01')
+        updatedAt: new Date('2025-01-01'),
       };
     }
     return null;
@@ -207,14 +224,16 @@ class UserService {
 **実行結果**: テストが成功する（Green）
 
 #### 4. Refactor フェーズ（実装を改善）
+
 **目的**: コードの品質を向上させる（機能は変更しない）
 
 **手順**:
+
 ```typescript
 // リファクタリング: 実際のリポジトリを使用する実装に変更
 class UserService {
   constructor(private userRepository: UserRepository) {}
-  
+
   async findById(id: string): Promise<User | null> {
     // ハードコードを除去し、実際のリポジトリを使用
     return await this.userRepository.findById(id);
@@ -225,6 +244,7 @@ class UserService {
 **実行結果**: テストは引き続き成功する
 
 #### 5. 次のテストケース追加
+
 新しい機能やエッジケースのテストを追加し、サイクルを繰り返す
 
 ```typescript
@@ -237,11 +257,11 @@ it('存在しないIDの場合はnullを返す', async () => {
 it('新しいユーザーを作成できる', async () => {
   const createData: CreateUserData = {
     name: '新規ユーザー',
-    email: 'new@example.com'
+    email: 'new@example.com',
   };
-  
+
   const result = await userService.create(createData);
-  
+
   expect(result.id).toBeDefined();
   expect(result.name).toBe('新規ユーザー');
   expect(result.email).toBe('new@example.com');
@@ -251,23 +271,27 @@ it('新しいユーザーを作成できる', async () => {
 ### 重要な原則
 
 #### ベビーステップの実践
-- **1つのテストケースにつき1つの機能**のみを実装
+
+- **1 つのテストケースにつき 1 つの機能**のみを実装
 - **極小の変更**で進める（一度に大きな変更をしない）
 - **各ステップでテストが全て通る**ことを確認
 
 #### 仮実装の活用
+
 - 最初は**ハードコード**でテストを通す
 - **段階的に一般化**していく
 - **完璧を求めず**、動作することを優先
 
 #### テストの品質
+
 - **AAA（Arrange-Act-Assert）パターン**を使用
 - **テスト名は仕様を表現**する（何をテストするかが明確）
-- **1つのテストで1つのことだけ**を検証
+- **1 つのテストで 1 つのことだけ**を検証
 
 ### 実践例：機能開発の流れ
 
-#### ステップ1: 要件分析とスキーマ設計
+#### ステップ 1: 要件分析とスキーマ設計
+
 ```
 要件: ユーザー一覧を取得する機能を追加したい
 ↓
@@ -275,7 +299,8 @@ it('新しいユーザーを作成できる', async () => {
 戻り値: Promise<User[]>
 ```
 
-#### ステップ2: インターフェース更新
+#### ステップ 2: インターフェース更新
+
 ```typescript
 interface UserRepository {
   findAll(): Promise<User[]>;
@@ -283,7 +308,8 @@ interface UserRepository {
 }
 ```
 
-#### ステップ3: テスト作成（Red）
+#### ステップ 3: テスト作成（Red）
+
 ```typescript
 it('全ユーザーを取得できる', async () => {
   const result = await userService.findAll();
@@ -291,14 +317,16 @@ it('全ユーザーを取得できる', async () => {
 });
 ```
 
-#### ステップ4: 仮実装（Green）
+#### ステップ 4: 仮実装（Green）
+
 ```typescript
 async findAll(): Promise<User[]> {
   return []; // 空配列を返す仮実装
 }
 ```
 
-#### ステップ5: より具体的なテスト（Red）
+#### ステップ 5: より具体的なテスト（Red）
+
 ```typescript
 it('複数のユーザーを正しく取得できる', async () => {
   const result = await userService.findAll();
@@ -308,7 +336,8 @@ it('複数のユーザーを正しく取得できる', async () => {
 });
 ```
 
-#### ステップ6: 実装の改善（Green）
+#### ステップ 6: 実装の改善（Green）
+
 ```typescript
 async findAll(): Promise<User[]> {
   return await this.userRepository.findAll();
@@ -316,22 +345,26 @@ async findAll(): Promise<User[]> {
 ```
 
 ### コミット前チェックリスト
+
 1. **全てのテストが通る**ことを確認: `npm run test`
 2. **リントエラーがない**ことを確認: `npm run lint`
-3. **型エラーがない**ことを確認: TypeScriptコンパイル成功
+3. **型エラーがない**ことを確認: TypeScript コンパイル成功
 4. **コードレビュー**: 自分のコードを見直し、改善点がないか確認
 
 ## タスク管理（.claude/todos）
 
 ### タスク管理の基本方針
-- **.claude/todosファイルでタスクを管理する場合、タスクを完了したら毎回、即座にチェックボックスを埋めること**
+
+- **.claude/todos ファイルでタスクを管理する場合、タスクを完了したら毎回、即座にチェックボックスを埋めること**
 - **ユーザーが管理をしやすいように、完了タスクは即座に視覚的に分かるようにすること**
 - チェックボックス形式: `- [x] 完了したタスク`
 - 未完了タスク形式: `- [ ] 未完了のタスク`
 
 ### タスク管理の実践例
+
 ```markdown
 ## 実装タスク
+
 - [x] ユーザーインターフェースの設計
 - [x] データベーススキーマの定義
 - [ ] API エンドポイントの実装
@@ -340,26 +373,30 @@ async findAll(): Promise<User[]> {
 ```
 
 ### 重要な注意事項
+
 - **タスクが完了したら、そのタスクのチェックボックスを `[ ]` から `[x]` に即座に変更する**
 - **完了タスクと未完了タスクを明確に分けて管理する**
 - **ユーザーが進捗を一目で把握できるようにする**
 
-## Angular開発のベストプラクティス
+## Angular 開発のベストプラクティス
 
-### TypeScriptのベストプラクティス
+### TypeScript のベストプラクティス
+
 - 厳密な型チェックを使用する
 - 型が明らかな場合は型推論を優先する
 - `any`型を避ける；型が不確実な場合は`unknown`を使用する
 
-### Angularのベストプラクティス
-- 常にNgModulesよりもスタンドアロンコンポーネントを使用する
+### Angular のベストプラクティス
+
+- 常に NgModules よりもスタンドアロンコンポーネントを使用する
 - `@Component`、`@Directive`、`@Pipe`デコレータ内で`standalone: true`を設定しない
-- 状態管理にはsignalsを使用する
+- 状態管理には signals を使用する
 - フィーチャールートには遅延読み込みを実装する
 - すべての静的画像には`NgOptimizedImage`を使用する
 - `@HostBinding`と`@HostListener`デコレータを使用しない。代わりに`@Component`または`@Directive`デコレータの`host`オブジェクト内にホストバインディングを配置する
 
 ### コンポーネント
+
 - コンポーネントを小さく保ち、単一の責任に集中させる
 - デコレータの代わりに`input()`と`output()`関数を使用する
 - 派生状態には`computed()`を使用する
@@ -370,26 +407,29 @@ async findAll(): Promise<User[]> {
 - `ngStyle`を使用せず、代わりに`style`バインディングを使用する
 
 ### 状態管理
-- ローカルコンポーネント状態にはsignalsを使用する
+
+- ローカルコンポーネント状態には signals を使用する
 - 派生状態には`computed()`を使用する
 - 状態変換を純粋で予測可能に保つ
-- signalsで`mutate`を使用せず、代わりに`update`または`set`を使用する
+- signals で`mutate`を使用せず、代わりに`update`または`set`を使用する
 
 ### テンプレート
+
 - テンプレートをシンプルに保ち、複雑なロジックを避ける
 - `*ngIf`、`*ngFor`、`*ngSwitch`の代わりにネイティブ制御フロー（`@if`、`@for`、`@switch`）を使用する
-- observablesを扱う際はasyncパイプを使用する
+- observables を扱う際は async パイプを使用する
 
 ### サービス
+
 - 単一の責任を中心にサービスを設計する
 - シングルトンサービスには`providedIn: 'root'`オプションを使用する
 - コンストラクタインジェクションの代わりに`inject()`関数を使用する
 
-## Angular公式ドキュメントリンク集
+## Angular 公式ドキュメントリンク集
 
 ### 基本
 
-- [Angularとは](https://angular.dev/overview)
+- [Angular とは](https://angular.dev/overview)
 - [インストールガイド](https://angular.dev/installation)
 - [スタイルガイド](https://next.angular.dev/style-guide)
 
@@ -398,8 +438,8 @@ async findAll(): Promise<User[]> {
 - [コンポーネントとは](https://angular.dev/guide/components)
 - [コンポーネントセレクター](https://angular.dev/guide/components/selectors)
 - [コンポーネントのスタイリング](https://angular.dev/guide/components/styling)
-- [inputプロパティでデータを受け取る](https://angular.dev/guide/components/inputs)
-- [outputでカスタムイベント](https://angular.dev/guide/components/outputs)
+- [input プロパティでデータを受け取る](https://angular.dev/guide/components/inputs)
+- [output でカスタムイベント](https://angular.dev/guide/components/outputs)
 - [コンテンツプロジェクション](https://angular.dev/guide/components/content-projection)
 - [コンポーネントのライフサイクル](https://angular.dev/guide/components/lifecycle)
 
@@ -423,8 +463,8 @@ async findAll(): Promise<User[]> {
 
 ### Signals
 
-- [Signals概要](https://angular.dev/guide/signals)
-- [linkedSignalによる依存状態](https://angular.dev/guide/signals/linked-signal)
+- [Signals 概要](https://angular.dev/guide/signals)
+- [linkedSignal による依存状態](https://angular.dev/guide/signals/linked-signal)
 - [リソースによる非同期リアクティビティ](https://angular.dev/guide/signals/resource)
 
 ### 依存性注入（DI）
@@ -439,13 +479,13 @@ async findAll(): Promise<User[]> {
 
 ### RxJS
 
-- [Angular SignalsとのRxJS連携](https://angular.dev/ecosystem/rxjs-interop)
-- [コンポーネントoutputの連携](https://angular.dev/ecosystem/rxjs-interop/output-interop)
+- [Angular Signals との RxJS 連携](https://angular.dev/ecosystem/rxjs-interop)
+- [コンポーネント output の連携](https://angular.dev/ecosystem/rxjs-interop/output-interop)
 
 ### データの読み込み
 
-- [HttpClient概要](https://angular.dev/guide/http)
-- [HttpClientのセットアップ](https://angular.dev/guide/http/setup)
+- [HttpClient 概要](https://angular.dev/guide/http)
+- [HttpClient のセットアップ](https://angular.dev/guide/http/setup)
 - [リクエストの作成](https://angular.dev/guide/http/making-requests)
 - [リクエストのインターセプト](https://angular.dev/guide/http/interceptors)
 - [テスト](https://angular.dev/guide/http/testing)
@@ -471,8 +511,8 @@ async findAll(): Promise<User[]> {
 
 ### サーバーサイドレンダリング（SSR）
 
-- [SSR概要](https://angular.dev/guide/performance)
-- [AngularでのSSR](https://angular.dev/guide/ssr)
+- [SSR 概要](https://angular.dev/guide/performance)
+- [Angular での SSR](https://angular.dev/guide/ssr)
 - [ビルド時プリレンダリング（SSG）](https://angular.dev/guide/prerendering)
 - [サーバールーティングによるハイブリッドレンダリング](https://angular.dev/guide/hybrid-rendering)
 - [ハイドレーション](https://angular.dev/guide/hydration)
@@ -480,7 +520,7 @@ async findAll(): Promise<User[]> {
 
 ### CLI
 
-- [Angular CLI概要](https://angular.dev/tools/cli)
+- [Angular CLI 概要](https://angular.dev/tools/cli)
 
 ### テスト
 
@@ -492,7 +532,7 @@ async findAll(): Promise<User[]> {
 - [属性ディレクティブのテスト](https://angular.dev/guide/testing/attribute-directives)
 - [パイプのテスト](https://angular.dev/guide/testing/pipes)
 - [テストのデバッグ](https://angular.dev/guide/testing/debugging)
-- [テストユーティリティAPI](https://angular.dev/guide/testing/utility-apis)
+- [テストユーティリティ API](https://angular.dev/guide/testing/utility-apis)
 - [コンポーネントハーネス概要](https://angular.dev/guide/testing/component-harnesses-overview)
 - [テストでのコンポーネントハーネスの使用](https://angular.dev/guide/testing/using-component-harnesses)
 - [コンポーネント用のハーネス作成](https://angular.dev/guide/testing/creating-component-harnesses)
@@ -501,12 +541,12 @@ async findAll(): Promise<User[]> {
 
 - [コンテンツのアニメーション](https://angular.dev/guide/animations/css)
 - [ルートトランジションアニメーション](https://angular.dev/guide/animations/route-animations)
-- [ネイティブCSSアニメーションへの移行](https://next.angular.dev/guide/animations/migration)
+- [ネイティブ CSS アニメーションへの移行](https://next.angular.dev/guide/animations/migration)
 
 ### API
 
-- [APIリファレンス](https://angular.dev/api)
-- [CLIコマンドリファレンス](https://angular.dev/cli)
+- [API リファレンス](https://angular.dev/api)
+- [CLI コマンドリファレンス](https://angular.dev/cli)
 
 ### その他
 
@@ -514,8 +554,8 @@ async findAll(): Promise<User[]> {
 - [エラー百科事典](https://angular.dev/errors)
 - [拡張診断](https://angular.dev/extended-diagnostics)
 - [アップデートガイド](https://angular.dev/update-guide)
-- [Angularへの貢献](https://github.com/angular/angular/blob/main/CONTRIBUTING.md)
-- [Angularのロードマップ](https://angular.dev/roadmap)
+- [Angular への貢献](https://github.com/angular/angular/blob/main/CONTRIBUTING.md)
+- [Angular のロードマップ](https://angular.dev/roadmap)
 - [プロジェクトを最新に保つ](https://angular.dev/update)
 - [セキュリティ](https://angular.dev/best-practices/security)
 - [国際化（i18n）](https://angular.dev/guide/i18n)
