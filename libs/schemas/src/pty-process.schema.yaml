@@ -1,0 +1,444 @@
+openapi: 3.0.3
+info:
+  title: PTYプロセス管理スキーマ
+  description: Qgui PTYプロセス管理の型定義とメッセージフォーマット
+  version: 1.0.0
+
+# PTYプロセス管理専用のスキーマ定義のため、pathsは不要
+paths: {}
+
+components:
+  schemas:
+    # PTYプロセス状態定義
+    ProcessState:
+      type: string
+      enum: [idle, running, error, terminated]
+      description: PTYプロセスの実行状態
+
+    # 基本PTYメッセージフォーマット
+    PTYMessage:
+      type: object
+      required:
+        - type
+        - processId
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [process_start, process_stop, process_output, process_input, process_error, process_status, process_resource]
+          description: PTYメッセージタイプ
+        processId:
+          type: string
+          description: プロセス一意識別子
+        timestamp:
+          type: string
+          format: date-time
+          description: メッセージ送信時刻（ISO 8601形式）
+        data:
+          type: object
+          description: メッセージペイロード（タイプ別）
+        sessionId:
+          type: string
+          description: PTYセッション識別子（オプション）
+
+    # プロセス起動イベント
+    ProcessStartEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_start]
+            data:
+              $ref: '#/components/schemas/ProcessStartData'
+
+    ProcessStartData:
+      type: object
+      required:
+        - command
+        - args
+      properties:
+        command:
+          type: string
+          description: 実行コマンド
+        args:
+          type: array
+          items:
+            type: string
+          description: コマンド引数
+        workingDirectory:
+          type: string
+          description: ワーキングディレクトリ
+        environment:
+          type: object
+          additionalProperties:
+            type: string
+          description: 環境変数
+        shell:
+          type: string
+          default: "/bin/bash"
+          description: 使用するシェル
+        cols:
+          type: integer
+          minimum: 1
+          default: 80
+          description: ターミナル列数
+        rows:
+          type: integer
+          minimum: 1
+          default: 24
+          description: ターミナル行数
+        encoding:
+          type: string
+          enum: [utf8, ascii]
+          default: utf8
+          description: エンコーディング方式
+
+    # プロセス停止イベント
+    ProcessStopEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_stop]
+            data:
+              $ref: '#/components/schemas/ProcessStopData'
+
+    ProcessStopData:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          enum: [user_request, signal, timeout, error, normal_exit]
+          description: 停止理由
+        exitCode:
+          type: integer
+          description: 終了コード（正常終了の場合）
+        signal:
+          type: string
+          description: 送信されたシグナル（SIGTERM, SIGKILL等）
+        message:
+          type: string
+          description: 停止理由の詳細メッセージ
+        gracefulShutdown:
+          type: boolean
+          default: true
+          description: グレースフルシャットダウンかどうか
+
+    # プロセス出力イベント
+    ProcessOutputEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_output]
+            data:
+              $ref: '#/components/schemas/ProcessOutputData'
+
+    ProcessOutputData:
+      type: object
+      required:
+        - stream
+        - content
+      properties:
+        stream:
+          type: string
+          enum: [stdout, stderr]
+          description: 出力ストリーム
+        content:
+          type: string
+          description: 出力内容
+        encoding:
+          type: string
+          enum: [utf8, base64]
+          default: utf8
+          description: エンコーディング方式
+        isPartial:
+          type: boolean
+          default: false
+          description: 部分的な出力かどうか
+        lineNumber:
+          type: integer
+          description: 行番号（オプション）
+
+    # プロセス入力イベント
+    ProcessInputEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_input]
+            data:
+              $ref: '#/components/schemas/ProcessInputData'
+
+    ProcessInputData:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: 入力内容
+        encoding:
+          type: string
+          enum: [utf8, base64]
+          default: utf8
+          description: エンコーディング方式
+        isCommand:
+          type: boolean
+          default: false
+          description: コマンド実行かどうか
+        specialKey:
+          type: string
+          enum: [enter, tab, ctrl_c, ctrl_d, esc, backspace]
+          description: 特殊キー入力（オプション）
+
+    # プロセスエラーイベント
+    ProcessErrorEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_error]
+            data:
+              $ref: '#/components/schemas/ProcessErrorData'
+
+    ProcessErrorData:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - PROCESS_START_FAILED
+            - PROCESS_NOT_FOUND
+            - PERMISSION_DENIED
+            - INVALID_COMMAND
+            - WORKING_DIRECTORY_NOT_FOUND
+            - RESOURCE_LIMIT_EXCEEDED
+            - PTY_ALLOCATION_FAILED
+            - ENCODING_ERROR
+            - TIMEOUT_ERROR
+            - UNEXPECTED_ERROR
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ（日本語）
+        details:
+          type: object
+          description: エラー詳細情報（オプション）
+        severity:
+          type: string
+          enum: [info, warning, error, critical]
+          default: error
+          description: エラー重要度
+        recoverable:
+          type: boolean
+          default: false
+          description: 回復可能かどうか
+
+    # プロセス状態イベント
+    ProcessStatusEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_status]
+            data:
+              $ref: '#/components/schemas/ProcessStatusData'
+
+    ProcessStatusData:
+      type: object
+      required:
+        - state
+        - pid
+      properties:
+        state:
+          $ref: '#/components/schemas/ProcessState'
+        pid:
+          type: integer
+          description: プロセスID
+        startTime:
+          type: string
+          format: date-time
+          description: プロセス開始時刻
+        lastActivity:
+          type: string
+          format: date-time
+          description: 最後のアクティビティ時刻
+        parentPid:
+          type: integer
+          description: 親プロセスID（オプション）
+
+    # プロセスリソース監視イベント
+    ProcessResourceEvent:
+      allOf:
+        - $ref: '#/components/schemas/PTYMessage'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [process_resource]
+            data:
+              $ref: '#/components/schemas/ProcessResourceData'
+
+    ProcessResourceData:
+      type: object
+      properties:
+        cpuUsage:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: CPU使用率（パーセント）
+        memoryUsage:
+          type: integer
+          minimum: 0
+          description: メモリ使用量（バイト）
+        memoryLimit:
+          type: integer
+          minimum: 0
+          description: メモリ制限（バイト）
+        uptime:
+          type: integer
+          minimum: 0
+          description: 稼働時間（秒）
+        fileDescriptors:
+          type: integer
+          minimum: 0
+          description: 開いているファイルディスクリプタ数
+
+    # プロセスセッション情報
+    ProcessSession:
+      type: object
+      required:
+        - sessionId
+        - processId
+        - state
+        - createdAt
+      properties:
+        sessionId:
+          type: string
+          description: セッション一意識別子
+        processId:
+          type: string
+          description: プロセス一意識別子
+        state:
+          $ref: '#/components/schemas/ProcessState'
+        command:
+          type: string
+          description: 実行中のコマンド
+        workingDirectory:
+          type: string
+          description: ワーキングディレクトリ
+        createdAt:
+          type: string
+          format: date-time
+          description: セッション作成時刻
+        lastActivity:
+          type: string
+          format: date-time
+          description: 最後のアクティビティ時刻
+        owner:
+          type: string
+          description: セッション所有者
+        tags:
+          type: array
+          items:
+            type: string
+          description: セッションタグ（分類用）
+
+    # PTY設定
+    PTYConfig:
+      type: object
+      properties:
+        maxProcesses:
+          type: integer
+          minimum: 1
+          default: 10
+          description: 最大プロセス数
+        defaultCols:
+          type: integer
+          minimum: 1
+          default: 80
+          description: デフォルト列数
+        defaultRows:
+          type: integer
+          minimum: 1
+          default: 24
+          description: デフォルト行数
+        processTimeout:
+          type: integer
+          minimum: 1000
+          default: 300000
+          description: プロセスタイムアウト（ミリ秒）
+        outputBufferSize:
+          type: integer
+          minimum: 1024
+          default: 1048576
+          description: 出力バッファサイズ（バイト）
+        resourceMonitoringInterval:
+          type: integer
+          minimum: 1000
+          default: 5000
+          description: リソース監視間隔（ミリ秒）
+        cleanupInterval:
+          type: integer
+          minimum: 1000
+          default: 60000
+          description: クリーンアップ間隔（ミリ秒）
+        encoding:
+          type: string
+          enum: [utf8, ascii]
+          default: utf8
+          description: デフォルトエンコーディング
+
+    # PTYマネージャー状態
+    PTYManagerState:
+      type: object
+      required:
+        - activeProcesses
+        - totalProcesses
+        - status
+      properties:
+        status:
+          type: string
+          enum: [initializing, running, stopping, stopped, error]
+          description: PTYマネージャーの状態
+        activeProcesses:
+          type: integer
+          minimum: 0
+          description: アクティブなプロセス数
+        totalProcesses:
+          type: integer
+          minimum: 0
+          description: 総プロセス数
+        maxProcesses:
+          type: integer
+          minimum: 1
+          description: 最大プロセス数
+        uptime:
+          type: integer
+          minimum: 0
+          description: 稼働時間（秒）
+        lastCleanup:
+          type: string
+          format: date-time
+          description: 最後のクリーンアップ時刻
+        systemResources:
+          $ref: '#/components/schemas/ProcessResourceData'
+          description: システムリソース使用状況
