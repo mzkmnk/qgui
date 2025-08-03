@@ -1,10 +1,12 @@
-import { components as WebSocketComponents } from '../../../../types/generated/websocket.types';
-import { components as PTYComponents } from '../../../../types/generated/pty-process.types';
+import { components as WebSocketComponents } from '@qgui/types/websocket';
+import { components as PTYComponents } from '@qgui/types/pty-process';
 
 // WebSocket 関連型のエクスポート
-export type WebSocketMessage = WebSocketComponents['schemas']['WebSocketMessage'];
+export type WebSocketMessage =
+  WebSocketComponents['schemas']['WebSocketMessage'];
 export type ConnectionEvent = WebSocketComponents['schemas']['ConnectionEvent'];
-export type DisconnectionEvent = WebSocketComponents['schemas']['DisconnectionEvent'];
+export type DisconnectionEvent =
+  WebSocketComponents['schemas']['DisconnectionEvent'];
 export type MessageEvent = WebSocketComponents['schemas']['MessageEvent'];
 export type ErrorEvent = WebSocketComponents['schemas']['ErrorEvent'];
 export type HeartbeatEvent = WebSocketComponents['schemas']['HeartbeatEvent'];
@@ -20,7 +22,8 @@ export type ProcessOutputEvent = PTYComponents['schemas']['ProcessOutputEvent'];
 export type ProcessInputEvent = PTYComponents['schemas']['ProcessInputEvent'];
 export type ProcessErrorEvent = PTYComponents['schemas']['ProcessErrorEvent'];
 export type ProcessStatusEvent = PTYComponents['schemas']['ProcessStatusEvent'];
-export type ProcessResourceEvent = PTYComponents['schemas']['ProcessResourceEvent'];
+export type ProcessResourceEvent =
+  PTYComponents['schemas']['ProcessResourceEvent'];
 export type ProcessSession = PTYComponents['schemas']['ProcessSession'];
 export type PTYConfig = PTYComponents['schemas']['PTYConfig'];
 export type PTYManagerState = PTYComponents['schemas']['PTYManagerState'];
@@ -37,27 +40,37 @@ export interface PTYManager {
    * @param startData プロセス開始データ
    * @returns プロセスID
    */
-  startProcess(startData: PTYComponents['schemas']['ProcessStartData']): Promise<string>;
+  startProcess(
+    startData: PTYComponents['schemas']['ProcessStartData']
+  ): Promise<string>;
 
   /**
    * プロセスを停止
    * @param processId プロセスID
    * @param stopData 停止データ
    */
-  stopProcess(processId: string, stopData?: Partial<PTYComponents['schemas']['ProcessStopData']>): Promise<void>;
+  stopProcess(
+    processId: string,
+    stopData?: Partial<PTYComponents['schemas']['ProcessStopData']>
+  ): Promise<void>;
 
   /**
    * プロセスに入力を送信
    * @param processId プロセスID
    * @param inputData 入力データ
    */
-  sendInput(processId: string, inputData: PTYComponents['schemas']['ProcessInputData']): Promise<void>;
+  sendInput(
+    processId: string,
+    inputData: PTYComponents['schemas']['ProcessInputData']
+  ): Promise<void>;
 
   /**
    * プロセスの状態を取得
    * @param processId プロセスID
    */
-  getProcessStatus(processId: string): Promise<PTYComponents['schemas']['ProcessStatusData'] | null>;
+  getProcessStatus(
+    processId: string
+  ): Promise<PTYComponents['schemas']['ProcessStatusData'] | null>;
 
   /**
    * アクティブなセッション一覧を取得
@@ -74,7 +87,9 @@ export interface PTYManager {
    * プロセスのリソース使用状況を取得
    * @param processId プロセスID
    */
-  getProcessResources(processId: string): Promise<PTYComponents['schemas']['ProcessResourceData'] | null>;
+  getProcessResources(
+    processId: string
+  ): Promise<PTYComponents['schemas']['ProcessResourceData'] | null>;
 
   /**
    * PTYマネージャーの設定を更新
@@ -106,7 +121,9 @@ export interface ProcessSessionManager {
    * @param startData プロセス開始データ
    * @returns 作成されたセッション
    */
-  createSession(startData: PTYComponents['schemas']['ProcessStartData']): Promise<ProcessSession>;
+  createSession(
+    startData: PTYComponents['schemas']['ProcessStartData']
+  ): Promise<ProcessSession>;
 
   /**
    * セッションを削除

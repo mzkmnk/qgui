@@ -25,7 +25,16 @@ components:
       properties:
         type:
           type: string
-          enum: [process_start, process_stop, process_output, process_input, process_error, process_status, process_resource]
+          enum:
+            [
+              process_start,
+              process_stop,
+              process_output,
+              process_input,
+              process_error,
+              process_status,
+              process_resource,
+            ]
           description: PTYメッセージタイプ
         processId:
           type: string
@@ -77,7 +86,7 @@ components:
           description: 環境変数
         shell:
           type: string
-          default: "/bin/bash"
+          default: '/bin/bash'
           description: 使用するシェル
         cols:
           type: integer

@@ -16,7 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@qgui/schemas": ["libs/schemas/src/index.ts"],
-      "@qgui/shared": ["libs/shared/src/index.ts"]
+      "@qgui/shared": ["libs/shared/src/index.ts"],
+      "@qgui/types/websocket": ["types/generated/websocket.types.ts"],
+      "@qgui/types/pty-process": ["types/generated/pty-process.types.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
