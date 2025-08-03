@@ -1,4 +1,4 @@
-import { components } from '@qgui/shared/types';
+import { components } from '@qgui/shared';
 
 /**
  * WebSocketGatewayインターフェース
@@ -88,10 +88,10 @@ export interface IWebSocketGateway {
 export interface WebSocketClient {
   /** クライアント一意識別子 */
   id: string;
-  
+
   /** 接続状態 */
   connected: boolean;
-  
+
   /** クライアントのメタデータ */
   handshake: {
     address: string;
@@ -134,19 +134,19 @@ export interface WebSocketGatewayConfig {
     origin: string | string[] | boolean;
     credentials?: boolean;
   };
-  
+
   /** 名前空間 */
   namespace?: string;
-  
+
   /** ハートビート設定 */
   heartbeat?: {
     interval: number;
     timeout: number;
   };
-  
+
   /** 最大接続数 */
   maxConnections?: number;
-  
+
   /** 認証が必要かどうか */
   requireAuth?: boolean;
 }
@@ -157,16 +157,16 @@ export interface WebSocketGatewayConfig {
 export interface WebSocketEventHandlers {
   /** 接続イベントハンドラー */
   onConnection?: (client: WebSocketClient) => Promise<void>;
-  
+
   /** 切断イベントハンドラー */
   onDisconnection?: (client: WebSocketClient, reason: string) => Promise<void>;
-  
+
   /** メッセージイベントハンドラー */
   onMessage?: (
-    client: WebSocketClient, 
+    client: WebSocketClient,
     message: components['schemas']['WebSocketMessage']
   ) => Promise<void>;
-  
+
   /** エラーイベントハンドラー */
   onError?: (client: WebSocketClient, error: Error) => Promise<void>;
 }

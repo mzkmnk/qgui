@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@qgui/shared/types": ["libs/shared/types/src/index.ts"]
+      "@qgui/schemas": ["libs/schemas/src/index.ts"],
+      "@qgui/shared": ["libs/shared/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

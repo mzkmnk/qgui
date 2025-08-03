@@ -4,6 +4,9 @@ info:
   description: Qgui WebSocket通信の型定義とメッセージフォーマット
   version: 1.0.0
 
+# WebSocket通信専用のスキーマ定義のため、pathsは不要
+paths: {}
+
 components:
   schemas:
     # 基本メッセージフォーマット
@@ -148,7 +151,7 @@ components:
       properties:
         code:
           type: string
-          enum: 
+          enum:
             - CONNECTION_FAILED
             - AUTHENTICATION_FAILED
             - MESSAGE_PARSE_ERROR

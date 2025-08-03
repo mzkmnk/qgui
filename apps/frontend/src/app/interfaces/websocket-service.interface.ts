@@ -1,6 +1,6 @@
 import { Signal, WritableSignal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { components } from '@qgui/shared/types';
+import { components } from '@qgui/shared';
 
 /**
  * WebSocketServiceインターフェース
@@ -15,7 +15,9 @@ export interface IWebSocketService {
   /**
    * 最後に受信したメッセージのシグナル（読み取り専用）
    */
-  readonly lastMessage: Signal<components['schemas']['WebSocketMessage'] | null>;
+  readonly lastMessage: Signal<
+    components['schemas']['WebSocketMessage'] | null
+  >;
 
   /**
    * エラー状態のシグナル（読み取り専用）
@@ -50,13 +52,17 @@ export interface IWebSocketService {
    */
   onMessage<T extends components['schemas']['WebSocketMessage']['type']>(
     messageType: T
-  ): Observable<Extract<components['schemas']['WebSocketMessage'], { type: T }>>;
+  ): Observable<
+    Extract<components['schemas']['WebSocketMessage'], { type: T }>
+  >;
 
   /**
    * 接続状態の変化を監視
    * @returns 接続状態のObservable
    */
-  onConnectionStateChange(): Observable<components['schemas']['ConnectionState']>;
+  onConnectionStateChange(): Observable<
+    components['schemas']['ConnectionState']
+  >;
 
   /**
    * エラーイベントを監視
@@ -126,10 +132,10 @@ export interface WebSocketConnectionConfig {
 export interface WebSocketEventListener {
   /** イベントタイプ */
   type: components['schemas']['WebSocketMessage']['type'];
-  
+
   /** コールバック関数 */
   callback: (message: components['schemas']['WebSocketMessage']) => void;
-  
+
   /** 一度だけ実行するか */
   once?: boolean;
 }
@@ -140,16 +146,16 @@ export interface WebSocketEventListener {
 export interface WebSocketQueueItem {
   /** メッセージ */
   message: components['schemas']['WebSocketMessage'];
-  
+
   /** 送信試行回数 */
   attempts: number;
-  
+
   /** 最大試行回数 */
   maxAttempts: number;
-  
+
   /** 作成日時 */
   createdAt: Date;
-  
+
   /** コールバック（オプション） */
   callback?: (success: boolean) => void;
 }
@@ -160,22 +166,22 @@ export interface WebSocketQueueItem {
 export interface WebSocketStats {
   /** 送信メッセージ数 */
   messagesSent: number;
-  
+
   /** 受信メッセージ数 */
   messagesReceived: number;
-  
+
   /** 再接続回数 */
   reconnectionCount: number;
-  
+
   /** 最後の接続時刻 */
   lastConnectedAt: Date | null;
-  
+
   /** 最後の切断時刻 */
   lastDisconnectedAt: Date | null;
-  
+
   /** 平均レイテンシ（ミリ秒） */
   averageLatency: number;
-  
+
   /** エラー数 */
   errorCount: number;
 }
@@ -219,7 +225,9 @@ export interface IReactiveWebSocketService extends IWebSocketService {
    * @param limit - 取得件数制限
    * @returns 送信履歴
    */
-  getMessageHistory(limit?: number): readonly components['schemas']['WebSocketMessage'][];
+  getMessageHistory(
+    limit?: number
+  ): readonly components['schemas']['WebSocketMessage'][];
 
   /**
    * デバッグ情報を出力
