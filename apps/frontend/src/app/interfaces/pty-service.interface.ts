@@ -7,13 +7,8 @@ import { Observable } from 'rxjs';
 import { Signal } from '@angular/core';
 import {
   PTYProcessState,
-  PTYProcessInfo,
-  PTYDataMessage,
   PTYLifecycleEvent,
   PTYProcessCreateRequest,
-  PTYProcessCreateResponse,
-  PTYResizeRequest,
-  PTYControlCommand,
 } from '@qgui/shared';
 
 /**
