@@ -7,7 +7,7 @@ YAGNI原則に従い、最小限必要な基盤機能のみを機能単位でRed
 
 ## バックエンド基盤実装
 
-### 1. ヘルスチェックAPI実装（Backend PR #1）
+### 1. ヘルスチェックAPI実装
 
 #### 1.1 基本ヘルスチェック機能
 
@@ -16,7 +16,7 @@ YAGNI原則に従い、最小限必要な基盤機能のみを機能単位でRed
 - [ ] **Green**: `health.controller.ts` - 最小限の実装（固定値返却）
 - [ ] **動作確認**: `npm run backend:test` でテスト通過確認
 
-### 2. WebSocket基本接続（Backend PR #2）
+### 2. WebSocket基本接続
 
 #### 2.1 WebSocket接続確立機能のみ
 
@@ -25,7 +25,7 @@ YAGNI原則に従い、最小限必要な基盤機能のみを機能単位でRed
 - [ ] **Green**: `websocket.gateway.ts` - 接続ハンドリングのみ実装
 - [ ] **動作確認**: WebSocket接続が確立できることを確認
 
-### 3. PTYプロセス起動（Backend PR #3）
+### 3. PTYプロセス起動
 
 #### 3.1 プロセス起動機能のみ
 
@@ -36,7 +36,7 @@ YAGNI原則に従い、最小限必要な基盤機能のみを機能単位でRed
 
 ## フロントエンド基盤実装
 
-### 4. ヘルスチェック呼び出し（Frontend PR #1）
+### 4. ヘルスチェック呼び出し
 
 #### 4.1 ヘルスチェックサービス
 
@@ -44,7 +44,7 @@ YAGNI原則に従い、最小限必要な基盤機能のみを機能単位でRed
 - [ ] **Green**: `health.service.ts` - HTTPクライアント実装
 - [ ] **動作確認**: `npm run frontend:test` でテスト通過確認
 
-### 5. WebSocket接続サービス（Frontend PR #2）
+### 5. WebSocket接続サービス
 
 #### 5.1 WebSocket接続管理
 

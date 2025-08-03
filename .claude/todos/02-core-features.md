@@ -7,7 +7,7 @@ YAGNI原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 
 ## バックエンドコア機能実装
 
-### 1. WebSocketメッセージ送受信（Backend PR #4）
+### 1. WebSocketメッセージ送受信
 
 #### 1.1 メッセージ送信機能のみ
 
@@ -22,7 +22,7 @@ YAGNI原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 - [ ] **Green**: `websocket.gateway.ts` - handleMessage実装（固定応答）
 - [ ] **動作確認**: WebSocketでメッセージ送受信ができることを確認
 
-### 2. PTYコマンド実行（Backend PR #5）
+### 2. PTYコマンド実行
 
 #### 2.1 コマンド実行と結果取得
 
@@ -36,7 +36,7 @@ YAGNI原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 - [ ] **Green**: `pty-manager.service.ts` - executeCommand実装
 - [ ] **動作確認**: PTYでコマンドが実行できることを確認
 
-### 3. WebSocket-PTY連携（Backend PR #6）
+### 3. WebSocket-PTY連携
 
 #### 3.1 WebSocket経由でPTYコマンド実行
 
@@ -46,7 +46,7 @@ YAGNI原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 
 ## フロントエンドコア機能実装
 
-### 4. コマンド入力UI（Frontend PR #3）
+### 4. コマンド入力UI
 
 #### 4.1 基本的な入力フィールド
 
@@ -54,7 +54,7 @@ YAGNI原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 - [ ] **Green**: `command-input.component.ts` - 最小限の入力UI
 - [ ] **動作確認**: テキスト入力とEnterキーでの送信
 
-### 5. メッセージ表示（Frontend PR #4）
+### 5. メッセージ表示
 
 #### 5.1 テキストメッセージ表示のみ
 
@@ -62,7 +62,7 @@ YAGNI原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 - [ ] **Green**: `message-display.component.ts` - シンプルなテキスト表示
 - [ ] **動作確認**: 送信したコマンドと結果が表示される
 
-### 6. 基本的なANSI処理（Frontend PR #5）
+### 6. 基本的なANSI処理
 
 #### 6.1 最小限のカラーコード対応
 

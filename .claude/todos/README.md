@@ -20,42 +20,42 @@
 
 - **実装済み**: スキーマ定義（WebSocket、PTY、API）
 - **実装予定**:
-  - ヘルスチェックAPI（Backend PR #1）
-  - WebSocket基本接続（Backend PR #2）
-  - PTYプロセス起動（Backend PR #3）
-  - ヘルスチェック呼び出し（Frontend PR #1）
-  - WebSocket接続サービス（Frontend PR #2）
+  - ヘルスチェックAPI
+  - WebSocket基本接続
+  - PTYプロセス起動
+  - ヘルスチェック呼び出し
+  - WebSocket接続サービス
 
 ### フェーズ 2: コア機能実装
 
 **ファイル**: [02-core-features.md](./02-core-features.md)
 
 - **実装予定**:
-  - WebSocketメッセージ送受信（Backend PR #4）
-  - PTYコマンド実行（Backend PR #5）
-  - WebSocket-PTY連携（Backend PR #6）
-  - コマンド入力UI（Frontend PR #3）
-  - メッセージ表示（Frontend PR #4）
-  - 基本的なANSI処理（Frontend PR #5）
+  - WebSocketメッセージ送受信
+  - PTYコマンド実行
+  - WebSocket-PTY連携
+  - コマンド入力UI
+  - メッセージ表示
+  - 基本的なANSI処理
 
 ### フェーズ 3: セキュリティ基本設定
 
 **ファイル**: [03-auth-security.md](./03-auth-security.md)
 
 - **実装予定**（ローカル環境のみ）:
-  - ローカルアクセス制限（Backend PR #7）
-  - 開発用CORS設定（Backend PR #8）
-  - 基本的な入力検証（Backend PR #9）
-  - サニタイゼーション（Frontend PR #6）
+  - ローカルアクセス制限
+  - 開発用CORS設定
+  - 基本的な入力検証
+  - サニタイゼーション
 
 ### フェーズ 4: UI/UX 基本改善
 
 **ファイル**: [04-ui-ux-enhancement.md](./04-ui-ux-enhancement.md)
 
 - **実装予定**（最小限のUI改善）:
-  - 基本レスポンシブ対応（Frontend PR #7）
-  - 基本テーマ機能（Frontend PR #8）
-  - 基本アクセシビリティ（Frontend PR #10）
+  - 基本レスポンシブ対応
+  - 基本テーマ機能
+  - 基本アクセシビリティ
 
 ### フェーズ 5: パフォーマンス最適化（必要時のみ）
 
