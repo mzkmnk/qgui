@@ -40,9 +40,9 @@ YAGNI 原則に従い、最小限必要な基盤機能のみを機能単位で R
 
 #### 4.1 ヘルスチェックサービス
 
-- [ ] **Red**: `health.service.spec.ts` - ヘルスチェック API 呼び出しテスト
-- [ ] **Green**: `health.service.ts` - HTTP クライアント実装
-- [ ] **動作確認**: `npm run frontend:test` でテスト通過確認
+- [x] **Red**: `health.service.spec.ts` - ヘルスチェック API 呼び出しテスト
+- [x] **Green**: `health.service.ts` - HTTP クライアント実装
+- [x] **動作確認**: `npm run frontend:test` でテスト通過確認
 
 ### 5. WebSocket 接続サービス
 
