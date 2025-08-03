@@ -13,9 +13,9 @@ components:
     PTYProcessState:
       type: string
       enum:
-        - idle       # 初期状態（プロセス未起動）
-        - running    # プロセス実行中
-        - error      # エラー発生状態
+        - idle # 初期状態（プロセス未起動）
+        - running # プロセス実行中
+        - error # エラー発生状態
         - terminated # プロセス終了状態
       description: PTYプロセスの状態を表す列挙型
 
@@ -56,9 +56,9 @@ components:
         type:
           type: string
           enum:
-            - stdin   # 標準入力（クライアント→PTY）
-            - stdout  # 標準出力（PTY→クライアント）
-            - stderr  # 標準エラー出力（PTY→クライアント）
+            - stdin # 標準入力（クライアント→PTY）
+            - stdout # 標準出力（PTY→クライアント）
+            - stderr # 標準エラー出力（PTY→クライアント）
           description: データの種類
         processId:
           type: string
@@ -82,9 +82,9 @@ components:
         eventType:
           type: string
           enum:
-            - process_started    # プロセス開始
-            - process_ready     # プロセス準備完了
-            - process_error     # プロセスエラー
+            - process_started # プロセス開始
+            - process_ready # プロセス準備完了
+            - process_error # プロセスエラー
             - process_terminated # プロセス終了
           description: イベントの種類
         processId:
@@ -186,8 +186,8 @@ components:
         command:
           type: string
           enum:
-            - terminate  # プロセス終了
-            - kill      # プロセス強制終了
-            - pause     # プロセス一時停止（サポートされる場合）
-            - resume    # プロセス再開（サポートされる場合）
+            - terminate # プロセス終了
+            - kill # プロセス強制終了
+            - pause # プロセス一時停止（サポートされる場合）
+            - resume # プロセス再開（サポートされる場合）
           description: 制御コマンド

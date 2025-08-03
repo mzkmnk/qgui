@@ -9,7 +9,7 @@ export interface HealthResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HealthService {
   private readonly http = inject(HttpClient);

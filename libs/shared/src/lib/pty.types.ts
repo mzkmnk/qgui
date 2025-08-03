@@ -10,7 +10,9 @@ export type PTYProcessState = components['schemas']['PTYProcessState'];
 export type PTYProcessInfo = components['schemas']['PTYProcessInfo'];
 export type PTYDataMessage = components['schemas']['PTYDataMessage'];
 export type PTYLifecycleEvent = components['schemas']['PTYLifecycleEvent'];
-export type PTYProcessCreateRequest = components['schemas']['PTYProcessCreateRequest'];
-export type PTYProcessCreateResponse = components['schemas']['PTYProcessCreateResponse'];
+export type PTYProcessCreateRequest =
+  components['schemas']['PTYProcessCreateRequest'];
+export type PTYProcessCreateResponse =
+  components['schemas']['PTYProcessCreateResponse'];
 export type PTYResizeRequest = components['schemas']['PTYResizeRequest'];
 export type PTYControlCommand = components['schemas']['PTYControlCommand'];

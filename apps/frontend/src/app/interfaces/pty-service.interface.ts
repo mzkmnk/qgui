@@ -80,7 +80,9 @@ export interface PTYService {
    * @param request プロセス作成リクエスト
    * @returns 作成されたセッション
    */
-  createSession(request: PTYProcessCreateRequest): Promise<FrontendProcessSession>;
+  createSession(
+    request: PTYProcessCreateRequest
+  ): Promise<FrontendProcessSession>;
 
   /**
    * セッションを取得
