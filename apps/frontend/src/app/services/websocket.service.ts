@@ -39,9 +39,9 @@ export class WebSocketService implements IWebSocketService {
    * @param config - 接続設定（現在は未使用、YAGNI原則）
    * @returns 接続結果のPromise
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async connect(
     url: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _config?: WebSocketConnectionConfig
   ): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
