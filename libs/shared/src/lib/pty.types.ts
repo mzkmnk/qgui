@@ -3,7 +3,7 @@
  * 自動生成された型を再エクスポート
  */
 
-import { components } from '../../../../types/generated/pty-process.types';
+import { components } from './generated/pty-process.types';
 
 // スキーマから型をエクスポート
 export type PTYProcessState = components['schemas']['PTYProcessState'];
