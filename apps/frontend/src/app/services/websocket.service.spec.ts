@@ -2,12 +2,29 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WebSocketService } from './websocket.service';
 
+// WebSocketのモック型を定義
+type MockWebSocket = {
+  close: ReturnType<typeof vi.fn>;
+  send: ReturnType<typeof vi.fn>;
+  readyState: number;
+  onopen: ((event: Event) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onclose: ((event: CloseEvent) => void) | null;
+  onmessage: ((event: MessageEvent) => void) | null;
+};
+
+// WebSocketコンストラクタのモック型
+interface MockWebSocketConstructor {
+  new (url: string): MockWebSocket;
+  CONNECTING: number;
+  OPEN: number;
+  CLOSING: number;
+  CLOSED: number;
+}
+
 describe('WebSocketService', () => {
   let service: WebSocketService;
-  let mockWebSocket: Partial<WebSocket> & {
-    close: ReturnType<typeof vi.fn>;
-    send: ReturnType<typeof vi.fn>;
-  };
+  let mockWebSocket: MockWebSocket;
   let originalWebSocket: typeof WebSocket;
 
   beforeEach(() => {
@@ -24,9 +41,15 @@ describe('WebSocketService', () => {
 
     // WebSocketコンストラクタを保存してモック
     originalWebSocket = global.WebSocket;
-    global.WebSocket = vi.fn(
-      () => mockWebSocket
-    ) as unknown as typeof WebSocket;
+    
+    // より型安全なモックの作成
+    const MockWebSocketClass = vi.fn(() => mockWebSocket) as unknown as MockWebSocketConstructor;
+    MockWebSocketClass.CONNECTING = 0;
+    MockWebSocketClass.OPEN = 1;
+    MockWebSocketClass.CLOSING = 2;
+    MockWebSocketClass.CLOSED = 3;
+    
+    global.WebSocket = MockWebSocketClass as unknown as typeof WebSocket;
 
     TestBed.configureTestingModule({
       providers: [WebSocketService],

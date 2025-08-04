@@ -52,7 +52,9 @@ describe('HealthService', () => {
     const mockError = { status: 500, statusText: 'Internal Server Error' };
 
     service.checkHealth().subscribe({
-      next: () => fail('エラーが発生するはずでした'),
+      next: () => {
+        throw new Error('エラーが発生するはずでした');
+      },
       error: (error) => {
         expect(error.status).toBe(500);
       },

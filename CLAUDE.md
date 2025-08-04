@@ -15,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **実装の基本方針**
   - 1 ファイル 1 関数、1 関数 1 責務で取り組むこと
   - バレルエクスポートは行わないこと
+  - **UIコンポーネントはPrimeNGを優先使用**: カスタム実装の前にPrimeNGのコンポーネントを確認し、利用可能な場合は必ずPrimeNGを使用すること
 
 ## プロジェクト概要
 
@@ -475,6 +476,16 @@ async findAll(): Promise<User[]> {
 - 単一の責任を中心にサービスを設計する
 - シングルトンサービスには`providedIn: 'root'`オプションを使用する
 - コンストラクタインジェクションの代わりに`inject()`関数を使用する
+
+### UIコンポーネントの実装方針
+
+- **PrimeNGコンポーネントを優先的に使用する**
+  - InputText、Button、Dialog、Table、DropdownなどのUIコンポーネントはPrimeNGから選択
+  - カスタムスタイルが必要な場合は、PrimeNGコンポーネントにTailwindクラスを追加して調整
+  - PrimeNGに存在しない特殊なコンポーネントのみカスタム実装を検討
+- **テストはビジネスロジックに焦点を当てる**
+  - PrimeNGコンポーネントの基本的な動作（フォーカス、プレースホルダーなど）はテスト不要
+  - コンポーネント固有のビジネスロジック（バリデーション、イベント処理など）のみテスト
 
 ## Angular 公式ドキュメントリンク集
 
