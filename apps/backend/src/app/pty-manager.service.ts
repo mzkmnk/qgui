@@ -6,11 +6,14 @@ import {
   PTYLifecycleEvent,
   PTYProcessState,
 } from '@qgui/shared';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 @Injectable()
 export class PTYManagerService implements PTYManager {
   private processes: Map<string, ProcessSession> = new Map();
   private processIdCounter = 0;
+  private execAsync = promisify(exec);
 
   async createProcess(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,5 +96,29 @@ export class PTYManagerService implements PTYManager {
       createdAt: process.createdAt.toISOString(),
       terminatedAt: process.terminatedAt?.toISOString(),
     };
+  }
+
+  async executeCommand(command: string): Promise<string> {
+    try {
+      // 実際のコマンド実行
+      const { stdout, stderr } = await this.execAsync(command, {
+        encoding: 'utf8',
+        timeout: 5000, // 5秒のタイムアウト
+      });
+
+      // stdoutが空の場合はstderrを返す（エラーの場合）
+      return stdout || stderr || '';
+    } catch (error) {
+      // エラーの場合はエラーメッセージを返す
+      if (error instanceof Error) {
+        // execのエラーオブジェクトには stderr プロパティがある場合がある
+        const execError = error as Error & { stderr?: string };
+        if (execError.stderr) {
+          return execError.stderr;
+        }
+        return error.message;
+      }
+      return 'コマンド実行中にエラーが発生しました';
+    }
   }
 }

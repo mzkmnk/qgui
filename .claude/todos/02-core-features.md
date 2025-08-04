@@ -26,15 +26,15 @@ YAGNI 原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 
 #### 2.1 コマンド実行と結果取得
 
-- [ ] **Red**: `pty-manager.service.spec.ts` - コマンド実行テスト追加
+- [x] **Red**: `pty-manager.service.spec.ts` - コマンド実行テスト追加
   ```typescript
   it('コマンドを実行して結果を取得できる', async () => {
     const result = await ptyManager.executeCommand('echo test');
     expect(result).toContain('test');
   });
   ```
-- [ ] **Green**: `pty-manager.service.ts` - executeCommand 実装
-- [ ] **動作確認**: PTY でコマンドが実行できることを確認
+- [x] **Green**: `pty-manager.service.ts` - executeCommand 実装
+- [x] **動作確認**: PTY でコマンドが実行できることを確認
 
 ### 3. WebSocket-PTY 連携
 
