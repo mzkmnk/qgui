@@ -4,6 +4,7 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import {
@@ -89,8 +90,26 @@ export class WebSocketGateway
     this.connectedClients.delete(webSocketClient.id);
   }
 
+  @SubscribeMessage('message')
+  async handleMessage(
+    client: WebSocketClient | Socket,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _message: components['schemas']['WebSocketMessage']
+  ): Promise<void> {
+    // Socket.ioのSocketをWebSocketClientとして扱う
+    const webSocketClient: WebSocketClient = this.isSocket(client)
+      ? this.socketToWebSocketClient(client)
+      : client;
+
+    // 仮実装: 固定応答を返す
+    webSocketClient.emit('message', {
+      type: 'response',
+      data: 'Message received',
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   // TODO: 以下のメソッドは必要になったときに実装する（YAGNI原則）
-  // - handleMessage
   // - handleHeartbeat
   // - sendToClient
   // - broadcast
