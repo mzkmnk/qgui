@@ -40,9 +40,9 @@ YAGNI 原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 
 #### 3.1 WebSocket 経由で PTY コマンド実行
 
-- [ ] **Red**: 統合テスト作成 - WebSocket 経由のコマンド実行
-- [ ] **Green**: WebSocketGateway と PTYManager の連携実装
-- [ ] **動作確認**: WebSocket 経由でコマンドを実行し結果を取得
+- [x] **Red**: 統合テスト作成 - WebSocket 経由のコマンド実行
+- [x] **Green**: WebSocketGateway と PTYManager の連携実装
+- [x] **動作確認**: WebSocket 経由でコマンドを実行し結果を取得
 
 ## フロントエンドコア機能実装
 
