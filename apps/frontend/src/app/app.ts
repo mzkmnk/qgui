@@ -1,13 +1,17 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+import { CommandInputComponent } from './components/command-input/command-input.component';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [RouterModule, CommandInputComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
   protected title = 'frontend';
+
+  onCommandSubmit(command: string): void {
+    console.log('コマンド送信:', command);
+  }
 }
