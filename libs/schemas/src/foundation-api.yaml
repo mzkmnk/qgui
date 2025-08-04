@@ -27,7 +27,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
+
   /health/websocket:
     get:
       summary: WebSocketサービスヘルスチェック
@@ -48,7 +48,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
+
   /health/pty:
     get:
       summary: PTYサービスヘルスチェック
@@ -69,7 +69,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
+
   /api/connection/status:
     get:
       summary: 接続状態の取得
@@ -90,7 +90,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  
+
   /api/debug/info:
     get:
       summary: デバッグ情報の取得
@@ -138,7 +138,7 @@ components:
           type: string
           description: アプリケーションバージョン
           example: '1.0.0'
-    
+
     ServiceHealthResponse:
       allOf:
         - $ref: '#/components/schemas/HealthResponse'
@@ -154,7 +154,7 @@ components:
               type: object
               description: サービス固有の詳細情報
               additionalProperties: true
-    
+
     ConnectionStatusResponse:
       type: object
       required:
@@ -170,7 +170,7 @@ components:
           type: string
           format: date-time
           description: 状態取得時刻
-    
+
     WebSocketStatus:
       type: object
       required:
@@ -188,7 +188,7 @@ components:
           type: string
           format: date-time
           description: 最後のアクティビティ時刻
-    
+
     PTYStatus:
       type: object
       required:
@@ -206,7 +206,7 @@ components:
           type: integer
           minimum: 1
           description: 最大セッション数
-    
+
     DebugInfoResponse:
       type: object
       required:
@@ -236,7 +236,7 @@ components:
           type: string
           format: date-time
           description: 情報取得時刻
-    
+
     MemoryUsage:
       type: object
       required:
@@ -256,7 +256,7 @@ components:
         external:
           type: number
           description: 外部メモリ使用量（バイト）
-    
+
     ErrorResponse:
       type: object
       required:

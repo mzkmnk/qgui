@@ -20,7 +20,11 @@ import { components } from '@qgui/shared';
   },
 })
 export class WebSocketGateway
-  implements Partial<IWebSocketGateway>, OnGatewayConnection, OnGatewayDisconnect {
+  implements
+    Partial<IWebSocketGateway>,
+    OnGatewayConnection,
+    OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
   private connectedClients: Map<
@@ -33,9 +37,7 @@ export class WebSocketGateway
 
   private connectionHistory: Set<string> = new Set();
 
-  async handleConnection(
-    client: Socket | WebSocketClient
-  ): Promise<void> {
+  async handleConnection(client: Socket | WebSocketClient): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
     const webSocketClient: WebSocketClient = this.isSocket(client)
       ? this.socketToWebSocketClient(client)
@@ -77,9 +79,7 @@ export class WebSocketGateway
     webSocketClient.emit('connection', connectionEvent);
   }
 
-  async handleDisconnect(
-    client: Socket | WebSocketClient
-  ): Promise<void> {
+  async handleDisconnect(client: Socket | WebSocketClient): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
     const webSocketClient: WebSocketClient = this.isSocket(client)
       ? this.socketToWebSocketClient(client)
@@ -91,7 +91,7 @@ export class WebSocketGateway
 
   // TODO: 以下のメソッドは必要になったときに実装する（YAGNI原則）
   // - handleMessage
-  // - handleHeartbeat  
+  // - handleHeartbeat
   // - sendToClient
   // - broadcast
   // - sendError

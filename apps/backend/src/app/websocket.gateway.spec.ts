@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WebSocketGateway } from './websocket.gateway';
-import {
-  WebSocketClient,
-} from './interfaces/websocket-gateway.interface';
+import { WebSocketClient } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
 
 describe('WebSocketGateway', () => {

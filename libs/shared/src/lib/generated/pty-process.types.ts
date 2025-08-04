@@ -6,120 +6,124 @@
 export type paths = Record<string, never>;
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        /**
-         * @description PTYプロセスの状態を表す列挙型
-         * @enum {string}
-         */
-        PTYProcessState: "idle" | "running" | "error" | "terminated";
-        PTYProcessInfo: {
-            /** @description プロセスの一意識別子 */
-            processId: string;
-            state: components["schemas"]["PTYProcessState"];
-            /**
-             * Format: date-time
-             * @description プロセス作成日時
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @description プロセス終了日時（オプション）
-             */
-            terminatedAt?: string;
-            /** @description エラーメッセージ（エラー状態の場合） */
-            error?: string;
-        };
-        PTYDataMessage: {
-            /**
-             * @description データの種類
-             * @enum {string}
-             */
-            type: "stdin" | "stdout" | "stderr";
-            /** @description 対象プロセスID */
-            processId: string;
-            /** @description 実際のデータ内容（バイナリデータはBase64エンコード） */
-            data: string;
-            /**
-             * Format: date-time
-             * @description メッセージ送信日時
-             */
-            timestamp: string;
-        };
-        PTYLifecycleEvent: {
-            /**
-             * @description イベントの種類
-             * @enum {string}
-             */
-            eventType: "process_started" | "process_ready" | "process_error" | "process_terminated";
-            /** @description 対象プロセスID */
-            processId: string;
-            /**
-             * Format: date-time
-             * @description イベント発生日時
-             */
-            timestamp: string;
-            /** @description イベント詳細情報（オプション） */
-            details?: {
-                /** @description プロセス終了コード（process_terminatedの場合） */
-                exitCode?: number;
-                /** @description 終了シグナル（process_terminatedの場合） */
-                signal?: string;
-                /** @description エラーメッセージ（process_errorの場合） */
-                error?: string;
-            };
-        };
-        PTYProcessCreateRequest: {
-            /** @description 実行するコマンド */
-            command: string;
-            /** @description コマンド引数 */
-            args?: string[];
-            /** @description 作業ディレクトリ（オプション） */
-            cwd?: string;
-            /** @description 環境変数（オプション） */
-            env?: {
-                [key: string]: string;
-            };
-            /**
-             * @description ターミナルの列数（デフォルト 80）
-             * @default 80
-             */
-            cols: number;
-            /**
-             * @description ターミナルの行数（デフォルト 24）
-             * @default 24
-             */
-            rows: number;
-        };
-        PTYProcessCreateResponse: {
-            /** @description 作成されたプロセスID */
-            processId: string;
-            state: components["schemas"]["PTYProcessState"];
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        PTYResizeRequest: {
-            /** @description 対象プロセスID */
-            processId: string;
-            /** @description 新しい列数 */
-            cols: number;
-            /** @description 新しい行数 */
-            rows: number;
-        };
-        PTYControlCommand: {
-            /** @description 対象プロセスID */
-            processId: string;
-            /**
-             * @description 制御コマンド
-             * @enum {string}
-             */
-            command: "terminate" | "kill" | "pause" | "resume";
-        };
+  schemas: {
+    /**
+     * @description PTYプロセスの状態を表す列挙型
+     * @enum {string}
+     */
+    PTYProcessState: 'idle' | 'running' | 'error' | 'terminated';
+    PTYProcessInfo: {
+      /** @description プロセスの一意識別子 */
+      processId: string;
+      state: components['schemas']['PTYProcessState'];
+      /**
+       * Format: date-time
+       * @description プロセス作成日時
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description プロセス終了日時（オプション）
+       */
+      terminatedAt?: string;
+      /** @description エラーメッセージ（エラー状態の場合） */
+      error?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    PTYDataMessage: {
+      /**
+       * @description データの種類
+       * @enum {string}
+       */
+      type: 'stdin' | 'stdout' | 'stderr';
+      /** @description 対象プロセスID */
+      processId: string;
+      /** @description 実際のデータ内容（バイナリデータはBase64エンコード） */
+      data: string;
+      /**
+       * Format: date-time
+       * @description メッセージ送信日時
+       */
+      timestamp: string;
+    };
+    PTYLifecycleEvent: {
+      /**
+       * @description イベントの種類
+       * @enum {string}
+       */
+      eventType:
+        | 'process_started'
+        | 'process_ready'
+        | 'process_error'
+        | 'process_terminated';
+      /** @description 対象プロセスID */
+      processId: string;
+      /**
+       * Format: date-time
+       * @description イベント発生日時
+       */
+      timestamp: string;
+      /** @description イベント詳細情報（オプション） */
+      details?: {
+        /** @description プロセス終了コード（process_terminatedの場合） */
+        exitCode?: number;
+        /** @description 終了シグナル（process_terminatedの場合） */
+        signal?: string;
+        /** @description エラーメッセージ（process_errorの場合） */
+        error?: string;
+      };
+    };
+    PTYProcessCreateRequest: {
+      /** @description 実行するコマンド */
+      command: string;
+      /** @description コマンド引数 */
+      args?: string[];
+      /** @description 作業ディレクトリ（オプション） */
+      cwd?: string;
+      /** @description 環境変数（オプション） */
+      env?: {
+        [key: string]: string;
+      };
+      /**
+       * @description ターミナルの列数（デフォルト 80）
+       * @default 80
+       */
+      cols: number;
+      /**
+       * @description ターミナルの行数（デフォルト 24）
+       * @default 24
+       */
+      rows: number;
+    };
+    PTYProcessCreateResponse: {
+      /** @description 作成されたプロセスID */
+      processId: string;
+      state: components['schemas']['PTYProcessState'];
+      /** Format: date-time */
+      createdAt?: string;
+    };
+    PTYResizeRequest: {
+      /** @description 対象プロセスID */
+      processId: string;
+      /** @description 新しい列数 */
+      cols: number;
+      /** @description 新しい行数 */
+      rows: number;
+    };
+    PTYControlCommand: {
+      /** @description 対象プロセスID */
+      processId: string;
+      /**
+       * @description 制御コマンド
+       * @enum {string}
+       */
+      command: 'terminate' | 'kill' | 'pause' | 'resume';
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;
