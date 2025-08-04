@@ -78,4 +78,39 @@ describe('PTYManagerService', () => {
       expect(result).toBeUndefined();
     });
   });
+
+  describe('executeCommand', () => {
+    it('コマンドを実行して結果を取得できる', async () => {
+      // Arrange: テスト準備
+      // 今回はechoコマンドを使用
+
+      // Act: テスト実行
+      const result = await service.executeCommand('echo test');
+
+      // Assert: 結果検証
+      expect(result).toContain('test');
+    });
+
+    it('複数の引数を持つコマンドを実行できる', async () => {
+      // Arrange: テスト準備
+
+      // Act: テスト実行
+      const result = await service.executeCommand('echo hello world');
+
+      // Assert: 結果検証
+      expect(result).toContain('hello world');
+    });
+
+    it('存在しないコマンドの場合はエラーメッセージを返す', async () => {
+      // Arrange: テスト準備
+
+      // Act: テスト実行
+      const result = await service.executeCommand('nonexistentcommand123');
+
+      // Assert: 結果検証（エラーメッセージが含まれることを確認）
+      expect(result).toBeDefined();
+      // 実際のエラーメッセージはOS依存なので、空でないことだけ確認
+      expect(result.length).toBeGreaterThan(0);
+    });
+  });
 });
