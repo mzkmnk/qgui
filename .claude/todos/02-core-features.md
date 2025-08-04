@@ -11,7 +11,7 @@ YAGNI 原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 
 #### 1.1 メッセージ送信機能のみ
 
-- [ ] **Red**: `websocket.gateway.spec.ts` - メッセージ送信テスト追加
+- [x] **Red**: `websocket.gateway.spec.ts` - メッセージ送信テスト追加
   ```typescript
   it('クライアントからのメッセージを受信できる', () => {
     const testMessage = { type: 'command', data: 'ls' };
@@ -19,8 +19,8 @@ YAGNI 原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
     expect(mockClient.emit).toHaveBeenCalled();
   });
   ```
-- [ ] **Green**: `websocket.gateway.ts` - handleMessage 実装（固定応答）
-- [ ] **動作確認**: WebSocket でメッセージ送受信ができることを確認
+- [x] **Green**: `websocket.gateway.ts` - handleMessage 実装（固定応答）
+- [x] **動作確認**: WebSocket でメッセージ送受信ができることを確認
 
 ### 2. PTY コマンド実行
 

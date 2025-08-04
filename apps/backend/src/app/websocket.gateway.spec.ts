@@ -157,4 +157,21 @@ describe('WebSocketGateway', () => {
       );
     });
   });
+
+  describe('handleMessage', () => {
+    it('クライアントからのメッセージを受信できる', async () => {
+      // Arrange
+      const testMessage: components['schemas']['WebSocketMessage'] = {
+        type: 'message',
+        timestamp: new Date().toISOString(),
+        data: {},
+      };
+
+      // Act
+      await gateway.handleMessage(mockClient, testMessage);
+
+      // Assert
+      expect(mockClient.emit).toHaveBeenCalled();
+    });
+  });
 });
