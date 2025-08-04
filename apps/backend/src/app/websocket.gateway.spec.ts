@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { WebSocketGateway } from './websocket.gateway';
 import { WebSocketClient } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
+import { PTYManagerService } from './pty-manager.service';
 
 describe('WebSocketGateway', () => {
   let gateway: WebSocketGateway;
@@ -9,7 +10,7 @@ describe('WebSocketGateway', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WebSocketGateway],
+      providers: [WebSocketGateway, PTYManagerService],
     }).compile();
 
     gateway = module.get<WebSocketGateway>(WebSocketGateway);
@@ -172,6 +173,59 @@ describe('WebSocketGateway', () => {
 
       // Assert
       expect(mockClient.emit).toHaveBeenCalled();
+    });
+  });
+
+  describe('WebSocket-PTY連携', () => {
+    it('WebSocket経由でコマンドを実行して結果を返す', async () => {
+      // Arrange: テスト準備
+      // messageタイプを使い、dataにcommandを含める（実際のdataは any として扱う）
+      const testMessage = {
+        type: 'message' as const,
+        timestamp: new Date().toISOString(),
+        data: {
+          command: 'echo test',
+        },
+      };
+
+      // Act: WebSocket経由でコマンドを送信
+      await gateway.handleMessage(mockClient, testMessage as unknown as components['schemas']['WebSocketMessage']);
+
+      // Assert: コマンド実行結果がクライアントに送信される
+      expect(mockClient.emit).toHaveBeenCalledWith(
+        'message',
+        expect.objectContaining({
+          type: 'message',
+          data: expect.objectContaining({
+            output: expect.stringContaining('test'),
+          }),
+        })
+      );
+    });
+
+    it('エラーコマンドの場合はエラーメッセージを返す', async () => {
+      // Arrange
+      const testMessage = {
+        type: 'message' as const,
+        timestamp: new Date().toISOString(),
+        data: {
+          command: 'invalid-command-12345',
+        },
+      };
+
+      // Act
+      await gateway.handleMessage(mockClient, testMessage as unknown as components['schemas']['WebSocketMessage']);
+
+      // Assert
+      expect(mockClient.emit).toHaveBeenCalledWith(
+        'message',
+        expect.objectContaining({
+          type: 'error',
+          data: expect.objectContaining({
+            error: expect.any(String),
+          }),
+        })
+      );
     });
   });
 });

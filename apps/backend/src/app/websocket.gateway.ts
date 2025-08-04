@@ -12,6 +12,7 @@ import {
   WebSocketClient,
 } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
+import { PTYManagerService } from './pty-manager.service';
 
 @Injectable()
 @NestWebSocketGateway({
@@ -37,6 +38,8 @@ export class WebSocketGateway
   > = new Map();
 
   private connectionHistory: Set<string> = new Set();
+
+  constructor(private readonly ptyManager: PTYManagerService) {}
 
   async handleConnection(client: Socket | WebSocketClient): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
@@ -93,20 +96,62 @@ export class WebSocketGateway
   @SubscribeMessage('message')
   async handleMessage(
     client: WebSocketClient | Socket,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _message: components['schemas']['WebSocketMessage']
+    message: components['schemas']['WebSocketMessage']
   ): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
     const webSocketClient: WebSocketClient = this.isSocket(client)
       ? this.socketToWebSocketClient(client)
       : client;
 
-    // 仮実装: 固定応答を返す
-    webSocketClient.emit('message', {
-      type: 'response',
-      data: 'Message received',
-      timestamp: new Date().toISOString(),
-    });
+    // メッセージデータをunknownとして扱い、commandプロパティをチェック
+    const messageData = message.data as unknown as { command?: string };
+    
+    // commandプロパティが存在する場合、PTYでコマンドを実行
+    if (messageData && typeof messageData.command === 'string') {
+      try {
+        // PTYManagerでコマンドを実行
+        const output = await this.ptyManager.executeCommand(messageData.command);
+        
+        // コマンドが見つからない場合のエラーチェック（簡易的な判定）
+        if (output.includes('command not found') || 
+            output.includes('コマンドが見つかりません') ||
+            output.includes('コマンド実行中にエラーが発生しました')) {
+          // エラーレスポンスを返す
+          webSocketClient.emit('message', {
+            type: 'error',
+            data: {
+              error: output,
+            },
+            timestamp: new Date().toISOString(),
+          });
+        } else {
+          // 正常な実行結果を返す
+          webSocketClient.emit('message', {
+            type: 'message',
+            data: {
+              output: output,
+            },
+            timestamp: new Date().toISOString(),
+          });
+        }
+      } catch (error) {
+        // 例外エラーの場合
+        webSocketClient.emit('message', {
+          type: 'error',
+          data: {
+            error: error instanceof Error ? error.message : 'コマンド実行中にエラーが発生しました',
+          },
+          timestamp: new Date().toISOString(),
+        });
+      }
+    } else {
+      // コマンドが含まれていない場合は従来の固定応答
+      webSocketClient.emit('message', {
+        type: 'response',
+        data: 'Message received',
+        timestamp: new Date().toISOString(),
+      });
+    }
   }
 
   // TODO: 以下のメソッドは必要になったときに実装する（YAGNI原則）
