@@ -1,23 +1,24 @@
 import { Component, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-command-input',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, InputTextModule],
   template: `
     <div class="w-full">
       <input
+        pInputText
         type="text"
         [ngModel]="inputValue()"
         (ngModelChange)="inputValue.set($event)"
         (keydown)="onKeyDown($event)"
         placeholder="コマンドを入力..."
-        class="w-full px-3 py-2 text-sm font-mono border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full font-mono"
       />
     </div>
   `,
-  styles: [],
 })
 export class CommandInputComponent {
   inputValue = signal('');

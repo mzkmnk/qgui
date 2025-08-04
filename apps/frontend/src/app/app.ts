@@ -6,7 +6,6 @@ import { CommandInputComponent } from './components/command-input/command-input.
   imports: [RouterModule, CommandInputComponent],
   selector: 'app-root',
   templateUrl: './app.html',
-  styleUrl: './app.css',
 })
 export class App {
   protected title = 'frontend';

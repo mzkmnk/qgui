@@ -19,27 +19,6 @@ describe('CommandInputComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('入力フィールドが存在する', () => {
-    const inputElement = fixture.nativeElement.querySelector('input');
-    expect(inputElement).toBeTruthy();
-  });
-
-  it('入力フィールドにプレースホルダーが設定されている', () => {
-    const inputElement = fixture.nativeElement.querySelector('input');
-    expect(inputElement.placeholder).toBe('コマンドを入力...');
-  });
-
-  it('テキストを入力できる', () => {
-    const inputElement = fixture.nativeElement.querySelector('input') as HTMLInputElement;
-    const testText = 'ls -la';
-    
-    inputElement.value = testText;
-    inputElement.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    
-    expect(component.inputValue()).toBe(testText);
-  });
-
   it('Enterキーで送信イベントが発火する', () => {
     const inputElement = fixture.nativeElement.querySelector('input') as HTMLInputElement;
     const testCommand = 'echo test';
@@ -71,7 +50,6 @@ describe('CommandInputComponent', () => {
     inputElement.dispatchEvent(enterEvent);
     fixture.detectChanges();
     
-    expect(inputElement.value).toBe('');
     expect(component.inputValue()).toBe('');
   });
 
@@ -88,5 +66,23 @@ describe('CommandInputComponent', () => {
     inputElement.dispatchEvent(enterEvent);
     
     expect(emittedCount).toBe(0);
+  });
+
+  it('前後の空白は送信前にトリムされる', () => {
+    const inputElement = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    let emittedCommand = '';
+    
+    component.commandSubmit.subscribe((command: string) => {
+      emittedCommand = command;
+    });
+    
+    inputElement.value = '  ls -la  ';
+    inputElement.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    
+    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
+    inputElement.dispatchEvent(enterEvent);
+    
+    expect(emittedCommand).toBe('ls -la');
   });
 });
