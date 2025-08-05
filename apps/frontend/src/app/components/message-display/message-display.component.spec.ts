@@ -21,7 +21,9 @@ describe('MessageDisplayComponent', () => {
 
   it('メッセージが表示される', () => {
     const testMessage = 'テストメッセージ';
-    fixture.componentRef.setInput('messages', [{ type: 'output', content: testMessage }]);
+    fixture.componentRef.setInput('messages', [
+      { type: 'output', content: testMessage },
+    ]);
     fixture.detectChanges();
 
     const messageElement = fixture.nativeElement.querySelector('.message');
@@ -51,9 +53,11 @@ describe('MessageDisplayComponent', () => {
     fixture.componentRef.setInput('messages', messages);
     fixture.detectChanges();
 
-    const commandElement = fixture.nativeElement.querySelector('.message-command');
-    const outputElement = fixture.nativeElement.querySelector('.message-output');
-    
+    const commandElement =
+      fixture.nativeElement.querySelector('.message-command');
+    const outputElement =
+      fixture.nativeElement.querySelector('.message-output');
+
     expect(commandElement).toBeTruthy();
     expect(outputElement).toBeTruthy();
   });
@@ -68,13 +72,19 @@ describe('MessageDisplayComponent', () => {
 
   it('ANSIコードを含むメッセージが正しく表示される', () => {
     const messages = [
-      { type: 'output', content: '\x1b[31mエラー\x1b[0m: ファイルが見つかりません' },
+      {
+        type: 'output',
+        content: '\x1b[31mエラー\x1b[0m: ファイルが見つかりません',
+      },
     ];
     fixture.componentRef.setInput('messages', messages);
     fixture.detectChanges();
 
-    const messageElement = fixture.nativeElement.querySelector('.message-output');
+    const messageElement =
+      fixture.nativeElement.querySelector('.message-output');
     expect(messageElement).toBeTruthy();
-    expect(messageElement.innerHTML).toContain('<span style="color: red">エラー</span>');
+    expect(messageElement.innerHTML).toContain(
+      '<span style="color: red">エラー</span>'
+    );
   });
 });

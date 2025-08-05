@@ -8,6 +8,8 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     WebSocketMessage: {
+      /** @description メッセージ一意識別子 */
+      id?: string;
       /**
        * @description メッセージタイプ
        * @enum {string}
@@ -19,7 +21,7 @@ export interface components {
        */
       timestamp: string;
       /** @description メッセージペイロード（タイプ別） */
-      data?: Record<string, never>;
+      data?: Record<string, any>;
       /** @description リクエスト追跡用ID（オプション） */
       requestId?: string;
     };
@@ -106,7 +108,7 @@ export interface components {
       /** @description エラーメッセージ（日本語） */
       message: string;
       /** @description エラー詳細情報（オプション） */
-      details?: Record<string, never>;
+      details?: Record<string, any>;
       /**
        * @description エラー重要度
        * @default error

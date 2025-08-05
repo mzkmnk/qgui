@@ -103,50 +103,74 @@ export class WebSocketGateway
       ? this.socketToWebSocketClient(client)
       : client;
 
-    // メッセージデータをunknownとして扱い、commandプロパティをチェック
-    const messageData = message.data as unknown as { command?: string };
-    
-    // commandプロパティが存在する場合、PTYでコマンドを実行
-    if (messageData && typeof messageData.command === 'string') {
-      try {
-        // PTYManagerでコマンドを実行
-        const output = await this.ptyManager.executeCommand(messageData.command);
-        
-        // コマンドが見つからない場合のエラーチェック（簡易的な判定）
-        if (output.includes('command not found') || 
+    // messageタイプの場合、コマンド実行処理を行う
+    if (message.type === 'message') {
+      // メッセージデータをunknownとして扱い、commandプロパティをチェック
+      const messageData = message.data as unknown as { command?: string };
+
+      // commandプロパティが存在する場合、PTYでコマンドを実行
+      if (messageData && typeof messageData.command === 'string') {
+        try {
+          // PTYManagerでコマンドを実行
+          const output = await this.ptyManager.executeCommand(
+            messageData.command
+          );
+
+          // コマンドが見つからない場合のエラーチェック（簡易的な判定）
+          if (
+            output.includes('command not found') ||
             output.includes('コマンドが見つかりません') ||
-            output.includes('コマンド実行中にエラーが発生しました')) {
-          // エラーレスポンスを返す
+            output.includes('コマンド実行中にエラーが発生しました')
+          ) {
+            // エラーレスポンスを返す
+            webSocketClient.emit('message', {
+              id: crypto.randomUUID(),
+              type: 'error',
+              data: {
+                error: output,
+              },
+              timestamp: new Date().toISOString(),
+            });
+          } else {
+            // 正常な実行結果を返す
+            webSocketClient.emit('message', {
+              id: crypto.randomUUID(),
+              type: 'message',
+              data: {
+                output: output,
+              },
+              timestamp: new Date().toISOString(),
+            });
+          }
+        } catch (error) {
+          // 例外エラーの場合
           webSocketClient.emit('message', {
+            id: crypto.randomUUID(),
             type: 'error',
             data: {
-              error: output,
-            },
-            timestamp: new Date().toISOString(),
-          });
-        } else {
-          // 正常な実行結果を返す
-          webSocketClient.emit('message', {
-            type: 'message',
-            data: {
-              output: output,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'コマンド実行中にエラーが発生しました',
             },
             timestamp: new Date().toISOString(),
           });
         }
-      } catch (error) {
-        // 例外エラーの場合
+      } else {
+        // コマンドが含まれていない場合はエラーを返す
         webSocketClient.emit('message', {
+          id: crypto.randomUUID(),
           type: 'error',
           data: {
-            error: error instanceof Error ? error.message : 'コマンド実行中にエラーが発生しました',
+            error: 'コマンドが指定されていません',
           },
           timestamp: new Date().toISOString(),
         });
       }
     } else {
-      // コマンドが含まれていない場合は従来の固定応答
+      // その他のメッセージタイプは従来の固定応答
       webSocketClient.emit('message', {
+        id: crypto.randomUUID(),
         type: 'response',
         data: 'Message received',
         timestamp: new Date().toISOString(),
