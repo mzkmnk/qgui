@@ -189,7 +189,10 @@ describe('WebSocketGateway', () => {
       };
 
       // Act: WebSocket経由でコマンドを送信
-      await gateway.handleMessage(mockClient, testMessage as unknown as components['schemas']['WebSocketMessage']);
+      await gateway.handleMessage(
+        mockClient,
+        testMessage as unknown as components['schemas']['WebSocketMessage']
+      );
 
       // Assert: コマンド実行結果がクライアントに送信される
       expect(mockClient.emit).toHaveBeenCalledWith(
@@ -214,7 +217,10 @@ describe('WebSocketGateway', () => {
       };
 
       // Act
-      await gateway.handleMessage(mockClient, testMessage as unknown as components['schemas']['WebSocketMessage']);
+      await gateway.handleMessage(
+        mockClient,
+        testMessage as unknown as components['schemas']['WebSocketMessage']
+      );
 
       // Assert
       expect(mockClient.emit).toHaveBeenCalledWith(

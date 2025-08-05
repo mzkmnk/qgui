@@ -1,5 +1,7 @@
 import { Injectable, signal, Signal } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { io, Socket } from 'socket.io-client';
 import { components } from '@qgui/shared';
 import {
   IWebSocketService,
@@ -10,7 +12,7 @@ import {
   providedIn: 'root',
 })
 export class WebSocketService implements IWebSocketService {
-  private ws: WebSocket | null = null;
+  private socket: Socket | null = null;
   private readonly _connectionState = signal<
     components['schemas']['ConnectionState']
   >({
@@ -23,6 +25,11 @@ export class WebSocketService implements IWebSocketService {
   private readonly _error = signal<components['schemas']['ErrorData'] | null>(
     null
   );
+
+  // メッセージサブジェクト
+  private readonly messageSubject = new Subject<
+    components['schemas']['WebSocketMessage']
+  >();
 
   // 読み取り専用シグナルを公開
   readonly connectionState: Signal<components['schemas']['ConnectionState']> =
@@ -47,28 +54,33 @@ export class WebSocketService implements IWebSocketService {
     return new Promise<boolean>((resolve) => {
       try {
         // 既存の接続があれば切断
-        if (this.ws) {
-          this.ws.close();
+        if (this.socket) {
+          this.socket.disconnect();
         }
 
-        // 新しいWebSocket接続を作成
-        this.ws = new WebSocket(url);
+        // Socket.ioクライアントを作成
+        this.socket = io(url, {
+          transports: ['websocket'],
+          autoConnect: true,
+        });
+
         this._connectionState.set({
           status: 'connecting',
           connectedAt: new Date().toISOString(),
         });
 
         // 接続成功時のハンドラ
-        this.ws.onopen = () => {
+        this.socket.on('connect', () => {
           this._connectionState.set({
             status: 'connected',
             connectedAt: new Date().toISOString(),
           });
           resolve(true);
-        };
+        });
 
         // エラー時のハンドラ
-        this.ws.onerror = () => {
+        this.socket.on('connect_error', (error) => {
+          console.error('Socket.io接続エラー:', error);
           this._connectionState.set({
             status: 'disconnected',
             connectedAt: new Date().toISOString(),
@@ -80,15 +92,24 @@ export class WebSocketService implements IWebSocketService {
             retryable: true,
           });
           resolve(false);
-        };
+        });
+
+        // メッセージ受信時のハンドラ
+        this.socket.on(
+          'message',
+          (data: components['schemas']['WebSocketMessage']) => {
+            this._lastMessage.set(data);
+            this.messageSubject.next(data);
+          }
+        );
 
         // 切断時のハンドラ
-        this.ws.onclose = () => {
+        this.socket.on('disconnect', () => {
           this._connectionState.set({
             status: 'disconnected',
             connectedAt: new Date().toISOString(),
           });
-        };
+        });
       } catch (error) {
         this._connectionState.set({
           status: 'disconnected',
@@ -109,18 +130,15 @@ export class WebSocketService implements IWebSocketService {
    * WebSocket接続を切断
    * @param reason - 切断理由
    */
-  disconnect(reason?: string): void {
-    if (this.ws) {
-      if (reason) {
-        this.ws.close(1000, reason);
-      } else {
-        this.ws.close();
-      }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  disconnect(_reason?: string): void {
+    if (this.socket) {
+      this.socket.disconnect();
       this._connectionState.set({
         status: 'disconnected',
         connectedAt: new Date().toISOString(),
       });
-      this.ws = null;
+      this.socket = null;
     }
   }
 
@@ -129,7 +147,7 @@ export class WebSocketService implements IWebSocketService {
    * @returns 接続の有効性
    */
   isConnected(): boolean {
-    return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
+    return this.socket !== null && this.socket.connected;
   }
 
   /**
@@ -137,25 +155,67 @@ export class WebSocketService implements IWebSocketService {
    */
   destroy(): void {
     this.disconnect();
+    this.messageSubject.complete();
   }
 
-  // 以下のメソッドは最小実装のため仮実装（YAGNI原則に従い、必要になったら実装）
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  sendMessage(_message: components['schemas']['WebSocketMessage']): boolean {
-    // 仮実装
-    return false;
+  /**
+   * WebSocketメッセージを送信
+   * @param message - 送信するメッセージ
+   * @returns 送信成功の可否
+   */
+  sendMessage(message: components['schemas']['WebSocketMessage']): boolean {
+    if (!this.isConnected()) {
+      this._error.set({
+        code: 'CONNECTION_FAILED' as const,
+        message: 'WebSocketが接続されていません',
+        severity: 'error',
+        retryable: true,
+      });
+      return false;
+    }
+
+    try {
+      if (this.socket) {
+        this.socket.emit('message', message);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      this._error.set({
+        code: 'CONNECTION_FAILED' as const,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'メッセージ送信に失敗しました',
+        severity: 'error',
+        retryable: true,
+      });
+      return false;
+    }
   }
 
+  /**
+   * 特定タイプのメッセージを監視
+   * @param messageType - 監視するメッセージタイプ
+   * @returns メッセージのObservable
+   */
   onMessage<T extends components['schemas']['WebSocketMessage']['type']>(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _messageType: T
+    messageType: T
   ): Observable<
     Extract<components['schemas']['WebSocketMessage'], { type: T }>
   > {
-    // 仮実装
-    return new Subject<
-      Extract<components['schemas']['WebSocketMessage'], { type: T }>
-    >();
+    return this.messageSubject
+      .asObservable()
+      .pipe(
+        filter(
+          (
+            message
+          ): message is Extract<
+            components['schemas']['WebSocketMessage'],
+            { type: T }
+          > => message.type === messageType
+        )
+      );
   }
 
   onConnectionStateChange(): Observable<

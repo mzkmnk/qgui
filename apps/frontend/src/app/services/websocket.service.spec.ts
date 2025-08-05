@@ -1,55 +1,38 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WebSocketService } from './websocket.service';
+import * as SocketIOClient from 'socket.io-client';
 
-// WebSocketのモック型を定義
-type MockWebSocket = {
-  close: ReturnType<typeof vi.fn>;
-  send: ReturnType<typeof vi.fn>;
-  readyState: number;
-  onopen: ((event: Event) => void) | null;
-  onerror: ((event: Event) => void) | null;
-  onclose: ((event: CloseEvent) => void) | null;
-  onmessage: ((event: MessageEvent) => void) | null;
+// Socket.ioのモック
+vi.mock('socket.io-client', () => {
+  return {
+    io: vi.fn(),
+  };
+});
+
+type MockSocket = {
+  connected: boolean;
+  on: ReturnType<typeof vi.fn>;
+  emit: ReturnType<typeof vi.fn>;
+  disconnect: ReturnType<typeof vi.fn>;
 };
-
-// WebSocketコンストラクタのモック型
-interface MockWebSocketConstructor {
-  new (url: string): MockWebSocket;
-  CONNECTING: number;
-  OPEN: number;
-  CLOSING: number;
-  CLOSED: number;
-}
 
 describe('WebSocketService', () => {
   let service: WebSocketService;
-  let mockWebSocket: MockWebSocket;
-  let originalWebSocket: typeof WebSocket;
+  let mockSocket: MockSocket;
+  let mockIo: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    // WebSocketのモックを作成
-    mockWebSocket = {
-      close: vi.fn(),
-      send: vi.fn(),
-      readyState: WebSocket.CONNECTING,
-      onopen: null,
-      onerror: null,
-      onclose: null,
-      onmessage: null,
+    // Socket.ioのモックを作成
+    mockSocket = {
+      connected: false,
+      on: vi.fn(),
+      emit: vi.fn(),
+      disconnect: vi.fn(),
     };
 
-    // WebSocketコンストラクタを保存してモック
-    originalWebSocket = global.WebSocket;
-    
-    // より型安全なモックの作成
-    const MockWebSocketClass = vi.fn(() => mockWebSocket) as unknown as MockWebSocketConstructor;
-    MockWebSocketClass.CONNECTING = 0;
-    MockWebSocketClass.OPEN = 1;
-    MockWebSocketClass.CLOSING = 2;
-    MockWebSocketClass.CLOSED = 3;
-    
-    global.WebSocket = MockWebSocketClass as unknown as typeof WebSocket;
+    mockIo = vi.fn().mockReturnValue(mockSocket);
+    (SocketIOClient.io as unknown) = mockIo;
 
     TestBed.configureTestingModule({
       providers: [WebSocketService],
@@ -59,41 +42,51 @@ describe('WebSocketService', () => {
   });
 
   afterEach(() => {
-    // WebSocketコンストラクタを元に戻す
-    global.WebSocket = originalWebSocket;
     // モックをクリア
     vi.clearAllMocks();
   });
 
   describe('connect', () => {
-    it('指定されたURLでWebSocket接続を確立できる', async () => {
+    it('指定されたURLでSocket.io接続を確立できる', async () => {
       // Arrange
-      const testUrl = 'ws://localhost:3000/ws';
+      const testUrl = 'http://localhost:3000';
 
       // Act
       const connectPromise = service.connect(testUrl);
 
-      // WebSocket接続成功をシミュレート
-      mockWebSocket.readyState = WebSocket.OPEN;
-      mockWebSocket.onopen?.(new Event('open'));
+      // 'on'メソッドが呼ばれたときのコールバックを取得
+      const connectCallback = mockSocket.on.mock.calls.find(
+        (call) => call[0] === 'connect'
+      )?.[1];
+
+      // Socket.io接続成功をシミュレート
+      mockSocket.connected = true;
+      connectCallback?.();
 
       const result = await connectPromise;
 
       // Assert
       expect(result).toBe(true);
-      expect(global.WebSocket).toHaveBeenCalledWith(testUrl);
+      expect(mockIo).toHaveBeenCalledWith(testUrl, {
+        transports: ['websocket'],
+        autoConnect: true,
+      });
     });
 
     it('接続失敗時はfalseを返す', async () => {
       // Arrange
-      const testUrl = 'ws://localhost:3000/ws';
+      const testUrl = 'http://localhost:3000';
 
       // Act
       const connectPromise = service.connect(testUrl);
 
-      // WebSocket接続失敗をシミュレート
-      mockWebSocket.readyState = WebSocket.CLOSED;
-      mockWebSocket.onerror?.(new Event('error'));
+      // 'on'メソッドが呼ばれたときのコールバックを取得
+      const errorCallback = mockSocket.on.mock.calls.find(
+        (call) => call[0] === 'connect_error'
+      )?.[1];
+
+      // Socket.io接続失敗をシミュレート
+      errorCallback?.(new Error('Connection failed'));
 
       const result = await connectPromise;
 
@@ -103,14 +96,17 @@ describe('WebSocketService', () => {
   });
 
   describe('disconnect', () => {
-    it('WebSocket接続を切断できる', async () => {
+    it('Socket.io接続を切断できる', async () => {
       // Arrange
-      const testUrl = 'ws://localhost:3000/ws';
+      const testUrl = 'http://localhost:3000';
       const connectPromise = service.connect(testUrl);
 
       // 接続成功をシミュレート
-      mockWebSocket.readyState = WebSocket.OPEN;
-      mockWebSocket.onopen?.(new Event('open'));
+      const connectCallback = mockSocket.on.mock.calls.find(
+        (call) => call[0] === 'connect'
+      )?.[1];
+      mockSocket.connected = true;
+      connectCallback?.();
 
       await connectPromise;
 
@@ -118,18 +114,21 @@ describe('WebSocketService', () => {
       service.disconnect();
 
       // Assert
-      expect(mockWebSocket.close).toHaveBeenCalled();
+      expect(mockSocket.disconnect).toHaveBeenCalled();
     });
 
     it('切断理由を指定して切断できる', async () => {
       // Arrange
-      const testUrl = 'ws://localhost:3000/ws';
+      const testUrl = 'http://localhost:3000';
       const reason = 'ユーザーによる切断';
       const connectPromise = service.connect(testUrl);
 
       // 接続成功をシミュレート
-      mockWebSocket.readyState = WebSocket.OPEN;
-      mockWebSocket.onopen?.(new Event('open'));
+      const connectCallback = mockSocket.on.mock.calls.find(
+        (call) => call[0] === 'connect'
+      )?.[1];
+      mockSocket.connected = true;
+      connectCallback?.();
 
       await connectPromise;
 
@@ -137,19 +136,22 @@ describe('WebSocketService', () => {
       service.disconnect(reason);
 
       // Assert
-      expect(mockWebSocket.close).toHaveBeenCalledWith(1000, reason);
+      expect(mockSocket.disconnect).toHaveBeenCalled();
     });
   });
 
   describe('isConnected', () => {
     it('接続中の場合はtrueを返す', async () => {
       // Arrange
-      const testUrl = 'ws://localhost:3000/ws';
+      const testUrl = 'http://localhost:3000';
       const connectPromise = service.connect(testUrl);
 
       // 接続成功をシミュレート
-      mockWebSocket.readyState = WebSocket.OPEN;
-      mockWebSocket.onopen?.(new Event('open'));
+      const connectCallback = mockSocket.on.mock.calls.find(
+        (call) => call[0] === 'connect'
+      )?.[1];
+      mockSocket.connected = true;
+      connectCallback?.();
 
       await connectPromise;
 
@@ -166,6 +168,54 @@ describe('WebSocketService', () => {
 
       // Assert
       expect(result).toBe(false);
+    });
+  });
+
+  describe('sendMessage', () => {
+    it('メッセージを送信できる', async () => {
+      // Arrange
+      const testUrl = 'http://localhost:3000';
+      const connectPromise = service.connect(testUrl);
+
+      // 接続成功をシミュレート
+      const connectCallback = mockSocket.on.mock.calls.find(
+        (call) => call[0] === 'connect'
+      )?.[1];
+      mockSocket.connected = true;
+      connectCallback?.();
+
+      await connectPromise;
+
+      const message = {
+        id: '123',
+        type: 'message' as const,
+        timestamp: new Date().toISOString(),
+        data: { command: 'test' },
+      };
+
+      // Act
+      const result = service.sendMessage(message);
+
+      // Assert
+      expect(result).toBe(true);
+      expect(mockSocket.emit).toHaveBeenCalledWith('message', message);
+    });
+
+    it('未接続の場合はfalseを返す', () => {
+      // Arrange
+      const message = {
+        id: '123',
+        type: 'message' as const,
+        timestamp: new Date().toISOString(),
+        data: { command: 'test' },
+      };
+
+      // Act
+      const result = service.sendMessage(message);
+
+      // Assert
+      expect(result).toBe(false);
+      expect(mockSocket.emit).not.toHaveBeenCalled();
     });
   });
 });
