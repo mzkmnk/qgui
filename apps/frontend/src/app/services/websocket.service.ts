@@ -13,6 +13,7 @@ import {
 })
 export class WebSocketService implements IWebSocketService {
   private socket: Socket | null = null;
+  private lastUrl: string | null = null;
   private readonly _connectionState = signal<
     components['schemas']['ConnectionState']
   >({
@@ -26,12 +27,16 @@ export class WebSocketService implements IWebSocketService {
     null
   );
 
-  // メッセージサブジェクト
   private readonly messageSubject = new Subject<
     components['schemas']['WebSocketMessage']
   >();
+  private readonly connectionStateSubject = new Subject<
+    components['schemas']['ConnectionState']
+  >();
+  private readonly errorSubject = new Subject<
+    components['schemas']['ErrorData']
+  >();
 
-  // 読み取り専用シグナルを公開
   readonly connectionState: Signal<components['schemas']['ConnectionState']> =
     this._connectionState.asReadonly();
   readonly lastMessage: Signal<
@@ -40,12 +45,6 @@ export class WebSocketService implements IWebSocketService {
   readonly error: Signal<components['schemas']['ErrorData'] | null> =
     this._error.asReadonly();
 
-  /**
-   * WebSocketサーバーに接続
-   * @param url - 接続先URL
-   * @param config - 接続設定（現在は未使用、YAGNI原則）
-   * @returns 接続結果のPromise
-   */
   async connect(
     url: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,48 +52,51 @@ export class WebSocketService implements IWebSocketService {
   ): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       try {
-        // 既存の接続があれば切断
         if (this.socket) {
           this.socket.disconnect();
         }
 
-        // Socket.ioクライアントを作成
+        this.lastUrl = url;
         this.socket = io(url, {
           transports: ['websocket'],
           autoConnect: true,
         });
 
-        this._connectionState.set({
-          status: 'connecting',
+        const connecting = {
+          status: 'connecting' as const,
           connectedAt: new Date().toISOString(),
-        });
+        };
+        this._connectionState.set(connecting);
+        this.connectionStateSubject.next(connecting);
 
-        // 接続成功時のハンドラ
         this.socket.on('connect', () => {
-          this._connectionState.set({
-            status: 'connected',
+          const state = {
+            status: 'connected' as const,
             connectedAt: new Date().toISOString(),
-          });
+          };
+          this._connectionState.set(state);
+          this.connectionStateSubject.next(state);
           resolve(true);
         });
 
-        // エラー時のハンドラ
-        this.socket.on('connect_error', (error) => {
-          console.error('Socket.io接続エラー:', error);
-          this._connectionState.set({
-            status: 'disconnected',
+        this.socket.on('connect_error', () => {
+          const state = {
+            status: 'disconnected' as const,
             connectedAt: new Date().toISOString(),
-          });
-          this._error.set({
-            code: 'CONNECTION_FAILED',
+          };
+          this._connectionState.set(state);
+          this.connectionStateSubject.next(state);
+          const err = {
+            code: 'CONNECTION_FAILED' as const,
             message: 'WebSocket接続エラーが発生しました',
-            severity: 'error',
+            severity: 'error' as const,
             retryable: true,
-          });
+          };
+          this._error.set(err);
+          this.errorSubject.next(err);
           resolve(false);
         });
 
-        // メッセージ受信時のハンドラ
         this.socket.on(
           'message',
           (data: components['schemas']['WebSocketMessage']) => {
@@ -103,74 +105,69 @@ export class WebSocketService implements IWebSocketService {
           }
         );
 
-        // 切断時のハンドラ
         this.socket.on('disconnect', () => {
-          this._connectionState.set({
-            status: 'disconnected',
+          const state = {
+            status: 'disconnected' as const,
             connectedAt: new Date().toISOString(),
-          });
+          };
+          this._connectionState.set(state);
+          this.connectionStateSubject.next(state);
         });
       } catch (error) {
-        this._connectionState.set({
-          status: 'disconnected',
+        const state = {
+          status: 'disconnected' as const,
           connectedAt: new Date().toISOString(),
-        });
-        this._error.set({
-          code: 'CONNECTION_FAILED',
+        };
+        this._connectionState.set(state);
+        this.connectionStateSubject.next(state);
+        const err = {
+          code: 'CONNECTION_FAILED' as const,
           message: error instanceof Error ? error.message : 'Unknown error',
-          severity: 'error',
+          severity: 'error' as const,
           retryable: false,
-        });
+        };
+        this._error.set(err);
+        this.errorSubject.next(err);
         resolve(false);
       }
     });
   }
 
-  /**
-   * WebSocket接続を切断
-   * @param reason - 切断理由
-   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_reason?: string): void {
     if (this.socket) {
       this.socket.disconnect();
-      this._connectionState.set({
-        status: 'disconnected',
+      const state = {
+        status: 'disconnected' as const,
         connectedAt: new Date().toISOString(),
-      });
+      };
+      this._connectionState.set(state);
+      this.connectionStateSubject.next(state);
       this.socket = null;
     }
   }
 
-  /**
-   * 接続が有効かチェック
-   * @returns 接続の有効性
-   */
   isConnected(): boolean {
     return this.socket !== null && this.socket.connected;
   }
 
-  /**
-   * サービスのクリーンアップ
-   */
   destroy(): void {
     this.disconnect();
     this.messageSubject.complete();
+    this.connectionStateSubject.complete();
+    this.errorSubject.complete();
   }
 
-  /**
-   * WebSocketメッセージを送信
-   * @param message - 送信するメッセージ
-   * @returns 送信成功の可否
-   */
   sendMessage(message: components['schemas']['WebSocketMessage']): boolean {
     if (!this.isConnected()) {
-      this._error.set({
+      const err = {
         code: 'CONNECTION_FAILED' as const,
         message: 'WebSocketが接続されていません',
-        severity: 'error',
+        severity: 'error' as const,
         retryable: true,
-      });
+      };
+      this._error.set(err);
+      this.errorSubject.next(err);
       return false;
     }
 
@@ -181,24 +178,21 @@ export class WebSocketService implements IWebSocketService {
       }
       return false;
     } catch (error) {
-      this._error.set({
+      const err = {
         code: 'CONNECTION_FAILED' as const,
         message:
           error instanceof Error
             ? error.message
             : 'メッセージ送信に失敗しました',
-        severity: 'error',
+        severity: 'error' as const,
         retryable: true,
-      });
+      };
+      this._error.set(err);
+      this.errorSubject.next(err);
       return false;
     }
   }
 
-  /**
-   * 特定タイプのメッセージを監視
-   * @param messageType - 監視するメッセージタイプ
-   * @returns メッセージのObservable
-   */
   onMessage<T extends components['schemas']['WebSocketMessage']['type']>(
     messageType: T
   ): Observable<
@@ -221,22 +215,26 @@ export class WebSocketService implements IWebSocketService {
   onConnectionStateChange(): Observable<
     components['schemas']['ConnectionState']
   > {
-    // 仮実装
-    return new Subject<components['schemas']['ConnectionState']>();
+    return this.connectionStateSubject.asObservable();
   }
 
   onError(): Observable<components['schemas']['ErrorData']> {
-    // 仮実装
-    return new Subject<components['schemas']['ErrorData']>();
+    return this.errorSubject.asObservable();
   }
 
   async reconnect(): Promise<boolean> {
-    // 仮実装
-    return false;
+    if (!this.lastUrl) return false;
+    this.disconnect();
+    return this.connect(this.lastUrl);
   }
 
   sendHeartbeat(): boolean {
-    // 仮実装
-    return false;
+    if (!this.isConnected() || !this.socket) return false;
+    try {
+      this.socket.emit('heartbeat', { timestamp: new Date().toISOString() });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
