@@ -66,7 +66,7 @@ YAGNI 原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
 
 #### 6.1 最小限のカラーコード対応
 
-- [ ] **Red**: `ansi.pipe.spec.ts` - 赤色のみの ANSI 処理テスト
+- [x] **Red**: `ansi.pipe.spec.ts` - 赤色のみの ANSI 処理テスト
   ```typescript
   it('赤色のANSIコードを処理できる', () => {
     const input = '\x1b[31mRed\x1b[0m';
@@ -74,8 +74,8 @@ YAGNI 原則に従い、Amazon Q GUI の最小限動作に必要なコア機能�
     expect(result).toContain('color: red');
   });
   ```
-- [ ] **Green**: `ansi.pipe.ts` - 赤色のみ対応の最小実装
-- [ ] **動作確認**: 赤色のテキストが表示される
+- [x] **Green**: `ansi.pipe.ts` - 赤色のみ対応の最小実装
+- [x] **動作確認**: 赤色のテキストが表示される
 
 ## 統合動作確認
 
