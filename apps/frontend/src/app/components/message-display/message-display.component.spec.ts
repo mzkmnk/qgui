@@ -65,4 +65,16 @@ describe('MessageDisplayComponent', () => {
     const messageElements = fixture.nativeElement.querySelectorAll('.message');
     expect(messageElements.length).toBe(0);
   });
+
+  it('ANSIコードを含むメッセージが正しく表示される', () => {
+    const messages = [
+      { type: 'output', content: '\x1b[31mエラー\x1b[0m: ファイルが見つかりません' },
+    ];
+    fixture.componentRef.setInput('messages', messages);
+    fixture.detectChanges();
+
+    const messageElement = fixture.nativeElement.querySelector('.message-output');
+    expect(messageElement).toBeTruthy();
+    expect(messageElement.innerHTML).toContain('<span style="color: red">エラー</span>');
+  });
 });
