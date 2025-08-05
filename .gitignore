@@ -43,6 +43,9 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
+# Crush local data
+.crush
+
 .angular
 
 vite.config.*.timestamp*
