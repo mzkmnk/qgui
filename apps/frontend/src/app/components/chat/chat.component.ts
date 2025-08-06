@@ -15,7 +15,9 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="flex flex-col h-full bg-zinc-900 rounded-xl overflow-hidden">
+    <div class="flex flex-col h-full bg-gradient-to-b from-zinc-900/95 to-zinc-950/95 rounded-xl overflow-hidden relative">
+      <!-- 背景のグラデーション -->
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-500/3 via-transparent to-orange-500/3 pointer-events-none"></div>
       <!-- メッセージエリア -->
       <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent" #messagesArea>
         @for (message of messages(); track message.id) {
@@ -78,7 +80,7 @@ interface ChatMessage {
       </div>
 
       <!-- 入力エリア -->
-      <div class="p-4 bg-zinc-800/50 backdrop-blur-sm border-t border-zinc-700 flex gap-3 items-end">
+      <div class="p-4 bg-gradient-to-r from-zinc-800/60 to-zinc-900/60 backdrop-blur-xl border-t border-white/10 flex gap-3 items-end">
         <textarea
           [(ngModel)]="inputText"
           (keydown)="onKeyDown($event)"
