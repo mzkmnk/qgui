@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommandInputComponent } from './components/command-input/command-input.component';
 import { MessageDisplayComponent } from './components/message-display/message-display.component';
+import { TerminalComponent } from './components/terminal/terminal.component';
 import { WebSocketService } from './services/websocket.service';
 import { components } from '@qgui/shared';
 import { Subscription } from 'rxjs';
@@ -12,7 +13,7 @@ interface Message {
 }
 
 @Component({
-  imports: [RouterModule, CommandInputComponent, MessageDisplayComponent],
+  imports: [RouterModule, CommandInputComponent, MessageDisplayComponent, TerminalComponent],
   selector: 'app-root',
   templateUrl: './app.html',
 })
