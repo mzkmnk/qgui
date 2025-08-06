@@ -1,8 +1,7 @@
-import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from './components/chat/chat.component';
 import { WebSocketService } from './services/websocket.service';
-import { components } from '@qgui/shared';
 import { Subscription } from 'rxjs';
 
 @Component({

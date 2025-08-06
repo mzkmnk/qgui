@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -375,7 +375,7 @@ export class ChatComponent {
     // 改行やスペースを保持
     
     // コードブロックの処理（改行を保持）
-    let formatted = content
+    const formatted = content
       .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
         // コードブロック内の改行はそのまま保持
         return `<pre><code>${this.escapeHtml(code)}</code></pre>`;
