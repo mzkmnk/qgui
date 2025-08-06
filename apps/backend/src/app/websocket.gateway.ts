@@ -13,6 +13,7 @@ import {
 } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
 import { PTYManagerService } from './pty-manager.service';
+import { CommandFilterService } from '../services/command-filter.service';
 
 @Injectable()
 @NestWebSocketGateway({
@@ -39,7 +40,10 @@ export class WebSocketGateway
 
   private connectionHistory: Set<string> = new Set();
 
-  constructor(private readonly ptyManager: PTYManagerService) {}
+  constructor(
+    private readonly ptyManager: PTYManagerService,
+    private readonly commandFilter: CommandFilterService
+  ) {}
 
   async handleConnection(client: Socket | WebSocketClient): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
@@ -110,6 +114,19 @@ export class WebSocketGateway
 
       // commandプロパティが存在する場合、PTYでコマンドを実行
       if (messageData && typeof messageData.command === 'string') {
+        // コマンドフィルタリングチェック
+        if (!this.commandFilter.isSafe(messageData.command)) {
+          webSocketClient.emit('message', {
+            id: crypto.randomUUID(),
+            type: 'error',
+            data: {
+              error: '危険なコマンドはブロックされました',
+            },
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
         try {
           // PTYManagerでコマンドを実行
           const output = await this.ptyManager.executeCommand(
