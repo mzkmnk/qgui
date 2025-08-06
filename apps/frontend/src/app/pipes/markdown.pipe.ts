@@ -1,6 +1,19 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { marked } from 'marked';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import Prism from 'prismjs';
+
+// Prism言語サポート
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-markdown';
+import 'prismjs/components/prism-sql';
 
 @Pipe({
   name: 'markdown',
@@ -23,8 +36,11 @@ export class MarkdownPipe implements PipeTransform {
       // マークダウンをHTMLに変換
       const html = marked.parse(value) as string;
       
+      // コードブロックにシンタックスハイライトを適用
+      const highlightedHtml = this.applySyntaxHighlighting(html);
+      
       // Crush風のダークテーマスタイルを適用
-      const styledHtml = this.applyStyles(html);
+      const styledHtml = this.applyStyles(highlightedHtml);
       
       // サニタイズして安全なHTMLとして返す
       return this.sanitizer.bypassSecurityTrustHtml(styledHtml);
@@ -33,16 +49,42 @@ export class MarkdownPipe implements PipeTransform {
       return value;
     }
   }
+  
+  private applySyntaxHighlighting(html: string): string {
+    // コードブロックを検索してシンタックスハイライトを適用
+    return html.replace(/<pre><code class="language-([\w-]+)">([\s\S]*?)<\/code><\/pre>/g, 
+      (match, lang, code) => {
+        // HTMLエンティティをデコード
+        const decodedCode = this.decodeHtmlEntities(code);
+        
+        if (lang && Prism.languages[lang]) {
+          try {
+            const highlighted = Prism.highlight(decodedCode, Prism.languages[lang], lang);
+            return `<pre class="language-${lang}"><code class="language-${lang}">${highlighted}</code></pre>`;
+          } catch (e) {
+            console.error('シンタックスハイライトエラー:', e);
+          }
+        }
+        return match;
+      });
+  }
+  
+  private decodeHtmlEntities(text: string): string {
+    const textArea = document.createElement('textarea');
+    textArea.innerHTML = text;
+    return textArea.value;
+  }
 
   private applyStyles(html: string): string {
     // スタイルクラスを追加
     return html
       // コードブロック
-      .replace(/<pre>/g, '<pre class="bg-zinc-900 border border-zinc-700 rounded-lg p-4 overflow-x-auto my-2">')
-      .replace(/<code>/g, '<code class="text-orange-400">')
+      .replace(/<pre>/g, '<pre class="bg-zinc-900 border border-zinc-700 rounded-lg p-4 overflow-x-auto my-2 language-">')
+      .replace(/<code class="language-/g, '<code class="language-')
       // インラインコード
       .replace(/<code([^>]*)>/g, (match, attrs) => {
-        if (!match.includes('class=')) {
+        // language-xxx クラスがない場合のみスタイルを追加
+        if (!match.includes('class="language-')) {
           return '<code class="bg-zinc-800 text-orange-400 px-1 py-0.5 rounded text-sm" ' + attrs + '>';
         }
         return match;
