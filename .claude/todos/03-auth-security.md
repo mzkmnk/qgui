@@ -17,7 +17,7 @@ Amazon Q CLIは既にログイン済みの前提とし、アプリケーショ�
 
 #### 1.1 危険なコマンドのフィルタリング
 
-- [ ] **Red**: `command-filter.service.spec.ts` - 危険コマンドブロックテスト
+- [x] **Red**: `command-filter.service.spec.ts` - 危険コマンドブロックテスト
   ```typescript
   it('危険なコマンドをブロックする', () => {
     const dangerous = ['rm -rf /', 'sudo rm -rf', 'mkfs'];
@@ -26,24 +26,24 @@ Amazon Q CLIは既にログイン済みの前提とし、アプリケーショ�
     });
   });
   ```
-- [ ] **Green**: `command-filter.service.ts` - コマンドフィルタリング実装
-- [ ] **動作確認**: 危険なコマンドが実行されない
+- [x] **Green**: `command-filter.service.ts` - コマンドフィルタリング実装
+- [x] **動作確認**: 危険なコマンドが実行されない
 
 ### 2. 入力サニタイゼーション
 
 #### 2.1 XSS対策
 
-- [ ] **Red**: `sanitization.service.spec.ts` - HTML/スクリプト除去テスト
-- [ ] **Green**: 入力値のサニタイゼーション実装
-- [ ] **動作確認**: 悪意あるスクリプトが実行されない
+- [x] **Red**: `sanitization.service.spec.ts` - HTML/スクリプト除去テスト
+- [x] **Green**: 入力値のサニタイゼーション実装
+- [x] **動作確認**: 悪意あるスクリプトが実行されない
 
 ### 3. localhost限定アクセス
 
 #### 3.1 ローカルホストのみアクセス許可
 
-- [ ] **Red**: CORS設定の動作確認テスト
-- [ ] **Green**: localhost限定のCORS設定実装
-- [ ] **動作確認**: ローカル環境でのみアクセス可能
+- [x] **Red**: CORS設定の動作確認テスト
+- [x] **Green**: localhost限定のCORS設定実装
+- [x] **動作確認**: ローカル環境でのみアクセス可能
 
 ## プロセス管理
 
