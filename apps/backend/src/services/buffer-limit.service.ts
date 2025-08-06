@@ -132,11 +132,10 @@ export class BufferLimitService {
     averageBufferSize: number;
     maxBufferSize: number;
   } {
-    let totalMemoryUsage = 0;
-    
-    this.buffers.forEach(buffer => {
-      totalMemoryUsage += buffer.getSize();
-    });
+    const totalMemoryUsage = Array.from(this.buffers.values()).reduce(
+      (total, buffer) => total + buffer.getSize(),
+      0
+    );
     
     const totalBuffers = this.buffers.size;
     const averageBufferSize = totalBuffers > 0 ? totalMemoryUsage / totalBuffers : 0;
