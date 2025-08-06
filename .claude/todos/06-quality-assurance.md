@@ -52,9 +52,9 @@ YAGNI原則に従い、必要最小限のテストのみ実装し、過度なテ
 
 #### 3. コンポーネントテスト
 
-##### 3.1 ターミナルコンポーネント
+##### 3.1 チャットコンポーネント
 
-- [ ] **Red**: `terminal.component.spec.ts` - 基本動作テスト
+- [ ] **Red**: `chat.component.spec.ts` - 基本動作テスト
   ```typescript
   it('コマンド入力後にWebSocketで送信される', () => {
     component.executeCommand('ls');

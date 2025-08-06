@@ -25,8 +25,8 @@ YAGNI原則に従い、**実際にパフォーマンス問題が発生した場�
 - [ ] **対策**: 
   ```typescript
   // ルートレベルで遅延読み込み
-  loadChildren: () => import('./features/terminal/terminal.module')
-    .then(m => m.TerminalModule)
+  loadChildren: () => import('./features/chat/chat.module')
+    .then(m => m.ChatModule)
   ```
 
 #### 1.2 Change Detection最適化

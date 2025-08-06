@@ -2,12 +2,12 @@
 
 ## 概要
 
-ターミナル基盤とAmazon Q統合が完成した上で、Crush風の洗練されたUI/UXを実装する。
+チャットUI基盤とAmazon Q統合が完成した上で、Crush風の洗練されたUI/UXを実装する。
 機能は既に動作しているため、純粋にユーザー体験の向上に集中できる。
 
 ## 前提条件
 
-- フェーズ4でxterm.jsが動作している
+- フェーズ4でチャットUIが動作している
 - フェーズ5でAmazon Qが使える
 - 基本機能はすべて実装済み
 
@@ -48,7 +48,7 @@
 
 - [ ] **実装**: パネルに半透明効果
   ```css
-  .terminal-container {
+  .chat-container {
     backdrop-filter: blur(10px);
     background: rgba(10, 10, 10, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -188,6 +188,6 @@
 ## 成果物
 
 完成度の高いAmazon Q GUIアプリケーション：
-- xterm.jsによる本格的なターミナル
+- チャットUIによる直感的なインターフェース
 - Amazon Q CLIとの完全統合
 - Crush風の洗練されたUI/UX

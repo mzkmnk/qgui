@@ -2,7 +2,7 @@
 
 ## 概要
 
-CharmbraceletのCrushのような洗練されたターミナルUIを実装する。
+CharmbraceletのCrushのような洗練されたチャットUIを実装する。
 PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いやすいインターフェースを構築する。
 
 ## レイアウト構造
@@ -51,7 +51,7 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
   <header class="h-14 flex items-center px-4">
     <div class="flex items-center space-x-3">
       <div class="w-8 h-8 bg-orange-500 rounded-lg"></div>
-      <h1 class="text-xl font-semibold text-gray-100">Q Terminal</h1>
+      <h1 class="text-xl font-semibold text-gray-100">Q Chat</h1>
     </div>
   </header>
   ```
