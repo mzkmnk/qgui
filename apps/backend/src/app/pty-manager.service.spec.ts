@@ -1,13 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PTYManagerService } from './pty-manager.service';
 import { PTYProcessCreateRequest } from '@qgui/shared';
+import { PtyCleanupService } from '../services/pty-cleanup.service';
+import { BufferLimitService } from '../services/buffer-limit.service';
 
 describe('PTYManagerService', () => {
   let service: PTYManagerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PTYManagerService],
+      providers: [
+        PTYManagerService,
+        PtyCleanupService,
+        BufferLimitService,
+      ],
     }).compile();
 
     service = module.get<PTYManagerService>(PTYManagerService);
