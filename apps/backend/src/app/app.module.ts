@@ -5,6 +5,8 @@ import { HealthController } from './health.controller';
 import { WebSocketGateway } from './websocket.gateway';
 import { PTYManagerService } from './pty-manager.service';
 import { CommandFilterService } from '../services/command-filter.service';
+import { PtyCleanupService } from '../services/pty-cleanup.service';
+import { BufferLimitService } from '../services/buffer-limit.service';
 
 @Module({
   imports: [],
@@ -14,6 +16,8 @@ import { CommandFilterService } from '../services/command-filter.service';
     WebSocketGateway,
     PTYManagerService,
     CommandFilterService,
+    PtyCleanupService,
+    BufferLimitService,
   ],
 })
 export class AppModule {}

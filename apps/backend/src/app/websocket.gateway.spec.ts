@@ -4,6 +4,8 @@ import { WebSocketClient } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
 import { PTYManagerService } from './pty-manager.service';
 import { CommandFilterService } from '../services/command-filter.service';
+import { PtyCleanupService } from '../services/pty-cleanup.service';
+import { BufferLimitService } from '../services/buffer-limit.service';
 
 describe('WebSocketGateway', () => {
   let gateway: WebSocketGateway;
@@ -11,7 +13,13 @@ describe('WebSocketGateway', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WebSocketGateway, PTYManagerService, CommandFilterService],
+      providers: [
+        WebSocketGateway,
+        PTYManagerService,
+        CommandFilterService,
+        PtyCleanupService,
+        BufferLimitService,
+      ],
     }).compile();
 
     gateway = module.get<WebSocketGateway>(WebSocketGateway);
