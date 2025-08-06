@@ -1,12 +1,13 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from './components/chat/chat.component';
 import { CommandPaletteComponent } from './components/command-palette/command-palette.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { WebSocketService } from './services/websocket.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  imports: [RouterModule, ChatComponent, CommandPaletteComponent],
+  imports: [RouterModule, ChatComponent, CommandPaletteComponent, SidebarComponent],
   selector: 'app-root',
   templateUrl: './app.html',
 })
@@ -14,6 +15,10 @@ export class App implements OnInit, OnDestroy {
   protected title = 'Qgui - AI Assistant';
   private wsService = inject(WebSocketService);
   private subscription?: Subscription;
+  
+  @ViewChild(CommandPaletteComponent) commandPalette?: CommandPaletteComponent;
+  
+  isSidebarCollapsed = signal(false);
 
   ngOnInit(): void {
     // WebSocket接続（将来的にチャットと統合）
@@ -34,6 +39,26 @@ export class App implements OnInit, OnDestroy {
       console.error('WebSocket接続に失敗しました');
     } else {
       console.log('WebSocket接続成功');
+    }
+  }
+  
+  toggleSidebar(): void {
+    this.isSidebarCollapsed.update(collapsed => !collapsed);
+  }
+  
+  onNewChat(): void {
+    // 新しいチャットが作成された時の処理
+    console.log('新しいチャットを作成');
+  }
+  
+  onSessionSelected(session: any): void {
+    // セッションが選択された時の処理
+    console.log('セッション選択:', session);
+  }
+  
+  openCommandPalette(): void {
+    if (this.commandPalette) {
+      this.commandPalette.open();
     }
   }
 }
