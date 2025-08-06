@@ -1,117 +1,198 @@
-# フェーズ 4: UI/UX 基本改善 - 機能単位 TDD 実装
+# フェーズ 4: Crush風モダンUI/UX実装 - 機能単位 TDD 実装
 
 ## 概要
 
-YAGNI 原則に従い、Amazon Q GUI の使いやすさに必要最小限の UI/UX 改善のみを実装する。
-複雑な機能は必要になるまで実装しない。
+CrushのようなモダンでプロフェッショナルなターミナルUIを実装する。
+PrimeNGコンポーネントとTailwind CSSを活用し、洗練されたユーザー体験を提供する。
 
-## フロントエンド UI/UX 実装
+## ターミナルUI強化
 
-### 1. 基本レスポンシブ対応
+### 1. xterm.js統合
 
-#### 1.1 モバイル/デスクトップ切り替えのみ
+#### 1.1 ターミナルエミュレータ実装
 
-- [ ] **Red**: `app.component.spec.ts` - 画面幅による表示切り替えテスト
+- [ ] **Red**: `terminal.service.spec.ts` - xterm.js初期化テスト
   ```typescript
-  it('600px以下でモバイルレイアウトになる', () => {
-    window.innerWidth = 500;
-    component.ngOnInit();
-    expect(component.isMobile()).toBe(true);
+  it('xterm.jsターミナルを初期化できる', () => {
+    const terminal = terminalService.createTerminal();
+    expect(terminal).toBeDefined();
+    expect(terminal.cols).toBe(80);
+    expect(terminal.rows).toBe(24);
   });
   ```
-- [ ] **Green**: `app.component.ts` - 基本的なレスポンシブ判定実装
-- [ ] **動作確認**: モバイルでサイドバーが隠れることを確認
+- [ ] **Green**: `terminal.service.ts` - xterm.js統合実装
+- [ ] **動作確認**: プロフェッショナルなターミナル表示
 
-### 2. 基本テーマ機能
+### 2. スプリットビュー
 
-#### 2.1 ライト/ダークテーマ切り替え
+#### 2.1 ペイン分割機能
 
-- [ ] **Red**: `theme.service.spec.ts` - テーマ切り替えテスト
+- [ ] **Red**: `split-view.component.spec.ts` - ペイン分割テスト
   ```typescript
-  it('テーマを切り替えてlocalStorageに保存する', () => {
-    themeService.toggleTheme();
-    expect(localStorage.getItem('theme')).toBe('dark');
+  it('ターミナルを垂直分割できる', () => {
+    component.splitVertical();
+    expect(component.panes.length).toBe(2);
+    expect(component.activePaneIndex).toBe(1);
   });
   ```
-- [ ] **Green**: `theme.service.ts` - 最小限のテーマ切り替え実装
-- [ ] **動作確認**: ダークテーマでターミナル背景が暗くなる
+- [ ] **Green**: `split-view.component.ts` - PrimeNG Splitterでペイン管理
+- [ ] **動作確認**: 複数ターミナルを同時表示可能
 
-### 3. テーマボタン UI
+## モダンUIコンポーネント
 
-#### 3.1 テーマ切り替えボタン
+### 3. コマンドパレット
 
-- [ ] **Red**: `theme-toggle.component.spec.ts` - ボタンクリックテスト
-- [ ] **Green**: `theme-toggle.component.ts` - シンプルなボタン実装
-- [ ] **動作確認**: ボタンクリックでテーマが切り替わる
+#### 3.1 Cmd+K風コマンドパレット
 
-### 4. 基本アクセシビリティ
-
-#### 4.1 最小限のキーボード操作
-
-- [ ] **Red**: `app.component.spec.ts` - Enter キーでの送信テスト
+- [ ] **Red**: `command-palette.component.spec.ts` - コマンドパレット表示テスト
   ```typescript
-  it('Enterキーでコマンドを送信する', () => {
-    const event = new KeyboardEvent('keydown', { key: 'Enter' });
+  it('Cmd+Kでコマンドパレットを表示', () => {
+    const event = new KeyboardEvent('keydown', { 
+      key: 'k', 
+      metaKey: true 
+    });
     component.handleKeydown(event);
-    expect(component.sendCommand).toHaveBeenCalled();
+    expect(component.isPaletteVisible).toBe(true);
   });
   ```
-- [ ] **Green**: キーボードイベントハンドリング実装
-- [ ] **動作確認**: キーボードのみで基本操作ができる
+- [ ] **Green**: `command-palette.component.ts` - PrimeNG Dialogでパレット実装
+- [ ] **動作確認**: スムーズなコマンド検索と実行
 
-### 5. フォントサイズ調整
+### 4. AI応答ビューア
 
-#### 5.1 3 段階のフォントサイズ
+#### 4.1 構造化されたAI応答表示
 
-- [ ] **Red**: `font-size.service.spec.ts` - フォントサイズ変更テスト
-- [ ] **Green**: `font-size.service.ts` - small/medium/large の 3 段階
-- [ ] **動作確認**: 設定でフォントサイズが変更できる
+- [ ] **Red**: `ai-response.component.spec.ts` - マークダウンレンダリングテスト
+  ```typescript
+  it('AI応答をマークダウンとして表示', () => {
+    const response = '## Title\n```python\ncode\n```';
+    component.setResponse(response);
+    expect(component.renderedHtml).toContain('<h2>');
+    expect(component.renderedHtml).toContain('<pre>');
+  });
+  ```
+- [ ] **Green**: `ai-response.component.ts` - marked.jsでマークダウン処理
+- [ ] **動作確認**: コードブロックのシンタックスハイライト付き表示
 
-## スタイル改善
+## テーマシステム
 
-### 6. 基本的なスタイル調整
+### 5. Crush風ダークテーマ
 
-#### 6.1 最小限の CSS 改善
+#### 5.1 プロフェッショナルなダークテーマ
 
-- [ ] **実装**: ターミナル部分の見やすさ改善
-  - [ ] 適切な行間設定
-  - [ ] 読みやすいフォント設定（等幅フォント）
-  - [ ] 十分なパディング
-- [ ] **動作確認**: 長時間使用しても目が疲れない
+- [ ] **Red**: `theme.service.spec.ts` - Crush風テーマ適用テスト
+- [ ] **Green**: CSS変数でCrush風カラーパレット実装
+  ```css
+  --primary-color: #f97316; /* オレンジアクセント */
+  --bg-terminal: #0a0a0a;   /* 深い黒背景 */
+  --text-primary: #e5e5e5;  /* 明るいグレーテキスト */
+  ```
+- [ ] **動作確認**: 目に優しい配色で長時間使用可能
 
-## 削除した項目（YAGNI 原則）
+### 6. グラスモーフィズム効果
+
+#### 6.1 半透明とぼかし効果
+
+- [ ] **実装**: 背景のぼかしと半透明効果
+  ```css
+  backdrop-filter: blur(10px);
+  background: rgba(10, 10, 10, 0.85);
+  ```
+- [ ] **動作確認**: モダンで洗練された見た目
+
+## インタラクション強化
+
+### 7. スムーズなアニメーション
+
+#### 7.1 トランジション効果
+
+- [ ] **Red**: `animation.service.spec.ts` - アニメーション動作テスト
+- [ ] **Green**: Angular Animationsで滑らかな遷移実装
+- [ ] **動作確認**: パネル開閉、コマンド実行時のスムーズな動き
+
+### 8. キーボードショートカット
+
+#### 8.1 プロ向けショートカット
+
+- [ ] **Red**: `shortcut.service.spec.ts` - ショートカット登録テスト
+  ```typescript
+  it('カスタムショートカットを登録できる', () => {
+    shortcutService.register('cmd+shift+p', () => {});
+    expect(shortcutService.getShortcuts().length).toBe(1);
+  });
+  ```
+- [ ] **Green**: グローバルショートカット管理サービス
+- [ ] **動作確認**: Vim風ナビゲーション、クイックアクション
+
+## サイドバーとナビゲーション
+
+### 9. 折りたたみ可能サイドバー
+
+#### 9.1 セッション管理サイドバー
+
+- [ ] **Red**: `sidebar.component.spec.ts` - サイドバー開閉テスト
+- [ ] **Green**: PrimeNG Sidebarでセッション一覧表示
+- [ ] **動作確認**: セッション切り替え、履歴表示
+
+### 10. ステータスバー
+
+#### 10.1 情報表示バー
+
+- [ ] **実装**: 下部ステータスバー
+  - AWS接続状態
+  - 実行中のコマンド数
+  - メモリ使用量
+  - 現在のディレクトリ
+- [ ] **動作確認**: リアルタイム情報更新
+
+## コンテキストメニュー
+
+### 11. 右クリックメニュー
+
+#### 11.1 ターミナル内コンテキストメニュー
+
+- [ ] **Red**: `context-menu.component.spec.ts` - メニュー表示テスト
+- [ ] **Green**: PrimeNG ContextMenuで実装
+- [ ] **動作確認**: コピー、貼り付け、検索等のクイックアクション
+
+## インラインサジェスト
+
+### 12. AIコマンド補完
+
+#### 12.1 リアルタイムサジェスト
+
+- [ ] **Red**: `suggestion.service.spec.ts` - サジェスト表示テスト
+- [ ] **Green**: Amazon Q APIでコマンド候補取得
+- [ ] **動作確認**: Tab補完でコマンド入力効率化
+
+## 削除・延期した項目（YAGNI原則）
 
 以下の項目は実際に必要になるまで実装しない：
 
-- 複雑なアニメーション・トランジション
-- 高度なレスポンシブブレークポイント（tablet 等）
-- カスタムテーマ作成機能
-- アクセシビリティの完全対応（WCAG 準拠等）
-- マイクロインタラクション
-- タッチジェスチャー
-- プログレスインジケーター
-- オンボーディング機能
-- ヘルプシステム
-- 検索機能
-- エクスポート機能
-- データ可視化
-- 設定画面（最小限の設定以外）
-- モバイルアプリ機能（PWA 等）
-- 国際化対応
+- 3Dエフェクト
+- パーティクルアニメーション
+- カスタムフォント読み込み
+- 音声フィードバック
+- タッチバー対応（macOS）
+- ゲーミフィケーション要素
+- ソーシャル機能
+- プロファイル同期
 
-## 各 PR の完了条件
+## 各PRの完了条件
 
-### フロントエンド PR
+### フロントエンドPR
 
-- [ ] 対象機能のテストが全て Green
+- [ ] UIコンポーネントのテストが全てGreen
 - [ ] `npm run frontend:lint` エラーなし
-- [ ] TypeScript コンパイルエラーなし
-- [ ] 実装は最小限（必要十分な UI）
+- [ ] レスポンシブデザイン確認
+- [ ] アクセシビリティ基準を満たす
+- [ ] パフォーマンス劣化なし（初回描画3秒以内）
 
 ## 次のフェーズへの移行条件
 
-- [ ] モバイル/デスクトップの基本レスポンシブ対応完了
-- [ ] ライト/ダークテーマが動作
-- [ ] Enter キーでコマンド送信できる
-- [ ] フォントサイズ変更が動作
-- [ ] 基本的なスタイルが適用済み
+- [ ] xterm.jsでプロターミナル表示
+- [ ] Crush風のダークテーマ適用
+- [ ] コマンドパレット機能動作
+- [ ] AI応答の美しい表示
+- [ ] キーボードショートカット実装
+- [ ] スムーズなアニメーション動作
