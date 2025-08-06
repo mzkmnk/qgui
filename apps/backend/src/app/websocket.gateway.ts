@@ -18,7 +18,23 @@ import { CommandFilterService } from '../services/command-filter.service';
 @Injectable()
 @NestWebSocketGateway({
   cors: {
-    origin: true,
+    origin: (origin, callback) => {
+      // originがundefinedの場合（同一オリジン）は許可
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      
+      // localhost, 127.0.0.1, [::1]のみ許可
+      const allowedPatterns = [
+        /^http:\/\/localhost(:\d+)?$/,
+        /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+        /^http:\/\/\[::1\](:\d+)?$/,
+      ];
+      
+      const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
+      callback(null, isAllowed);
+    },
     credentials: true,
   },
 })
