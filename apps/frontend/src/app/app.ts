@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 import { CommandInputComponent } from './components/command-input/command-input.component';
 import { MessageDisplayComponent } from './components/message-display/message-display.component';
 import { TerminalComponent } from './components/terminal/terminal.component';
+import { ChatComponent } from './components/chat/chat.component';
 import { WebSocketService } from './services/websocket.service';
 import { components } from '@qgui/shared';
 import { Subscription } from 'rxjs';
@@ -13,13 +14,14 @@ interface Message {
 }
 
 @Component({
-  imports: [RouterModule, CommandInputComponent, MessageDisplayComponent, TerminalComponent],
+  imports: [RouterModule, CommandInputComponent, MessageDisplayComponent, TerminalComponent, ChatComponent],
   selector: 'app-root',
   templateUrl: './app.html',
 })
 export class App implements OnInit, OnDestroy {
   protected title = 'frontend';
   protected messages = signal<Message[]>([]);
+  protected viewMode: 'chat' | 'terminal' = 'chat';
   private wsService = inject(WebSocketService);
   private subscription?: Subscription;
 

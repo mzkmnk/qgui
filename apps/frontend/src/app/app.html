@@ -1,19 +1,54 @@
-<div class="max-w-6xl mx-auto p-6">
-  <h1 class="text-2xl font-bold text-gray-800 mb-6">
-    Qgui - Terminal Interface
-  </h1>
-  
-  <!-- ターミナル表示エリア -->
-  <div class="mb-6 rounded-lg shadow-lg overflow-hidden" style="height: 500px;">
-    <app-terminal></app-terminal>
-  </div>
-  
-  <!-- 既存のメッセージ表示（一時的に非表示） -->
-  <div class="hidden">
-    <app-message-display [messages]="messages()"></app-message-display>
-    <app-command-input
-      (commandSubmit)="onCommandSubmit($event)"
-    ></app-command-input>
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-5xl mx-auto p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+      Qgui - AI Assistant Interface
+    </h1>
+    
+    <!-- タブ切り替え -->
+    <div class="mb-4 border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8">
+        <button 
+          (click)="viewMode = 'chat'"
+          [class.border-blue-500]="viewMode === 'chat'"
+          [class.text-blue-600]="viewMode === 'chat'"
+          [class.border-transparent]="viewMode !== 'chat'"
+          [class.text-gray-500]="viewMode !== 'chat'"
+          class="py-2 px-1 border-b-2 font-medium text-sm transition-colors">
+          チャット UI
+        </button>
+        <button 
+          (click)="viewMode = 'terminal'"
+          [class.border-blue-500]="viewMode === 'terminal'"
+          [class.text-blue-600]="viewMode === 'terminal'"
+          [class.border-transparent]="viewMode !== 'terminal'"
+          [class.text-gray-500]="viewMode !== 'terminal'"
+          class="py-2 px-1 border-b-2 font-medium text-sm transition-colors">
+          ターミナル UI
+        </button>
+      </nav>
+    </div>
+    
+    <!-- チャットUI表示 -->
+    @if (viewMode === 'chat') {
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden" style="height: 600px;">
+        <app-chat></app-chat>
+      </div>
+    }
+    
+    <!-- ターミナル表示エリア -->
+    @if (viewMode === 'terminal') {
+      <div class="rounded-lg shadow-lg overflow-hidden" style="height: 600px;">
+        <app-terminal></app-terminal>
+      </div>
+    }
+    
+    <!-- 既存のメッセージ表示（非表示） -->
+    <div class="hidden">
+      <app-message-display [messages]="messages()"></app-message-display>
+      <app-command-input
+        (commandSubmit)="onCommandSubmit($event)"
+      ></app-command-input>
+    </div>
   </div>
 </div>
 <router-outlet></router-outlet>
