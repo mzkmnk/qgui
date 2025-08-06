@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from './components/chat/chat.component';
+import { CommandPaletteComponent } from './components/command-palette/command-palette.component';
 import { WebSocketService } from './services/websocket.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  imports: [RouterModule, ChatComponent],
+  imports: [RouterModule, ChatComponent, CommandPaletteComponent],
   selector: 'app-root',
   templateUrl: './app.html',
 })
