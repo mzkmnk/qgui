@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 
 interface ChatMessage {
   id: string;
@@ -13,7 +14,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownPipe],
   template: `
     <div class="flex flex-col h-full bg-gradient-to-b from-zinc-900/95 to-zinc-950/95 rounded-xl overflow-hidden relative">
       <!-- 背景のグラデーション -->
@@ -49,8 +50,8 @@ interface ChatMessage {
                    [class.text-gray-200]="message.role === 'assistant'"
                    [class.border]="message.role === 'assistant'"
                    [class.border-zinc-700]="message.role === 'assistant'">
-                <div class="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  {{ message.content }}
+                <div class="text-sm leading-relaxed break-words markdown-content"
+                     [innerHTML]="message.content | markdown">
                 </div>
                 <div class="text-xs mt-1 opacity-60">
                   {{ formatTime(message.timestamp) }}
@@ -202,10 +203,55 @@ export class ChatComponent {
 
   private generateMockResponse(userInput: string): string {
     const responses = [
-      'なるほど、「' + userInput + '」についてですね。詳しく説明させていただきます。\n\n```typescript\n// サンプルコード\nconst example = "Hello World";\nconsole.log(example);\n```\n\nこのようにして実装できます。',
-      '「' + userInput + '」を処理中です...\n\n結果:\n- 正常に完了しました\n- 3つのファイルが更新されました\n- テストも全て通過しています',
-      'ご質問ありがとうございます。\n\n「' + userInput + '」について、以下の方法をお試しください：\n1. まず設定を確認\n2. 必要なパッケージをインストール\n3. コードを実行',
-      '申し訳ございません。「' + userInput + '」の処理中にエラーが発生しました。\n\n`Error: Connection timeout`\n\n再度お試しください。'
+      `なるほど、「${userInput}」についてですね。詳しく説明させていただきます。
+
+## 実装例
+
+\`\`\`typescript
+// サンプルコード
+const example = "Hello World";
+console.log(example);
+\`\`\`
+
+### ポイント
+- **型安全性**を保つ
+- *シンプル*な実装を心がける
+- \`async/await\`を活用する
+
+このようにして実装できます。`,
+      
+      `「${userInput}」を処理中です...
+
+## 結果
+
+- ✅ 正常に完了しました
+- 📝 3つのファイルが更新されました
+- 🧪 テストも全て通過しています
+
+> 詳細は[ログ](https://example.com)をご確認ください。`,
+      
+      `ご質問ありがとうございます。
+
+「${userInput}」について、以下の方法をお試しください：
+
+1. まず設定を確認
+2. 必要なパッケージをインストール
+3. コードを実行
+
+### 参考リンク
+- [公式ドキュメント](https://example.com/docs)
+- [チュートリアル](https://example.com/tutorial)`,
+      
+      `申し訳ございません。「${userInput}」の処理中にエラーが発生しました。
+
+\`\`\`
+Error: Connection timeout
+  at line 42
+\`\`\`
+
+**対処法:**
+1. ネットワーク接続を確認
+2. 再度お試しください`
     ];
     
     return responses[Math.floor(Math.random() * responses.length)];
