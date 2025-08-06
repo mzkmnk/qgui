@@ -13,11 +13,28 @@ import {
 } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
 import { PTYManagerService } from './pty-manager.service';
+import { CommandFilterService } from '../services/command-filter.service';
 
 @Injectable()
 @NestWebSocketGateway({
   cors: {
-    origin: true,
+    origin: (origin, callback) => {
+      // originがundefinedの場合（同一オリジン）は許可
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      
+      // localhost, 127.0.0.1, [::1]のみ許可
+      const allowedPatterns = [
+        /^http:\/\/localhost(:\d+)?$/,
+        /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+        /^http:\/\/\[::1\](:\d+)?$/,
+      ];
+      
+      const isAllowed = allowedPatterns.some(pattern => pattern.test(origin));
+      callback(null, isAllowed);
+    },
     credentials: true,
   },
 })
@@ -39,7 +56,10 @@ export class WebSocketGateway
 
   private connectionHistory: Set<string> = new Set();
 
-  constructor(private readonly ptyManager: PTYManagerService) {}
+  constructor(
+    private readonly ptyManager: PTYManagerService,
+    private readonly commandFilter: CommandFilterService
+  ) {}
 
   async handleConnection(client: Socket | WebSocketClient): Promise<void> {
     // Socket.ioのSocketをWebSocketClientとして扱う
@@ -110,6 +130,19 @@ export class WebSocketGateway
 
       // commandプロパティが存在する場合、PTYでコマンドを実行
       if (messageData && typeof messageData.command === 'string') {
+        // コマンドフィルタリングチェック
+        if (!this.commandFilter.isSafe(messageData.command)) {
+          webSocketClient.emit('message', {
+            id: crypto.randomUUID(),
+            type: 'error',
+            data: {
+              error: '危険なコマンドはブロックされました',
+            },
+            timestamp: new Date().toISOString(),
+          });
+          return;
+        }
+
         try {
           // PTYManagerでコマンドを実行
           const output = await this.ptyManager.executeCommand(

@@ -3,6 +3,7 @@ import { WebSocketGateway } from './websocket.gateway';
 import { WebSocketClient } from './interfaces/websocket-gateway.interface';
 import { components } from '@qgui/shared';
 import { PTYManagerService } from './pty-manager.service';
+import { CommandFilterService } from '../services/command-filter.service';
 
 describe('WebSocketGateway', () => {
   let gateway: WebSocketGateway;
@@ -10,7 +11,7 @@ describe('WebSocketGateway', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WebSocketGateway, PTYManagerService],
+      providers: [WebSocketGateway, PTYManagerService, CommandFilterService],
     }).compile();
 
     gateway = module.get<WebSocketGateway>(WebSocketGateway);
@@ -177,6 +178,33 @@ describe('WebSocketGateway', () => {
   });
 
   describe('WebSocket-PTY連携', () => {
+    it('危険なコマンドをブロックする', async () => {
+      // Arrange
+      const dangerousMessage = {
+        type: 'message' as const,
+        timestamp: new Date().toISOString(),
+        data: {
+          command: 'rm -rf /',
+        },
+      };
+
+      // Act
+      await gateway.handleMessage(
+        mockClient,
+        dangerousMessage as unknown as components['schemas']['WebSocketMessage']
+      );
+
+      // Assert
+      expect(mockClient.emit).toHaveBeenCalledWith(
+        'message',
+        expect.objectContaining({
+          type: 'error',
+          data: expect.objectContaining({
+            error: '危険なコマンドはブロックされました',
+          }),
+        })
+      );
+    });
     it('WebSocket経由でコマンドを実行して結果を返す', async () => {
       // Arrange: テスト準備
       // messageタイプを使い、dataにcommandを含める（実際のdataは any として扱う）
