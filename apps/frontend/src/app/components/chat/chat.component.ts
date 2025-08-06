@@ -15,21 +15,23 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="flex flex-col h-full bg-gray-50 rounded-xl overflow-hidden">
+    <div class="flex flex-col h-full bg-zinc-900 rounded-xl overflow-hidden">
       <!-- メッセージエリア -->
-      <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4" #messagesArea>
+      <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent" #messagesArea>
         @for (message of messages(); track message.id) {
-          <div class="flex w-full"
+          <div class="flex w-full animate-fadeIn"
                [class.justify-end]="message.role === 'user'"
                [class.justify-start]="message.role === 'assistant'">
             <div class="flex gap-3 max-w-[70%]"
                  [class.flex-row-reverse]="message.role === 'user'">
               <!-- アバター -->
-              <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold"
-                   [class.bg-blue-600]="message.role === 'user'"
+              <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-semibold shadow-lg"
+                   [class.bg-orange-500]="message.role === 'user'"
                    [class.text-white]="message.role === 'user'"
-                   [class.bg-gray-700]="message.role === 'assistant'"
-                   [class.text-white]="message.role === 'assistant'">
+                   [class.bg-zinc-800]="message.role === 'assistant'"
+                   [class.text-gray-300]="message.role === 'assistant'"
+                   [class.border]="message.role === 'assistant'"
+                   [class.border-zinc-700]="message.role === 'assistant'">
                 @if (message.role === 'user') {
                   <span>You</span>
                 } @else {
@@ -38,14 +40,17 @@ interface ChatMessage {
               </div>
               
               <!-- メッセージ内容 -->
-              <div class="rounded-xl px-4 py-3 shadow-sm"
-                   [class.bg-blue-600]="message.role === 'user'"
+              <div class="rounded-xl px-4 py-3 shadow-md transition-all hover:shadow-lg"
+                   [class.bg-orange-500]="message.role === 'user'"
                    [class.text-white]="message.role === 'user'"
-                   [class.bg-white]="message.role === 'assistant'">
+                   [class.bg-zinc-800]="message.role === 'assistant'"
+                   [class.text-gray-200]="message.role === 'assistant'"
+                   [class.border]="message.role === 'assistant'"
+                   [class.border-zinc-700]="message.role === 'assistant'">
                 <div class="text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {{ message.content }}
                 </div>
-                <div class="text-xs mt-1 opacity-70">
+                <div class="text-xs mt-1 opacity-60">
                   {{ formatTime(message.timestamp) }}
                 </div>
               </div>
@@ -55,19 +60,16 @@ interface ChatMessage {
         
         <!-- タイピングインジケーター -->
         @if (isTyping()) {
-          <div class="flex justify-start w-full">
+          <div class="flex justify-start w-full animate-fadeIn">
             <div class="flex gap-3 max-w-[70%]">
-              <div class="w-9 h-9 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0 text-xs font-semibold text-white">
+              <div class="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0 text-xs font-semibold text-gray-300 shadow-lg">
                 <span>AI</span>
               </div>
-              <div class="bg-white rounded-xl px-4 py-3 shadow-sm">
+              <div class="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 shadow-md">
                 <div class="flex gap-1">
-                  <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" 
-                        style="animation-delay: 0ms"></span>
-                  <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" 
-                        style="animation-delay: 200ms"></span>
-                  <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" 
-                        style="animation-delay: 400ms"></span>
+                  <span class="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                  <span class="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style="animation-delay: 200ms"></span>
+                  <span class="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style="animation-delay: 400ms"></span>
                 </div>
               </div>
             </div>
@@ -76,19 +78,19 @@ interface ChatMessage {
       </div>
 
       <!-- 入力エリア -->
-      <div class="p-4 bg-white border-t border-gray-200 flex gap-3 items-end">
+      <div class="p-4 bg-zinc-800/50 backdrop-blur-sm border-t border-zinc-700 flex gap-3 items-end">
         <textarea
           [(ngModel)]="inputText"
           (keydown)="onKeyDown($event)"
           placeholder="メッセージを入力..."
-          class="flex-1 p-3 border border-gray-300 rounded-lg resize-none text-sm font-sans outline-none transition-colors focus:border-blue-600 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          class="flex-1 p-3 bg-zinc-900 border border-zinc-700 rounded-lg resize-none text-sm text-gray-200 placeholder-gray-500 font-sans outline-none transition-all focus:border-orange-500 focus:shadow-[0_0_0_1px_rgba(249,115,22,0.2)] disabled:bg-zinc-900/50 disabled:cursor-not-allowed"
           rows="3"
           [disabled]="isTyping()"
         ></textarea>
         <button 
           (click)="sendMessage()"
           [disabled]="!inputText.trim() || isTyping()"
-          class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium cursor-pointer transition-colors hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          class="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium cursor-pointer transition-all hover:bg-orange-600 hover:shadow-lg hover:shadow-orange-500/20 disabled:bg-zinc-700 disabled:text-gray-500 disabled:cursor-not-allowed">
           送信
         </button>
       </div>
