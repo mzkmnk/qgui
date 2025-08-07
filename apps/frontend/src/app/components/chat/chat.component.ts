@@ -16,7 +16,7 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule, MarkdownPipe],
   template: `
-    <div class="flex flex-col h-full bg-gradient-to-b from-zinc-900/95 to-zinc-950/95 rounded-xl overflow-hidden relative">
+    <div class="flex flex-col h-[calc(100vh-12rem)] bg-gradient-to-b from-zinc-900/95 to-zinc-950/95 rounded-xl overflow-hidden relative">
       <!-- 背景のグラデーション -->
       <div class="absolute inset-0 bg-gradient-to-br from-orange-500/3 via-transparent to-orange-500/3 pointer-events-none"></div>
       <!-- メッセージエリア -->
