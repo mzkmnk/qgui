@@ -16,11 +16,11 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule, MarkdownPipe],
   template: `
-    <div class="flex flex-col h-[calc(100vh-12rem)] bg-gradient-to-b from-zinc-900/95 to-zinc-950/95 rounded-xl overflow-hidden relative">
+    <div class="flex flex-col h-full bg-transparent overflow-hidden">
       <!-- 背景のグラデーション -->
-      <div class="absolute inset-0 bg-gradient-to-br from-orange-500/3 via-transparent to-orange-500/3 pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-orange-500/3 via-transparent to-orange-500/3 pointer-events-none rounded-xl"></div>
       <!-- メッセージエリア -->
-      <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent" #messagesArea>
+      <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-4 relative z-10" #messagesArea>
         @for (message of messages(); track message.id) {
           <div class="flex w-full animate-fadeIn"
                [class.justify-end]="message.role === 'user'"
@@ -81,7 +81,7 @@ interface ChatMessage {
       </div>
 
       <!-- 入力エリア -->
-      <div class="p-4 bg-gradient-to-r from-zinc-800/60 to-zinc-900/60 backdrop-blur-xl border-t border-white/10 flex gap-3 items-end">
+      <div class="p-4 bg-gradient-to-r from-zinc-800/60 to-zinc-900/60 backdrop-blur-xl border-t border-white/10 flex gap-3 items-end relative z-10 flex-shrink-0">
         <textarea
           [(ngModel)]="inputText"
           (keydown)="onKeyDown($event)"

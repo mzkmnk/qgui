@@ -15,8 +15,18 @@ export interface Command {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div *ngIf="isVisible()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" (click)="onOverlayClick()">
-      <div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl" (click)="$event.stopPropagation()">
+    <div *ngIf="isVisible()" 
+         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" 
+         (click)="onOverlayClick()"
+         (keydown.escape)="close()"
+         tabindex="-1"
+         role="dialog"
+         aria-modal="true"
+         aria-label="コマンドパレット">
+      <div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl" 
+           (click)="$event.stopPropagation()"
+           (keydown)="$event.stopPropagation()"
+           role="none">
         <div class="bg-zinc-900 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
           <div class="p-4 border-b border-zinc-800">
             <input
@@ -31,7 +41,11 @@ export interface Command {
             <div *ngFor="let command of getFilteredCommands(); let i = index">
               <button
                 (click)="executeCommand(command)"
+                (keydown.enter)="executeCommand(command)"
+                (keydown.space)="executeCommand(command)"
                 (mouseenter)="selectedIndex = i"
+                tabindex="0"
+                role="menuitem"
                 class="w-full px-4 py-3 flex items-center justify-between hover:bg-zinc-800 transition-colors"
                 [ngClass]="{'bg-zinc-800': selectedIndex === i}">
                 <div class="flex items-center gap-3">

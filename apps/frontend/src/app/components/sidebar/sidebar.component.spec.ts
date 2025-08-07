@@ -2,6 +2,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from './sidebar.component';
 
+// ChatSession型の定義（SidebarComponentと同じ）
+interface ChatSession {
+  id: string;
+  title: string;
+  timestamp: Date;
+  preview: string;
+  isActive?: boolean;
+}
+
 describe('SidebarComponent', () => {
   let component: SidebarComponent;
   let fixture: ComponentFixture<SidebarComponent>;
@@ -43,7 +52,7 @@ describe('SidebarComponent', () => {
 
   it('セッションを選択できる', () => {
     const session = component.sessions()[1];
-    let selectedSession: any = null;
+    let selectedSession: ChatSession | null = null;
     
     component.sessionSelected.subscribe((s) => {
       selectedSession = s;

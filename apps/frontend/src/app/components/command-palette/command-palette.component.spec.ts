@@ -24,7 +24,9 @@ describe('CommandPaletteComponent', () => {
     const event = new KeyboardEvent('keydown', {
       key: 'k',
       metaKey: true,
-      preventDefault: () => {}
+      preventDefault: () => {
+        // デフォルトのブラウザ動作を防ぐ
+      }
     });
     
     component.handleKeydown(event);
@@ -35,7 +37,9 @@ describe('CommandPaletteComponent', () => {
     const event = new KeyboardEvent('keydown', {
       key: 'k',
       ctrlKey: true,
-      preventDefault: () => {}
+      preventDefault: () => {
+        // デフォルトのブラウザ動作を防ぐ
+      }
     });
     
     component.handleKeydown(event);
@@ -48,7 +52,9 @@ describe('CommandPaletteComponent', () => {
     
     const event = new KeyboardEvent('keydown', {
       key: 'Escape',
-      preventDefault: () => {}
+      preventDefault: () => {
+        // デフォルトのブラウザ動作を防ぐ
+      }
     });
     
     component.handleKeydown(event);
@@ -57,9 +63,9 @@ describe('CommandPaletteComponent', () => {
 
   it('コマンドを検索できる', () => {
     const commands = [
-      { id: '1', label: 'New Chat', action: () => {} },
-      { id: '2', label: 'Clear Chat', action: () => {} },
-      { id: '3', label: 'Settings', action: () => {} }
+      { id: '1', label: 'New Chat', action: () => { /* 新しいチャットアクション */ } },
+      { id: '2', label: 'Clear Chat', action: () => { /* チャットクリアアクション */ } },
+      { id: '3', label: 'Settings', action: () => { /* 設定アクション */ } }
     ];
     
     component.commands = commands;

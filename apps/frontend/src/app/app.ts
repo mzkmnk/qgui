@@ -6,6 +6,15 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { WebSocketService } from './services/websocket.service';
 import { Subscription } from 'rxjs';
 
+// ChatSession型の定義（SidebarComponentと共有）
+interface ChatSession {
+  id: string;
+  title: string;
+  timestamp: Date;
+  preview: string;
+  isActive?: boolean;
+}
+
 @Component({
   imports: [RouterModule, ChatComponent, CommandPaletteComponent, SidebarComponent],
   selector: 'app-root',
@@ -51,7 +60,7 @@ export class App implements OnInit, OnDestroy {
     console.log('新しいチャットを作成');
   }
   
-  onSessionSelected(session: any): void {
+  onSessionSelected(session: ChatSession): void {
     // セッションが選択された時の処理
     console.log('セッション選択:', session);
   }

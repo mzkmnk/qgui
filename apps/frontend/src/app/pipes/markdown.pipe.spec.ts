@@ -4,7 +4,6 @@ import { MarkdownPipe } from './markdown.pipe';
 
 describe('MarkdownPipe', () => {
   let pipe: MarkdownPipe;
-  let sanitizer: DomSanitizer;
 
   beforeEach(() => {
     const sanitizerMock = {
@@ -14,11 +13,11 @@ describe('MarkdownPipe', () => {
     
     TestBed.configureTestingModule({
       providers: [
+        MarkdownPipe,
         { provide: DomSanitizer, useValue: sanitizerMock }
       ]
     });
-    sanitizer = TestBed.inject(DomSanitizer);
-    pipe = new MarkdownPipe(sanitizer);
+    pipe = TestBed.inject(MarkdownPipe);
   });
 
   it('パイプインスタンスを作成できる', () => {
@@ -99,7 +98,7 @@ describe('MarkdownPipe', () => {
 
   it('エラー時は元のテキストを返す', () => {
     // nullを渡してエラーを発生させる
-    const result = pipe.transform(null as any);
+    const result = pipe.transform(null as unknown as string);
     expect(result).toBe('');
   });
 });
