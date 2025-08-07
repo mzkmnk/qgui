@@ -48,7 +48,10 @@ interface ChatSession {
         <div *ngIf="getTodaySessions().length > 0" class="px-4 py-2">
           <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">今日</h3>
           <div class="mt-2 space-y-1">
-            <div *ngFor="let session of getTodaySessions(); trackBy: trackBySessionId" (click)="selectSession(session)" class="w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-zinc-800 group cursor-pointer" [class.bg-zinc-800]="session.isActive" [class.border]="session.isActive" [class.border-orange-500/30]="session.isActive">
+            <div *ngFor="let session of getTodaySessions()"
+                 (click)="selectSession(session)"
+                 class="w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-zinc-800 group cursor-pointer"
+                 [ngClass]="{'bg-zinc-800 border border-orange-500/30': session.isActive}">
               <div class="flex items-start gap-2">
                 <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
@@ -73,7 +76,10 @@ interface ChatSession {
         <div *ngIf="getYesterdaySessions().length > 0" class="px-4 py-2 mt-2">
           <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">昨日</h3>
           <div class="mt-2 space-y-1">
-            <div *ngFor="let session of getYesterdaySessions(); trackBy: trackBySessionId" (click)="selectSession(session)" class="w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-zinc-800 group cursor-pointer" [class.bg-zinc-800]="session.isActive" [class.border]="session.isActive" [class.border-orange-500/30]="session.isActive">
+            <div *ngFor="let session of getYesterdaySessions()"
+                 (click)="selectSession(session)"
+                 class="w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-zinc-800 group cursor-pointer"
+                 [ngClass]="{'bg-zinc-800 border border-orange-500/30': session.isActive}">
               <div class="flex items-start gap-2">
                 <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
@@ -98,7 +104,10 @@ interface ChatSession {
         <div *ngIf="getOlderSessions().length > 0" class="px-4 py-2 mt-2">
           <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">過去のチャット</h3>
           <div class="mt-2 space-y-1">
-            <div *ngFor="let session of getOlderSessions(); trackBy: trackBySessionId" (click)="selectSession(session)" class="w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-zinc-800 group cursor-pointer" [class.bg-zinc-800]="session.isActive" [class.border]="session.isActive" [class.border-orange-500/30]="session.isActive">
+            <div *ngFor="let session of getOlderSessions()"
+                 (click)="selectSession(session)"
+                 class="w-full px-3 py-2 rounded-lg text-left transition-all hover:bg-zinc-800 group cursor-pointer"
+                 [ngClass]="{'bg-zinc-800 border border-orange-500/30': session.isActive}">
               <div class="flex items-start gap-2">
                 <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
