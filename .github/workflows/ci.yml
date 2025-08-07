@@ -37,9 +37,9 @@ jobs:
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
       # Run CI tasks for apps only (exclude serve tasks)
-      - run: npx nx run-many -t lint test --projects=frontend,backend,schemas,shared
-      - run: npx nx run-many -t build --projects=frontend,backend
-      - run: npx nx run-many -t e2e --projects=frontend-e2e,backend-e2e
+      - run: npx nx run-many -t lint test --projects=frontend,backend,schemas,shared --no-cloud
+      - run: npx nx run-many -t build --projects=frontend,backend --no-cloud
+      - run: npx nx run-many -t e2e --projects=frontend-e2e,backend-e2e --no-cloud
       # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
       - run: npx nx fix-ci
         if: always()
