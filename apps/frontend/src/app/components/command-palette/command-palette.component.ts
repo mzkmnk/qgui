@@ -15,26 +15,39 @@ export interface Command {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div *ngIf="isVisible()" 
-         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" 
-         (click)="onOverlayClick()"
-         (keydown.escape)="close()"
-         tabindex="-1"
-         role="dialog"
-         aria-modal="true"
-         aria-label="コマンドパレット">
-      <div class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl" 
-           (click)="$event.stopPropagation()"
-           (keydown)="$event.stopPropagation()"
-           role="none">
-        <div class="bg-zinc-900 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-          <div class="p-4 border-b border-zinc-800">
+    <div
+      *ngIf="isVisible()"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+      (click)="onOverlayClick()"
+      (keydown.escape)="close()"
+      tabindex="-1"
+      role="dialog"
+      aria-modal="true"
+      aria-label="コマンドパレット"
+    >
+      <div
+        class="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-2xl"
+        (click)="$event.stopPropagation()"
+        (keydown)="$event.stopPropagation()"
+        role="none"
+      >
+        <div
+          class="bg-neural-darker/95 backdrop-blur-xl border border-neural-border rounded-xl shadow-2xl overflow-hidden relative"
+        >
+          <!-- ネオングローフレーム -->
+          <div
+            class="absolute inset-0 rounded-xl shadow-neon-sm opacity-50 pointer-events-none"
+          ></div>
+          <div class="p-5 border-b border-neural-border relative">
+            <div
+              class="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-accent-neon/50 to-transparent"
+            ></div>
             <input
               type="text"
               [(ngModel)]="searchQuery"
               (input)="onSearchChange()"
               placeholder="コマンドを検索..."
-              class="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-gray-200 placeholder-gray-500 outline-none focus:border-orange-500"
+              class="w-full px-4 py-3 bg-neural-void/50 border border-neural-border rounded-lg text-neural-text placeholder-neural-muted font-mono outline-none transition-all duration-300 focus:border-accent-neon focus:shadow-inner-glow focus:bg-neural-void/80"
             />
           </div>
           <div class="max-h-96 overflow-y-auto">
@@ -46,67 +59,88 @@ export interface Command {
                 (mouseenter)="selectedIndex = i"
                 tabindex="0"
                 role="menuitem"
-                class="w-full px-4 py-3 flex items-center justify-between hover:bg-zinc-800 transition-colors"
-                [ngClass]="{'bg-zinc-800': selectedIndex === i}">
-                <div class="flex items-center gap-3">
-                  <span *ngIf="command.icon" class="text-gray-400">{{ command.icon }}</span>
-                  <span class="text-gray-200">{{ command.label }}</span>
+                class="w-full px-5 py-4 flex items-center justify-between hover:bg-neural-surface transition-all duration-300 relative overflow-hidden group"
+                [ngClass]="{
+                  'bg-neural-surface border-l-2 border-accent-neon':
+                    selectedIndex === i
+                }"
+              >
+                <!-- ホバーグロー -->
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-accent-neon/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                ></div>
+                <div class="flex items-center gap-3 relative z-10">
+                  <span
+                    *ngIf="command.icon"
+                    class="text-neural-subtle transition-colors duration-300 group-hover:text-accent-neon"
+                    >{{ command.icon }}</span
+                  >
+                  <span
+                    class="text-neural-text font-medium transition-colors duration-300 group-hover:text-neural-bright"
+                    >{{ command.label }}</span
+                  >
                 </div>
-                <span *ngIf="command.shortcut" class="text-xs text-gray-500 bg-zinc-800 px-2 py-1 rounded">
+                <span
+                  *ngIf="command.shortcut"
+                  class="text-xs text-neural-muted bg-neural-void/50 px-3 py-1.5 rounded-lg border border-neural-border font-mono relative z-10"
+                >
                   {{ command.shortcut }}
                 </span>
               </button>
             </div>
-            <div *ngIf="getFilteredCommands().length === 0" class="px-4 py-8 text-center text-gray-500">
+            <div
+              *ngIf="getFilteredCommands().length === 0"
+              class="px-5 py-10 text-center text-neural-muted"
+            >
               コマンドが見つかりません
             </div>
           </div>
         </div>
       </div>
     </div>
-  `
+  `,
 })
 export class CommandPaletteComponent {
   isVisible = signal(false);
   searchQuery = '';
   selectedIndex = 0;
-  
+
   commands: Command[] = [
-    { 
-      id: 'new-chat', 
-      label: '新しいチャット', 
-      icon: '➕', 
+    {
+      id: 'new-chat',
+      label: '新しいチャット',
+      icon: '➕',
       shortcut: 'Cmd+N',
-      action: () => console.log('New chat') 
+      action: () => console.log('New chat'),
     },
-    { 
-      id: 'clear-chat', 
-      label: 'チャットをクリア', 
-      icon: '🗑️', 
+    {
+      id: 'clear-chat',
+      label: 'チャットをクリア',
+      icon: '🗑️',
       shortcut: 'Cmd+L',
-      action: () => console.log('Clear chat') 
+      action: () => console.log('Clear chat'),
     },
-    { 
-      id: 'toggle-sidebar', 
-      label: 'サイドバー切り替え', 
-      icon: '📁', 
+    {
+      id: 'toggle-sidebar',
+      label: 'サイドバー切り替え',
+      icon: '📁',
       shortcut: 'Cmd+B',
-      action: () => console.log('Toggle sidebar') 
+      action: () => console.log('Toggle sidebar'),
     },
-    { 
-      id: 'settings', 
-      label: '設定', 
-      icon: '⚙️', 
+    {
+      id: 'settings',
+      label: '設定',
+      icon: '⚙️',
       shortcut: 'Cmd+,',
-      action: () => console.log('Open settings') 
+      action: () => console.log('Open settings'),
     },
-    { 
-      id: 'help', 
-      label: 'ヘルプ', 
-      icon: '❓', 
+    {
+      id: 'help',
+      label: 'ヘルプ',
+      icon: '❓',
       shortcut: 'Cmd+/',
-      action: () => console.log('Show help') 
-    }
+      action: () => console.log('Show help'),
+    },
   ];
 
   @HostListener('document:keydown', ['$event'])
@@ -115,16 +149,19 @@ export class CommandPaletteComponent {
       event.preventDefault();
       this.toggle();
     }
-    
+
     if (event.key === 'Escape' && this.isVisible()) {
       event.preventDefault();
       this.close();
     }
-    
+
     if (this.isVisible()) {
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        this.selectedIndex = Math.min(this.selectedIndex + 1, this.getFilteredCommands().length - 1);
+        this.selectedIndex = Math.min(
+          this.selectedIndex + 1,
+          this.getFilteredCommands().length - 1
+        );
       }
       if (event.key === 'ArrowUp') {
         event.preventDefault();
@@ -170,9 +207,9 @@ export class CommandPaletteComponent {
     if (!this.searchQuery) {
       return this.commands;
     }
-    
+
     const query = this.searchQuery.toLowerCase();
-    return this.commands.filter(cmd => 
+    return this.commands.filter((cmd) =>
       cmd.label.toLowerCase().includes(query)
     );
   }

@@ -1,30 +1,30 @@
-# フェーズ 5: Amazon Q CLI統合
+# フェーズ 5: Amazon Q CLI 統合
 
 ## 概要
 
-チャットUI基盤の上にAmazon Q CLI機能を統合する。
-既にチャットインターフェースが動作しているため、Amazon Q特有の機能に集中できる。
+チャット UI 基盤の上に Amazon Q CLI 機能を統合する。
+既にチャットインターフェースが動作しているため、Amazon Q 特有の機能に集中できる。
 
 ## 前提条件
 
-- フェーズ4のチャットUI基盤が完成している
-- Amazon Q CLIは既にログイン済み
-- PTY経由でコマンドが実行できる
+- フェーズ 4 のチャット UI 基盤が完成している
+- Amazon Q CLI は既にログイン済み
+- PTY 経由でコマンドが実行できる
 
-## 1. Amazon Qコマンド実行
+## 1. Amazon Q コマンド実行
 
-### 1.1 基本的なchatコマンド
+### 1.1 基本的な chat コマンド
 
-- [ ] **Red**: `amazon-q.service.spec.ts` - chatコマンドテスト
+- [ ] **Red**: `amazon-q.service.spec.ts` - chat コマンドテスト
   ```typescript
   it('q chatコマンドを実行できる', async () => {
     const response = await service.chat('How to use S3?');
     expect(response).toContain('S3');
   });
   ```
-- [ ] **Green**: PTY経由でq chatを実行
+- [ ] **Green**: PTY 経由で q chat を実行
 - [ ] **Refactor**: エラーハンドリング
-- [ ] **動作確認**: Amazon Qが応答する
+- [ ] **動作確認**: Amazon Q が応答する
 
 ### 1.2 ストリーミング応答
 
@@ -32,8 +32,8 @@
   ```typescript
   it('応答をリアルタイムで受信', (done) => {
     service.chatStream('Generate code').subscribe({
-      next: chunk => expect(chunk).toBeDefined(),
-      complete: done
+      next: (chunk) => expect(chunk).toBeDefined(),
+      complete: done,
     });
   });
   ```
@@ -42,7 +42,7 @@
 
 ## 2. コマンド識別
 
-### 2.1 Amazon Qコマンドの判定
+### 2.1 Amazon Q コマンドの判定
 
 - [ ] **Red**: コマンド判定テスト
   ```typescript
@@ -59,12 +59,12 @@
 ### 3.1 マークダウン認識
 
 - [ ] **Red**: マークダウン検出テスト
-  ```typescript
+  ````typescript
   it('コードブロックを検出', () => {
     const text = '```python\nprint("hello")\n```';
     expect(detector.hasCodeBlock(text)).toBe(true);
   });
-  ```
+  ````
 - [ ] **Green**: パターン検出実装
 - [ ] **動作確認**: コードブロックが識別される
 
@@ -90,7 +90,7 @@
 
 ## 5. エラー処理
 
-### 5.1 Amazon Q CLIエラー
+### 5.1 Amazon Q CLI エラー
 
 - [ ] **Red**: エラー処理テスト
 - [ ] **Green**: エラーメッセージ表示
@@ -98,7 +98,7 @@
 
 ## 完了条件
 
-- [ ] q chatコマンドが実行できる
+- [ ] q chat コマンドが実行できる
 - [ ] ストリーミング応答が表示される
 - [ ] 基本的なマークダウンが認識される
 - [ ] 会話の文脈が保持される
@@ -106,4 +106,4 @@
 
 ## 次のフェーズへ
 
-Amazon Qが使えるようになったので、フェーズ6でUI/UXを磨き上げる。
+Amazon Q が使えるようになったので、フェーズ 6 で UI/UX を磨き上げる。

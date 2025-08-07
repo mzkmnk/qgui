@@ -8,7 +8,7 @@ describe('CommandPaletteComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommandPaletteComponent, FormsModule]
+      imports: [CommandPaletteComponent, FormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CommandPaletteComponent);
@@ -26,9 +26,9 @@ describe('CommandPaletteComponent', () => {
       metaKey: true,
       preventDefault: () => {
         // デフォルトのブラウザ動作を防ぐ
-      }
+      },
     });
-    
+
     component.handleKeydown(event);
     expect(component.isVisible()).toBe(true);
   });
@@ -39,9 +39,9 @@ describe('CommandPaletteComponent', () => {
       ctrlKey: true,
       preventDefault: () => {
         // デフォルトのブラウザ動作を防ぐ
-      }
+      },
     });
-    
+
     component.handleKeydown(event);
     expect(component.isVisible()).toBe(true);
   });
@@ -49,28 +49,46 @@ describe('CommandPaletteComponent', () => {
   it('Escapeキーで閉じる', () => {
     component.open();
     expect(component.isVisible()).toBe(true);
-    
+
     const event = new KeyboardEvent('keydown', {
       key: 'Escape',
       preventDefault: () => {
         // デフォルトのブラウザ動作を防ぐ
-      }
+      },
     });
-    
+
     component.handleKeydown(event);
     expect(component.isVisible()).toBe(false);
   });
 
   it('コマンドを検索できる', () => {
     const commands = [
-      { id: '1', label: 'New Chat', action: () => { /* 新しいチャットアクション */ } },
-      { id: '2', label: 'Clear Chat', action: () => { /* チャットクリアアクション */ } },
-      { id: '3', label: 'Settings', action: () => { /* 設定アクション */ } }
+      {
+        id: '1',
+        label: 'New Chat',
+        action: () => {
+          /* 新しいチャットアクション */
+        },
+      },
+      {
+        id: '2',
+        label: 'Clear Chat',
+        action: () => {
+          /* チャットクリアアクション */
+        },
+      },
+      {
+        id: '3',
+        label: 'Settings',
+        action: () => {
+          /* 設定アクション */
+        },
+      },
     ];
-    
+
     component.commands = commands;
     component.searchQuery = 'chat';
-    
+
     const filtered = component.getFilteredCommands();
     expect(filtered.length).toBe(2);
     expect(filtered[0].label).toBe('New Chat');
@@ -80,10 +98,10 @@ describe('CommandPaletteComponent', () => {
   it('コマンドを実行して閉じる', () => {
     const mockAction = vi.fn();
     const command = { id: '1', label: 'Test Command', action: mockAction };
-    
+
     component.open();
     component.executeCommand(command);
-    
+
     expect(mockAction).toHaveBeenCalled();
     expect(component.isVisible()).toBe(false);
   });

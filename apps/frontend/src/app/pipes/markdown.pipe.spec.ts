@@ -8,14 +8,14 @@ describe('MarkdownPipe', () => {
   beforeEach(() => {
     const sanitizerMock = {
       bypassSecurityTrustHtml: vi.fn((value: string) => value),
-      sanitize: vi.fn()
+      sanitize: vi.fn(),
     };
-    
+
     TestBed.configureTestingModule({
       providers: [
         MarkdownPipe,
-        { provide: DomSanitizer, useValue: sanitizerMock }
-      ]
+        { provide: DomSanitizer, useValue: sanitizerMock },
+      ],
     });
     pipe = TestBed.inject(MarkdownPipe);
   });

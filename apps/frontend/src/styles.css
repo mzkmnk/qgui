@@ -5,22 +5,24 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* ページ全体のスクロールを防止 */
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
 
 /* マークダウンコンテンツのスタイル */
 .markdown-content {
-  @apply max-w-none text-gray-200;
+  @apply max-w-none text-neural-text;
 }
 
 .markdown-content pre {
-  @apply bg-zinc-900 border border-zinc-700 rounded-lg p-4 overflow-x-auto my-2;
+  @apply bg-neural-void border border-neural-border rounded-lg p-4 overflow-x-auto my-3 font-mono text-sm;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .markdown-content code {
-  @apply text-orange-400;
+  @apply text-accent-neon;
 }
 
 .markdown-content pre code {
@@ -28,57 +30,61 @@ html, body {
 }
 
 .markdown-content p code {
-  @apply bg-zinc-800 px-1 py-0.5 rounded text-sm;
+  @apply bg-neural-surface px-2 py-1 rounded text-sm font-mono text-accent-electric;
 }
 
 .markdown-content a {
-  @apply text-orange-400 hover:text-orange-300 underline transition-colors;
+  @apply text-accent-neon hover:text-accent-electric underline transition-all duration-300 hover:shadow-neon-sm;
 }
 
 .markdown-content blockquote {
-  @apply border-l-4 border-orange-500 pl-4 my-2 text-gray-300 italic;
+  @apply border-l-4 border-accent-neon pl-4 my-3 text-neural-subtle italic bg-neural-surface/30 py-2 rounded-r-lg;
 }
 
 .markdown-content table {
-  @apply min-w-full divide-y divide-zinc-700 my-2;
+  @apply min-w-full divide-y divide-neural-border my-3 border border-neural-border rounded-lg overflow-hidden;
 }
 
 .markdown-content thead {
-  @apply bg-zinc-800;
+  @apply bg-neural-surface;
 }
 
 .markdown-content th {
-  @apply px-4 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider;
+  @apply px-4 py-3 text-left text-xs font-bold text-accent-neon uppercase tracking-wider;
 }
 
 .markdown-content tbody {
-  @apply bg-zinc-900 divide-y divide-zinc-700;
+  @apply bg-neural-darker divide-y divide-neural-border;
 }
 
 .markdown-content td {
-  @apply px-4 py-2 text-sm text-gray-200;
+  @apply px-4 py-3 text-sm text-neural-text;
 }
 
-/* アニメーション */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* カスタムスクロールバー */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Prism.js Crush風ダークテーマ */
-pre[class*="language-"],
-code[class*="language-"] {
-  @apply text-gray-200 text-sm;
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(42, 45, 58, 0.8);
+  border-radius: 4px;
+  border: 2px solid transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 217, 255, 0.3);
+}
+
+/* Prism.js Neural Darkテーマ */
+pre[class*='language-'],
+code[class*='language-'] {
+  @apply text-neural-text text-sm;
   text-shadow: none;
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   direction: ltr;
@@ -96,12 +102,12 @@ code[class*="language-"] {
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  @apply text-gray-500;
+  @apply text-neural-muted;
   font-style: italic;
 }
 
 .token.punctuation {
-  @apply text-gray-400;
+  @apply text-neural-muted;
 }
 
 .token.property,
@@ -110,7 +116,7 @@ code[class*="language-"] {
 .token.number,
 .token.constant,
 .token.symbol {
-  @apply text-orange-400;
+  @apply text-accent-neon;
 }
 
 .token.selector,
@@ -118,7 +124,7 @@ code[class*="language-"] {
 .token.string,
 .token.char,
 .token.builtin {
-  @apply text-green-400;
+  @apply text-accent-electric;
 }
 
 .token.operator,
@@ -127,18 +133,18 @@ code[class*="language-"] {
 .language-css .token.string,
 .style .token.string,
 .token.variable {
-  @apply text-yellow-400;
+  @apply text-accent-fusion;
 }
 
 .token.atrule,
 .token.attr-value,
 .token.function,
 .token.class-name {
-  @apply text-blue-400;
+  @apply text-accent-quantum;
 }
 
 .token.keyword {
-  @apply text-purple-400;
+  @apply text-accent-plasma;
 }
 
 .token.regex,
@@ -168,18 +174,18 @@ code[class*="language-"] {
 }
 
 /* 選択時のハイライト */
-pre[class*="language-"]::selection,
-pre[class*="language-"] ::selection,
-code[class*="language-"]::selection,
-code[class*="language-"] ::selection {
-  @apply bg-orange-500/30;
+pre[class*='language-']::selection,
+pre[class*='language-'] ::selection,
+code[class*='language-']::selection,
+code[class*='language-'] ::selection {
+  @apply bg-accent-neon/20;
 }
 
 /* 行番号（将来的な拡張用） */
 .line-numbers .line-numbers-rows {
-  @apply border-r border-zinc-700;
+  @apply border-r border-neural-border;
 }
 
 .line-numbers-rows > span {
-  @apply text-gray-600;
+  @apply text-neural-muted/60;
 }

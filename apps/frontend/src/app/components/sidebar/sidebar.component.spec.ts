@@ -17,7 +17,7 @@ describe('SidebarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SidebarComponent, FormsModule]
+      imports: [SidebarComponent, FormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SidebarComponent);
@@ -31,19 +31,21 @@ describe('SidebarComponent', () => {
 
   it('初期セッションが表示される', () => {
     expect(component.sessions().length).toBeGreaterThan(0);
-    expect(component.filteredSessions().length).toBe(component.sessions().length);
+    expect(component.filteredSessions().length).toBe(
+      component.sessions().length
+    );
   });
 
   it('新しいチャットを作成できる', () => {
     const initialCount = component.sessions().length;
     let emitted = false;
-    
+
     component.newChatCreated.subscribe(() => {
       emitted = true;
     });
-    
+
     component.createNewChat();
-    
+
     expect(component.sessions().length).toBe(initialCount + 1);
     expect(component.sessions()[0].title).toBe('新しいチャット');
     expect(component.sessions()[0].isActive).toBe(true);
@@ -53,14 +55,16 @@ describe('SidebarComponent', () => {
   it('セッションを選択できる', () => {
     const session = component.sessions()[1];
     let selectedSession: ChatSession | null = null;
-    
+
     component.sessionSelected.subscribe((s) => {
       selectedSession = s;
     });
-    
+
     component.selectSession(session);
-    
-    const updatedSession = component.sessions().find(s => s.id === session.id);
+
+    const updatedSession = component
+      .sessions()
+      .find((s) => s.id === session.id);
     expect(updatedSession?.isActive).toBe(true);
     expect(selectedSession).toBe(session);
   });
@@ -69,17 +73,19 @@ describe('SidebarComponent', () => {
     const initialCount = component.sessions().length;
     const sessionToDelete = component.sessions()[0];
     const mockEvent = new Event('click');
-    
+
     component.deleteSession(sessionToDelete, mockEvent);
-    
+
     expect(component.sessions().length).toBe(initialCount - 1);
-    expect(component.sessions().find(s => s.id === sessionToDelete.id)).toBeUndefined();
+    expect(
+      component.sessions().find((s) => s.id === sessionToDelete.id)
+    ).toBeUndefined();
   });
 
   it('セッションを検索できる', () => {
     component.searchQuery = 'TypeScript';
     component.filterSessions();
-    
+
     const filtered = component.filteredSessions();
     expect(filtered.length).toBeGreaterThan(0);
     expect(filtered[0].title).toContain('TypeScript');
@@ -89,8 +95,8 @@ describe('SidebarComponent', () => {
     const todaySessions = component.getTodaySessions();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    todaySessions.forEach(session => {
+
+    todaySessions.forEach((session) => {
       expect(session.timestamp >= today).toBe(true);
     });
   });
@@ -101,8 +107,8 @@ describe('SidebarComponent', () => {
     today.setHours(0, 0, 0, 0);
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
-    yesterdaySessions.forEach(session => {
+
+    yesterdaySessions.forEach((session) => {
       expect(session.timestamp >= yesterday).toBe(true);
       expect(session.timestamp < today).toBe(true);
     });

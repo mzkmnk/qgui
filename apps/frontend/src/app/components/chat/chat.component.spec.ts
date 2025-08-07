@@ -8,7 +8,7 @@ describe('ChatComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChatComponent, FormsModule]
+      imports: [ChatComponent, FormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChatComponent);
@@ -27,7 +27,7 @@ describe('ChatComponent', () => {
   it('メッセージを送信できる', () => {
     component.inputText = 'テストメッセージ';
     component.sendMessage();
-    
+
     const messages = component.messages();
     expect(messages.length).toBe(2);
     expect(messages[1].role).toBe('user');
@@ -38,18 +38,21 @@ describe('ChatComponent', () => {
   it('空のメッセージは送信されない', () => {
     component.inputText = '   ';
     component.sendMessage();
-    
+
     const messages = component.messages();
     expect(messages.length).toBe(1);
   });
 
   it('Enterキーでメッセージが送信される', () => {
     component.inputText = 'テストメッセージ';
-    const event = new KeyboardEvent('keydown', { key: 'Enter', shiftKey: false });
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      shiftKey: false,
+    });
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-    
+
     component.onKeyDown(event);
-    
+
     expect(preventDefaultSpy).toHaveBeenCalled();
     const messages = component.messages();
     expect(messages.length).toBe(2);
@@ -57,11 +60,14 @@ describe('ChatComponent', () => {
 
   it('Shift+Enterでは送信されない', () => {
     component.inputText = 'テストメッセージ';
-    const event = new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true });
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      shiftKey: true,
+    });
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-    
+
     component.onKeyDown(event);
-    
+
     expect(preventDefaultSpy).not.toHaveBeenCalled();
     const messages = component.messages();
     expect(messages.length).toBe(1);
