@@ -2,18 +2,18 @@
 
 ## 概要
 
-Amazon Q CLI統合アプリケーションの品質を保証するための最小限のテスト戦略。
-YAGNI原則に従い、必要最小限のテストのみ実装し、過度なテスト作成は避ける。
+Amazon Q CLI 統合アプリケーションの品質を保証するための最小限のテスト戦略。
+YAGNI 原則に従い、必要最小限のテストのみ実装し、過度なテスト作成は避ける。
 
 ## テスト戦略
 
 ### 優先度高: コアビジネスロジックのテスト
 
-#### 1. Amazon Q統合テスト
+#### 1. Amazon Q 統合テスト
 
 ##### 1.1 コマンド実行テスト
 
-- [ ] **Red**: `amazon-q.service.spec.ts` - Amazon Qコマンド実行テスト
+- [ ] **Red**: `amazon-q.service.spec.ts` - Amazon Q コマンド実行テスト
   ```typescript
   it('Amazon Q chatコマンドを実行できる', async () => {
     const response = await service.executeChat('Hello');
@@ -21,16 +21,15 @@ YAGNI原則に従い、必要最小限のテストのみ実装し、過度なテ
   });
   ```
 - [ ] **Green**: モックを使用した統合テスト実装
-- [ ] **動作確認**: 実際のAmazon Q CLIとの連携確認
+- [ ] **動作確認**: 実際の Amazon Q CLI との連携確認
 
 ##### 1.2 エラーハンドリングテスト
 
-- [ ] **Red**: AWS認証エラー時の処理テスト
+- [ ] **Red**: AWS 認証エラー時の処理テスト
   ```typescript
   it('認証エラー時に適切なメッセージを返す', async () => {
     mockAuthService.hasValidCredentials.mockReturnValue(false);
-    await expect(service.executeCommand('q chat'))
-      .rejects.toThrow('AWS credentials not configured');
+    await expect(service.executeCommand('q chat')).rejects.toThrow('AWS credentials not configured');
   });
   ```
 - [ ] **Green**: エラーケースの適切な処理実装
@@ -48,52 +47,52 @@ YAGNI原則に従い、必要最小限のテストのみ実装し、過度なテ
   ```
 - [ ] **Green**: フィルタリングロジック実装
 
-### 優先度中: UIインタラクションテスト
+### 優先度中: UI インタラクションテスト
 
 #### 3. コンポーネントテスト
 
-##### 3.1 ターミナルコンポーネント
+##### 3.1 チャットコンポーネント
 
-- [ ] **Red**: `terminal.component.spec.ts` - 基本動作テスト
+- [ ] **Red**: `chat.component.spec.ts` - 基本動作テスト
   ```typescript
   it('コマンド入力後にWebSocketで送信される', () => {
     component.executeCommand('ls');
     expect(mockWebSocketService.send).toHaveBeenCalledWith({
       type: 'command',
-      data: 'ls'
+      data: 'ls',
     });
   });
   ```
 - [ ] **Green**: コンポーネントロジック実装
 
-##### 3.2 AI応答表示
+##### 3.2 AI 応答表示
 
 - [ ] **Red**: `ai-response.component.spec.ts` - マークダウン表示テスト
 - [ ] **Green**: レンダリングロジック実装
 
-### 優先度低: E2Eテスト（最小限）
+### 優先度低: E2E テスト（最小限）
 
-#### 4. クリティカルパスのE2E
+#### 4. クリティカルパスの E2E
 
 ##### 4.1 基本フロー
 
-- [ ] **テストシナリオ**: 
+- [ ] **テストシナリオ**:
   1. アプリ起動
-  2. AWS認証設定
+  2. AWS 認証設定
   3. コマンド実行
   4. 結果表示
-- [ ] **Playwright実装**: 最小限のE2Eテスト
+- [ ] **Playwright 実装**: 最小限の E2E テスト
 
 ## テストカバレッジ目標
 
 ### 現実的な目標
 
 - **ビジネスロジック**: 80%以上
-- **UIコンポーネント**: 60%以上
+- **UI コンポーネント**: 60%以上
 - **ユーティリティ**: 90%以上
 - **全体**: 70%程度で十分
 
-## 削除・簡略化した項目（YAGNI原則）
+## 削除・簡略化した項目（YAGNI 原則）
 
 ### 実装しないテスト
 
@@ -106,9 +105,9 @@ YAGNI原則に従い、必要最小限のテストのみ実装し、過度なテ
 - **プロパティベーステスト**: 複雑すぎる
 - **カオスエンジニアリング**: 規模に見合わない
 
-## CI/CD最小構成
+## CI/CD 最小構成
 
-### GitHub Actions設定
+### GitHub Actions 設定
 
 ```yaml
 name: CI
@@ -140,7 +139,7 @@ npm run test -- amazon-q.service
 npm run test:coverage
 ```
 
-### CI環境
+### CI 環境
 
 ```bash
 # 全テスト実行
@@ -166,7 +165,7 @@ npm run build
 ### やらないこと
 
 1. **100%カバレッジを目指さない**
-2. **getterやsetterのテストは不要**
+2. **getter や setter のテストは不要**
 3. **フレームワーク機能のテストは不要**
 4. **過度なモック使用**
 5. **テストのためのテスト**
@@ -176,16 +175,18 @@ npm run build
 ### よくある問題と対処
 
 #### テストが遅い
-- 不要なsetTimeout削除
-- beforeEachの処理を最小化
+
+- 不要な setTimeout 削除
+- beforeEach の処理を最小化
 - 並列実行を活用
 
 #### フレーキーテスト
-- 非同期処理を適切にawait
+
+- 非同期処理を適切に await
 - タイムアウトを適切に設定
 - 外部依存を完全にモック化
 
-## 各PRの完了条件
+## 各 PR の完了条件
 
 - [ ] 新機能に対する最小限のテスト追加
 - [ ] 既存テストが全てパス
@@ -197,4 +198,4 @@ npm run build
 
 テストは**保険**であり、開発速度を犠牲にしてまで完璧を求めない。
 重要な機能が壊れないことを保証する最小限のテストで十分。
-テストメンテナンスのコストを常に意識し、ROIの高いテストのみ作成する。
+テストメンテナンスのコストを常に意識し、ROI の高いテストのみ作成する。

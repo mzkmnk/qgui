@@ -2,77 +2,76 @@
 
 ## 概要
 
-YAGNI原則に従い、**実際にパフォーマンス問題が発生した場合のみ**対応する。
+YAGNI 原則に従い、**実際にパフォーマンス問題が発生した場合のみ**対応する。
 早過ぎる最適化は避け、ユーザー体験に影響が出た時点で必要最小限の改善を行う。
 
 ## パフォーマンス問題の判定基準
 
 ### 対応が必要な状況
 
-- [ ] **初回表示が3秒以上かかる**
-- [ ] **コマンド入力に遅延を感じる**（100ms以上）
-- [ ] **スクロールがカクつく**（60fps未満）
-- [ ] **メモリ使用量が1GB超える**
-- [ ] **CPU使用率が常時50%以上**
+- [ ] **初回表示が 3 秒以上かかる**
+- [ ] **コマンド入力に遅延を感じる**（100ms 以上）
+- [ ] **スクロールがカクつく**（60fps 未満）
+- [ ] **メモリ使用量が 1GB 超える**
+- [ ] **CPU 使用率が常時 50%以上**
 
 ## 段階的対応策
 
-### レベル1: 簡単な改善（問題発生時に最初に試す）
+### レベル 1: 簡単な改善（問題発生時に最初に試す）
 
 #### 1.1 遅延読み込み
 
 - [ ] **条件**: 初回表示が遅い場合
-- [ ] **対策**: 
+- [ ] **対策**:
   ```typescript
   // ルートレベルで遅延読み込み
-  loadChildren: () => import('./features/terminal/terminal.module')
-    .then(m => m.TerminalModule)
+  loadChildren: () => import('./features/chat/chat.module').then((m) => m.ChatModule);
   ```
 
-#### 1.2 Change Detection最適化
+#### 1.2 Change Detection 最適化
 
 - [ ] **条件**: 不要な再描画が多い場合
-- [ ] **対策**: OnPushストラテジー適用
+- [ ] **対策**: OnPush ストラテジー適用
   ```typescript
   @Component({
     changeDetection: ChangeDetectionStrategy.OnPush
   })
   ```
 
-### レベル2: 中程度の改善（レベル1で解決しない場合）
+### レベル 2: 中程度の改善（レベル 1 で解決しない場合）
 
 #### 2.1 仮想スクロール
 
 - [ ] **条件**: 大量のログでスクロールが重い
-- [ ] **対策**: CDK Virtual Scrolling導入
+- [ ] **対策**: CDK Virtual Scrolling 導入
   ```typescript
   <cdk-virtual-scroll-viewport itemSize="20">
     <div *cdkVirtualFor="let item of items">{{item}}</div>
   </cdk-virtual-scroll-viewport>
   ```
 
-#### 2.2 WebWorker活用
+#### 2.2 WebWorker 活用
 
-- [ ] **条件**: 重い処理でUIがブロックされる
-- [ ] **対策**: 
-  - ANSI処理をWebWorkerで実行
-  - マークダウンパースをWorkerで処理
+- [ ] **条件**: 重い処理で UI がブロックされる
+- [ ] **対策**:
+  - ANSI 処理を WebWorker で実行
+  - マークダウンパースを Worker で処理
 
-### レベル3: 本格的な最適化（深刻な問題の場合のみ）
+### レベル 3: 本格的な最適化（深刻な問題の場合のみ）
 
 #### 3.1 メモリリーク対策
 
 - [ ] **条件**: 長時間使用でメモリが増え続ける
 - [ ] **対策**:
-  - Subscription管理徹底
-  - DOMクリーンアップ
+  - Subscription 管理徹底
+  - DOM クリーンアップ
   - 履歴データの制限
 
 #### 3.2 バンドルサイズ削減
 
 - [ ] **条件**: 初回ロードが遅すぎる
 - [ ] **対策**:
-  - Tree shaking最適化
+  - Tree shaking 最適化
   - 不要なライブラリ削除
   - 動的インポート活用
 
@@ -94,22 +93,22 @@ class PerformanceMonitor {
 }
 ```
 
-## 削除した項目（YAGNI原則）
+## 削除した項目（YAGNI 原則）
 
 以下の最適化は実際に必要になるまで実装しない：
 
 ### 実装しない最適化
 
 - **Service Worker**: オフライン対応が不要
-- **サーバーサイドレンダリング（SSR）**: SPAで十分
+- **サーバーサイドレンダリング（SSR）**: SPA で十分
 - **Progressive Web App（PWA）**: デスクトップ利用前提
-- **CDN配信**: ローカル環境メイン
-- **圧縮アルゴリズム最適化**: 標準gzipで十分
-- **カスタムビルドツール**: Viteで十分高速
-- **メモリプール管理**: V8に任せる
-- **カスタムレンダリングエンジン**: 標準DOMで十分
-- **WebAssembly**: JavaScriptで十分高速
-- **GPU処理**: 不要なオーバーヘッド
+- **CDN 配信**: ローカル環境メイン
+- **圧縮アルゴリズム最適化**: 標準 gzip で十分
+- **カスタムビルドツール**: Vite で十分高速
+- **メモリプール管理**: V8 に任せる
+- **カスタムレンダリングエンジン**: 標準 DOM で十分
+- **WebAssembly**: JavaScript で十分高速
+- **GPU 処理**: 不要なオーバーヘッド
 
 ## 対応フロー
 
@@ -131,8 +130,8 @@ flowchart TD
 
 ### 調査項目
 
-- [ ] Chrome DevToolsでパフォーマンス計測
-- [ ] Memory Profilerでメモリリーク確認
+- [ ] Chrome DevTools でパフォーマンス計測
+- [ ] Memory Profiler でメモリリーク確認
 - [ ] Network タブでバンドルサイズ確認
 - [ ] Lighthouse スコア確認
 

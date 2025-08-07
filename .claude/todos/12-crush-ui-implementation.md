@@ -1,9 +1,9 @@
-# フェーズ 12: Crush風UI実装詳細 - 機能単位 TDD 実装
+# フェーズ 12: Crush 風 UI 実装詳細 - 機能単位 TDD 実装
 
 ## 概要
 
-CharmbraceletのCrushのような洗練されたターミナルUIを実装する。
-PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いやすいインターフェースを構築する。
+Charmbracelet の Crush のような洗練されたチャット UI を実装する。
+PrimeNG コンポーネントと Tailwind CSS を活用し、モダンで使いやすいインターフェースを構築する。
 
 ## レイアウト構造
 
@@ -19,7 +19,7 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
     expect(component.rightPanel).toBeDefined();
   });
   ```
-- [ ] **Green**: Flexboxベースのレスポンシブレイアウト実装
+- [ ] **Green**: Flexbox ベースのレスポンシブレイアウト実装
   ```html
   <div class="flex h-screen bg-gray-950">
     <app-sidebar class="w-64 border-r border-gray-800"></app-sidebar>
@@ -51,7 +51,7 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
   <header class="h-14 flex items-center px-4">
     <div class="flex items-center space-x-3">
       <div class="w-8 h-8 bg-orange-500 rounded-lg"></div>
-      <h1 class="text-xl font-semibold text-gray-100">Q Terminal</h1>
+      <h1 class="text-xl font-semibold text-gray-100">Q Chat</h1>
     </div>
   </header>
   ```
@@ -68,13 +68,13 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
   it('Cmd+Kでパレットが開く', () => {
     const event = new KeyboardEvent('keydown', {
       key: 'k',
-      metaKey: true
+      metaKey: true,
     });
     document.dispatchEvent(event);
     expect(component.isVisible).toBe(true);
   });
   ```
-- [ ] **Green**: PrimeNG Dialogでパレット実装
+- [ ] **Green**: PrimeNG Dialog でパレット実装
 - [ ] **動作確認**: キーボードショートカットで開く
 
 #### 3.2 ファジー検索
@@ -87,17 +87,17 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
     expect(results[0].name).toContain('AWS S3');
   });
   ```
-- [ ] **Green**: Fuse.jsでファジー検索実装
+- [ ] **Green**: Fuse.js でファジー検索実装
 - [ ] **動作確認**: 曖昧な入力でもコマンドが見つかる
 
-## AI応答ビューア
+## AI 応答ビューア
 
 ### 4. 構造化された応答表示
 
 #### 4.1 メッセージバブル
 
 - [ ] **Red**: `message-bubble.component.spec.ts` - バブル表示テスト
-- [ ] **Green**: チャット風バブルUI実装
+- [ ] **Green**: チャット風バブル UI 実装
   ```html
   <div class="message" [ngClass]="{'user': isUser, 'assistant': !isUser}">
     <div class="bubble rounded-2xl px-4 py-3 max-w-3xl">
@@ -105,14 +105,14 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
     </div>
   </div>
   ```
-- [ ] **動作確認**: ユーザーとAIのメッセージが区別される
+- [ ] **動作確認**: ユーザーと AI のメッセージが区別される
 
 #### 4.2 コードブロックスタイリング
 
 - [ ] **Red**: シンタックスハイライトテスト
-- [ ] **Green**: Prism.jsでコードハイライト実装
+- [ ] **Green**: Prism.js でコードハイライト実装
   ```scss
-  pre[class*="language-"] {
+  pre[class*='language-'] {
     background: #1a1a1a;
     border: 1px solid #333;
     border-radius: 8px;
@@ -128,12 +128,9 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
 #### 5.1 セッションリスト
 
 - [ ] **Red**: `session-list.component.spec.ts` - リスト表示テスト
-- [ ] **Green**: PrimeNG TreeでセッションツリーUI
+- [ ] **Green**: PrimeNG Tree でセッションツリー UI
   ```html
-  <p-tree [value]="sessions" 
-          [style]="{'border': 'none'}"
-          selectionMode="single"
-          [(selection)]="selectedSession">
+  <p-tree [value]="sessions" [style]="{'border': 'none'}" selectionMode="single" [(selection)]="selectedSession">
     <ng-template let-node pTemplate="default">
       <div class="flex items-center space-x-2">
         <i class="pi pi-message text-orange-500"></i>
@@ -159,9 +156,7 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
       </span>
       <span class="text-xs text-gray-500">Region: us-east-1</span>
     </div>
-    <div class="text-xs text-gray-500">
-      Memory: 256MB | CPU: 12%
-    </div>
+    <div class="text-xs text-gray-500">Memory: 256MB | CPU: 12%</div>
   </div>
   ```
 - [ ] **動作確認**: リアルタイム情報が表示される
@@ -173,15 +168,9 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
 #### 7.1 ページ遷移アニメーション
 
 - [ ] **Red**: アニメーション動作テスト
-- [ ] **Green**: Angular Animations実装
+- [ ] **Green**: Angular Animations 実装
   ```typescript
-  trigger('slideIn', [
-    transition(':enter', [
-      style({ transform: 'translateX(100%)', opacity: 0 }),
-      animate('300ms ease-out', 
-        style({ transform: 'translateX(0)', opacity: 1 }))
-    ])
-  ])
+  trigger('slideIn', [transition(':enter', [style({ transform: 'translateX(100%)', opacity: 0 }), animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))])]);
   ```
 - [ ] **動作確認**: パネルがスムーズにスライドする
 
@@ -202,9 +191,9 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
 
 ## カラーテーマ
 
-### 8. Crush風カラーパレット
+### 8. Crush 風カラーパレット
 
-#### 8.1 CSS変数定義
+#### 8.1 CSS 変数定義
 
 - [ ] **実装**: グローバルカラー変数
   ```scss
@@ -213,18 +202,18 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
     --bg-primary: #0a0a0a;
     --bg-secondary: #141414;
     --bg-tertiary: #1a1a1a;
-    
+
     // テキスト色
     --text-primary: #e5e5e5;
     --text-secondary: #a3a3a3;
     --text-muted: #737373;
-    
+
     // アクセント色
     --accent-orange: #f97316;
     --accent-green: #10b981;
     --accent-blue: #3b82f6;
     --accent-purple: #8b5cf6;
-    
+
     // ボーダー色
     --border-subtle: rgba(255, 255, 255, 0.1);
     --border-strong: rgba(255, 255, 255, 0.2);
@@ -238,23 +227,23 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
 #### 9.1 システムフォントスタック
 
 - [ ] **実装**: 読みやすいフォント階層
+
   ```scss
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 
-                 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
   }
-  
-  code, pre {
-    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 
-                 'Fira Code', monospace;
+
+  code,
+  pre {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
   }
   ```
 
-## 削除・延期した項目（YAGNI原則）
+## 削除・延期した項目（YAGNI 原則）
 
 以下の項目は実際に必要になるまで実装しない：
 
-- 3Dエフェクト
+- 3D エフェクト
 - パーティクルアニメーション
 - カスタムカーソル
 - サウンドエフェクト
@@ -262,11 +251,11 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
 - タッチジェスチャー
 - ゲーミフィケーション要素
 
-## 各PRの完了条件
+## 各 PR の完了条件
 
-### フロントエンドPR
+### フロントエンド PR
 
-- [ ] Crush風のダークテーマが適用されている
+- [ ] Crush 風のダークテーマが適用されている
 - [ ] コマンドパレットが動作する
 - [ ] グラスモーフィズム効果が表示される
 - [ ] スムーズなアニメーションが動作する
@@ -274,7 +263,7 @@ PrimeNGコンポーネントとTailwind CSSを活用し、モダンで使いや�
 
 ## 次のフェーズへの移行条件
 
-- [ ] プロフェッショナルな見た目のUIが完成
+- [ ] プロフェッショナルな見た目の UI が完成
 - [ ] 全体的に統一感のあるデザイン
 - [ ] 直感的なユーザー体験
 - [ ] パフォーマンスへの影響が最小限

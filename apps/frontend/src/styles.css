@@ -3,3 +3,189 @@
 @tailwind utilities;
 
 /* You can add global styles to this file, and also import other style files */
+
+/* ページ全体のスクロールを防止 */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* マークダウンコンテンツのスタイル */
+.markdown-content {
+  @apply max-w-none text-neural-text;
+}
+
+.markdown-content pre {
+  @apply bg-neural-void border border-neural-border rounded-lg p-4 overflow-x-auto my-3 font-mono text-sm;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.markdown-content code {
+  @apply text-accent-neon;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0;
+}
+
+.markdown-content p code {
+  @apply bg-neural-surface px-2 py-1 rounded text-sm font-mono text-accent-electric;
+}
+
+.markdown-content a {
+  @apply text-accent-neon hover:text-accent-electric underline transition-all duration-300 hover:shadow-neon-sm;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-accent-neon pl-4 my-3 text-neural-subtle italic bg-neural-surface/30 py-2 rounded-r-lg;
+}
+
+.markdown-content table {
+  @apply min-w-full divide-y divide-neural-border my-3 border border-neural-border rounded-lg overflow-hidden;
+}
+
+.markdown-content thead {
+  @apply bg-neural-surface;
+}
+
+.markdown-content th {
+  @apply px-4 py-3 text-left text-xs font-bold text-accent-neon uppercase tracking-wider;
+}
+
+.markdown-content tbody {
+  @apply bg-neural-darker divide-y divide-neural-border;
+}
+
+.markdown-content td {
+  @apply px-4 py-3 text-sm text-neural-text;
+}
+
+/* カスタムスクロールバー */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(42, 45, 58, 0.8);
+  border-radius: 4px;
+  border: 2px solid transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 217, 255, 0.3);
+}
+
+/* Prism.js Neural Darkテーマ */
+pre[class*='language-'],
+code[class*='language-'] {
+  @apply text-neural-text text-sm;
+  text-shadow: none;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+}
+
+/* トークンスタイル */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  @apply text-neural-muted;
+  font-style: italic;
+}
+
+.token.punctuation {
+  @apply text-neural-muted;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  @apply text-accent-neon;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  @apply text-accent-electric;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+  @apply text-accent-fusion;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+  @apply text-accent-quantum;
+}
+
+.token.keyword {
+  @apply text-accent-plasma;
+}
+
+.token.regex,
+.token.important {
+  @apply text-red-400;
+}
+
+.token.important,
+.token.bold {
+  @apply font-bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  @apply cursor-help;
+}
+
+.token.deleted {
+  @apply text-red-500 line-through;
+}
+
+.token.inserted {
+  @apply text-green-500;
+}
+
+/* 選択時のハイライト */
+pre[class*='language-']::selection,
+pre[class*='language-'] ::selection,
+code[class*='language-']::selection,
+code[class*='language-'] ::selection {
+  @apply bg-accent-neon/20;
+}
+
+/* 行番号（将来的な拡張用） */
+.line-numbers .line-numbers-rows {
+  @apply border-r border-neural-border;
+}
+
+.line-numbers-rows > span {
+  @apply text-neural-muted/60;
+}
