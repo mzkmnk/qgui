@@ -51,7 +51,8 @@ describe('SidebarComponent', () => {
     
     component.selectSession(session);
     
-    expect(session.isActive).toBe(true);
+    const updatedSession = component.sessions().find(s => s.id === session.id);
+    expect(updatedSession?.isActive).toBe(true);
     expect(selectedSession).toBe(session);
   });
 
