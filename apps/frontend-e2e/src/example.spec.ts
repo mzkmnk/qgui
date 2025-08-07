@@ -5,6 +5,6 @@ test('has title', async ({ page }) => {
 
   // Expect h1 to contain a substring.
   expect(await page.locator('h1').innerText()).toContain(
-    'Qgui - Command Interface'
+    'Qgui - AI Assistant'
   );
 });
