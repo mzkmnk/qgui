@@ -1,4 +1,10 @@
-import { Component, signal } from '@angular/core';
+import {
+  Component,
+  signal,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
@@ -28,6 +34,51 @@ interface ChatMessage {
       <div
         class="absolute inset-0 bg-gradient-to-b from-transparent via-neural-dark/50 to-neural-dark pointer-events-none"
       ></div>
+      <!-- ヘッダー -->
+      <div
+        class="relative z-20 flex items-center justify-between px-6 py-4 border-b border-neural-border backdrop-blur-xl bg-neural-darker/80"
+      >
+        <h1 class="text-lg font-bold text-neural-bright">Qgui Chat</h1>
+        <div class="flex gap-2">
+          <button
+            (click)="clearMessages()"
+            class="p-2 rounded-lg hover:bg-neural-void transition-colors"
+            aria-label="メッセージをクリア"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 6h18M9 6v12m6-12v12M4 6l1 14a2 2 0 002 2h10a2 2 0 002-2l1-14"
+              />
+            </svg>
+          </button>
+          <button
+            class="p-2 rounded-lg hover:bg-neural-void transition-colors"
+            aria-label="設定"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6V3m0 18v-3m9-6h3M3 12H0m18.364-7.364l2.121-2.121M3.515 20.485l2.121-2.121m12.728 0l2.121 2.121M3.515 3.515l2.121 2.121"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
       <!-- メッセージエリア -->
       <div
         class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 relative z-10 scrollbar-thin scrollbar-thumb-neural-border scrollbar-track-transparent"
@@ -88,7 +139,59 @@ interface ChatMessage {
                 class="text-sm leading-relaxed break-words markdown-content"
                 [innerHTML]="message.content | markdown"
               ></div>
-              <div class="text-xs mt-2 opacity-50 font-mono">
+              <div
+                class="text-xs mt-2 opacity-50 font-mono flex items-center gap-1"
+              >
+                @if (message.role === 'user') {
+                  @if (message.status === 'sending') {
+                    <svg
+                      class="w-3 h-3 animate-spin text-accent-neon"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      />
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                  } @else if (message.status === 'error') {
+                    <svg
+                      class="w-3 h-3 text-red-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  } @else {
+                    <svg
+                      class="w-3 h-3 text-accent-neon"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  }
+                }
                 {{ formatTime(message.timestamp) }}
               </div>
             </div>
@@ -149,6 +252,7 @@ interface ChatMessage {
           class="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent-neon to-transparent"
         ></div>
         <textarea
+          #messageInput
           [(ngModel)]="inputText"
           (keydown)="onKeyDown($event)"
           placeholder="メッセージを入力..."
@@ -179,7 +283,7 @@ interface ChatMessage {
     </div>
   `,
 })
-export class ChatComponent {
+export class ChatComponent implements AfterViewInit {
   messages = signal<ChatMessage[]>([
     {
       id: '1',
@@ -193,6 +297,11 @@ export class ChatComponent {
 
   inputText = '';
   isTyping = signal(false);
+  @ViewChild('messageInput') messageInput?: ElementRef<HTMLTextAreaElement>;
+
+  ngAfterViewInit(): void {
+    this.messageInput?.nativeElement.focus();
+  }
 
   sendMessage(): void {
     if (!this.inputText.trim()) return;
@@ -218,6 +327,12 @@ export class ChatComponent {
     // AIの応答をシミュレート
     setTimeout(() => {
       this.isTyping.set(false);
+      // 送信ステータス更新
+      this.messages.update((msgs) =>
+        msgs.map((msg) =>
+          msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
+        )
+      );
 
       const aiResponse = this.generateMockResponse(messageContent);
       const aiMessage: ChatMessage = {
@@ -240,22 +355,18 @@ export class ChatComponent {
     }
   }
 
-  formatMessage(content: string): string {
-    // バックエンドからのレスポンスをそのまま表示する場合
-    // 改行やスペースを保持
-
-    // コードブロックの処理（改行を保持）
-    const formatted = content
-      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-        // コードブロック内の改行はそのまま保持
-        return `<pre><code>${this.escapeHtml(code)}</code></pre>`;
-      })
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>'); // 通常の改行は<br>に変換
-
-    return formatted;
+  clearMessages(): void {
+    this.messages.set([
+      {
+        id: '1',
+        role: 'assistant',
+        content:
+          'こんにちは！Qgui AIアシスタントです。どのようなお手伝いができますか？',
+        timestamp: new Date(),
+        status: 'sent',
+      },
+    ]);
+    this.scrollToBottom();
   }
 
   private escapeHtml(text: string): string {
